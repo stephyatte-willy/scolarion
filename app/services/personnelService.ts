@@ -1,9 +1,9 @@
-import { pool } from '@/app/lib/database';
+import { query } from '@/app/lib/database';
 
 export class PersonnelService {
   static async obtenirPersonnel(filtres: any) {
     try {
-      let query = `
+      let sql = `
         SELECT 
           e.id,
           e.user_id,
@@ -67,12 +67,13 @@ export class PersonnelService {
       }
 
       if (conditions.length > 0) {
-        query += ` WHERE ` + conditions.join(' AND ');
+        sql += ` WHERE ` + conditions.join(' AND ');
       }
 
-      query += ` GROUP BY e.id ORDER BY u.nom, u.prenom`;
+      sql += ` GROUP BY e.id ORDER BY u.nom, u.prenom`;
 
-      const [rows] = await pool.query(query, params);
+      // Utiliser la fonction query au lieu de pool.query
+      const rows = await query(sql, params);
       
       return {
         success: true,
@@ -89,7 +90,7 @@ export class PersonnelService {
 
   static async obtenirFonctions() {
     try {
-      const [rows] = await pool.query(`
+      const rows = await query(`
         SELECT DISTINCT fonction 
         FROM enseignants 
         WHERE fonction IS NOT NULL AND fonction != ''
@@ -105,7 +106,7 @@ export class PersonnelService {
 
   static async obtenirDepartements() {
     try {
-      const [rows] = await pool.query(`
+      const rows = await query(`
         SELECT DISTINCT departement 
         FROM enseignants 
         WHERE departement IS NOT NULL AND departement != ''

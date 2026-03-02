@@ -1,13 +1,16 @@
-// /app/api/database/status/route.ts
 import { NextResponse } from 'next/server';
-import { getPoolStatus } from '@/app/lib/database';
+import { query } from '@/app/lib/database';
 
 export async function GET() {
   try {
-    const status = await getPoolStatus();
+    // Utiliser query directement pour tester
+    await query('SELECT 1');
     return NextResponse.json({
       success: true,
-      status
+      status: {
+        connected: true,
+        message: 'Connexion à la base de données établie'
+      }
     });
   } catch (error: any) {
     return NextResponse.json({
