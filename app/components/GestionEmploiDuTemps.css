@@ -1,0 +1,1800 @@
+/* GestionEmploiDuTemps.css */
+
+.conteneur-gestion-emploi-temps {
+  background-color: #f9fafb;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* En-tête */
+.en-tete-gestion-emploi-temps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.titre-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bouton-retour {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #374151;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bouton-retour:hover {
+  background: #e5e7eb;
+}
+
+.en-tete-gestion-emploi-temps h1 {
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.actions-principales {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bouton-ajouter-creneau {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bouton-ajouter-creneau:hover {
+  background: #2563eb;
+}
+
+.boutons-export {
+  display: flex;
+  gap: 8px;
+}
+
+.logo-mini {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #f84aec 0%, #f8c567 100%);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+}
+
+.bouton-export {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bouton-export:hover {
+  background: #f9fafb;
+}
+
+.bouton-export.pdf {
+  color: #dc2626;
+}
+
+.bouton-export.excel {
+  color: #059669;
+}
+
+/* Alertes */
+.alerte-emploi-temps {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.alerte-succes {
+  background: #d1fae5;
+  border: 1px solid #10b981;
+}
+
+.alerte-erreur {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+}
+
+.contenu-alerte-emploi-temps {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.icone-alerte {
+  font-size: 18px;
+}
+
+.texte-alerte {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.bouton-fermer-alerte {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* Navigation filtres */
+.navigation-filtres {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.boutons-filtres {
+  display: flex;
+  gap: 12px;
+}
+
+.bouton-filtre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bouton-filtre.actif {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.bouton-filtre:hover:not(.actif) {
+  background: #f9fafb;
+}
+
+.controles-semaine {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bouton-semaine {
+  background: rgb(197, 230, 253);
+  border: 1px solid #a5bdec;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bouton-semaine:hover {
+  background: #81b9f1;
+}
+
+.affichage-semaine {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Contenu principal */
+.contenu-principal-emploi-temps {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.vue-classes,
+.vue-professeurs {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 600px;
+}
+
+.liste-classes,
+.liste-professeurs {
+  border-right: 1px solid #e5e7eb;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.liste-classes h3,
+.liste-professeurs h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.cartes-classes,
+.cartes-professeurs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.carte-classe,
+.carte-professeur {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.carte-classe:hover,
+.carte-professeur:hover {
+  border-color: #3b82f6;
+}
+
+.carte-classe.selectionnee,
+.carte-professeur.selectionnee {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.en-tete-carte-classe,
+.en-tete-carte-professeur {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.icone-classe {
+  font-size: 20px;
+}
+
+.badge-nombre {
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.nom-classe,
+.nom-professeur {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+.niveau-classe,
+.specialite-professeur {
+  font-size: 14px;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+}
+
+.annee-classe,
+.email-professeur {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.avatar-professeur {
+  width: 40px;
+  height: 40px;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.initiale-professeur {
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Emploi du temps */
+.emploi-classe,
+.emploi-professeur {
+  padding: 20px;
+  overflow: auto;
+}
+
+.en-tete-emploi-classe,
+.en-tete-emploi-professeur {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.en-tete-emploi-classe h2,
+.en-tete-emploi-professeur h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.statistiques-classe,
+.statistiques-professeur {
+  display: flex;
+  gap: 20px;
+}
+
+.statistique {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.valeur-stat {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.label-stat {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Tableau emploi du temps */
+.tableau-emploi-temps {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.en-tete-tableau {
+  display: grid;
+  grid-template-columns: 80px repeat(6, 1fr);
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cellule-heure {
+  padding: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+  border-right: 1px solid #e5e7eb;
+}
+
+.cellule-jour {
+  padding: 12px;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+}
+
+.ligne-heure {
+  display: grid;
+  grid-template-columns: 80px repeat(6, 1fr);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ligne-heure:last-child {
+  border-bottom: none;
+}
+
+.cellule-creneau {
+  position: relative;
+  min-height: 60px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.cellule-creneau:last-child {
+  border-right: none;
+}
+
+.creneau {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  border-radius: 6px;
+  padding: 8px;
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.creneau:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.contenu-creneau {
+  position: relative;
+  z-index: 1;
+}
+
+.titre-creneau {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.details-creneau {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.horaire-creneau {
+  font-size: 10px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.actions-creneau {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+}
+
+.bouton-supprimer-creneau {
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.bouton-supprimer-creneau:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-creneau {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.en-tete-modal-creneau {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.en-tete-modal-creneau h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.bouton-fermer-modal {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.contenu-modal-creneau {
+  padding: 24px;
+}
+
+.formulaire-creneau {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.groupe-champ-creneau {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label-champ-creneau {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.champ-creneau {
+  padding: 10px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.champ-creneau:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.groupe-champ-creneau.double,
+.groupe-champ-creneau.triple {
+  display: grid;
+  gap: 12px;
+}
+
+.groupe-champ-creneau.double {
+  grid-template-columns: 1fr 1fr;
+}
+
+.groupe-champ-creneau.triple {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.champ-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.selecteur-couleur-creneau {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cercle-couleur {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cercle-couleur.selectionnee {
+  border-color: #111827;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #3b82f6;
+}
+
+.selecteur-couleur-input {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pied-modal-creneau {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.bouton-annuler-creneau,
+.bouton-sauvegarder-creneau {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bouton-annuler-creneau {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #4b5563;
+}
+
+.bouton-annuler-creneau:hover {
+  background: #e5e7eb;
+}
+
+.bouton-sauvegarder-creneau {
+  background: #3b82f6;
+  border: none;
+  color: white;
+}
+
+.bouton-sauvegarder-creneau:hover {
+  background: #2563eb;
+}
+
+/* États vides */
+.aucune-classe-selectionnee,
+.aucune-professeur-selectionne,
+.aucune-classe-selectionnee,
+.aucune-professeur-selectionne {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px;
+  text-align: center;
+}
+
+.icone-aucune-classe,
+.icone-aucune-professeur {
+  font-size: 48px;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+
+.aucune-classe-selectionnee h3,
+.aucune-professeur-selectionne h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.aucune-classe-selectionnee p,
+.aucune-professeur-selectionne p {
+  color: #6b7280;
+  max-width: 400px;
+}
+
+/* Chargement */
+.chargement-emploi-temps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+}
+
+.spinner-grand {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.chargement-tableau {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Statistiques globales */
+.statistiques-globales {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.carte-statistique-globale {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icone-stat-globale {
+  font-size: 32px;
+  width: 60px;
+  height: 60px;
+  background: #eff6ff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contenu-stat-globale {
+  flex: 1;
+}
+
+.valeur-stat-globale {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+}
+
+.label-stat-globale {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .vue-classes,
+  .vue-professeurs {
+    grid-template-columns: 1fr;
+  }
+  
+  .liste-classes,
+  .liste-professeurs {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+}
+
+@media (max-width: 768px) {
+  .en-tete-gestion-emploi-temps {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .titre-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .navigation-filtres {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .boutons-filtres {
+    flex-direction: column;
+  }
+  
+  .controles-semaine {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .en-tete-emploi-classe,
+  .en-tete-emploi-professeur {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .statistiques-classe,
+  .statistiques-professeur {
+    justify-content: space-between;
+  }
+  
+  .groupe-champ-creneau.double,
+  .groupe-champ-creneau.triple {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dans GestionEmploiDuTemps.css */
+.actions-synchronisation {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.bouton-sync {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.bouton-sync:hover {
+  background-color: #7c3aed;
+}
+
+.section-cours-disponibles {
+  margin-bottom: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f9fafb;
+}
+
+.section-cours-disponibles h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #374151;
+  font-size: 16px;
+}
+
+.liste-cours-sync {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cours-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.cours-item:hover {
+  background-color: #f3f4f6;
+}
+
+.cours-item:last-child {
+  border-bottom: none;
+}
+
+.cours-item.dans-emploi {
+  background-color: #d1fae5;
+  border-left: 4px solid #10b981;
+}
+
+.info-cours {
+  flex: 1;
+}
+
+.info-cours strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+}
+
+.info-cours small {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.actions-cours {
+  display: flex;
+  gap: 8px;
+}
+
+.bouton-ajouter,
+.bouton-retirer,
+.bouton-verifier {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.bouton-ajouter {
+  background-color: #10b981;
+  color: white;
+}
+
+.bouton-ajouter:hover {
+  background-color: #059669;
+}
+
+.bouton-retirer {
+  background-color: #ef4444;
+  color: white;
+}
+
+.bouton-retirer:hover {
+  background-color: #dc2626;
+}
+
+.bouton-verifier {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.bouton-verifier:hover {
+  background-color: #2563eb;
+}
+
+/* Badge de synchronisation */
+.badge-sync {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.badge-sync.sync {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-sync.not-sync {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Dans GestionEmploiDuTemps.css */
+.actions-synchronisation {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.bouton-sync {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.bouton-sync:hover:not(:disabled) {
+  background-color: #7c3aed;
+}
+
+.bouton-sync:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.bouton-verifier-sync {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.bouton-verifier-sync:hover {
+  background-color: #2563eb;
+}
+
+.spinner-mini {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Indicateur visuel pour les cours non synchronisés */
+.badge-non-sync {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+
+/* ==================== THÈME SOMBRE POUR GESTION EMPLOI DU TEMPS ==================== */
+.theme-sombre {
+  background: #1a1a1a;
+}
+
+.theme-sombre .conteneur-gestion-emploi-temps {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* EN-TÊTE FIXE en thème sombre */
+.theme-sombre .en-tete-fixe-eleves {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .titre-fixe-eleves h1 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .titre-fixe-eleves span[style*="font-size: 22px"] {
+  color: #a0a0a0;
+}
+
+/* BOUTONS D'ACTION en thème sombre */
+.theme-sombre .actions-synchronisation {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .bouton-sync {
+  background: #6d28d9;
+  color: white;
+  border: 1px solid #5b21b6;
+}
+
+.theme-sombre .bouton-sync:hover:not(:disabled) {
+  background: #5b21b6;
+}
+
+.theme-sombre .bouton-verifier-sync {
+  background: #404040;
+  color: #e0e0e0;
+  border: 1px solid #4a4a4a;
+}
+
+.theme-sombre .bouton-verifier-sync:hover {
+  background: #4a4a4a;
+  border-color: #555;
+}
+
+.theme-sombre .boutons-export {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .bouton-export.pdf {
+  background: #991b1b;
+  color: white;
+  border: 1px solid #b91c1c;
+}
+
+.theme-sombre .bouton-export.pdf:hover {
+  background: #7f1d1d;
+}
+
+.theme-sombre .bouton-export.excel {
+  background: #047857;
+  color: white;
+  border: 1px solid #065f46;
+}
+
+.theme-sombre .bouton-export.excel:hover {
+  background: #065f46;
+}
+
+/* ALERTES en thème sombre */
+.theme-sombre .alerte-emploi-temps {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .alerte-success {
+  border-left: 4px solid #10b981;
+}
+
+.theme-sombre .alerte-error {
+  border-left: 4px solid #ef4444;
+}
+
+.theme-sombre .alerte-info {
+  border-left: 4px solid #3b82f6;
+}
+
+.theme-sombre .alerte-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.theme-sombre .contenu-alerte-emploi-temps {
+  color: #e0e0e0;
+}
+
+.theme-sombre .texte-alerte {
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-fermer-alerte {
+  color: #808080;
+}
+
+.theme-sombre .bouton-fermer-alerte:hover {
+  color: #ef4444;
+  background: #3b1818;
+}
+
+/* NAVIGATION FILTRES en thème sombre */
+.theme-sombre .navigation-filtres {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .bouton-filtre {
+  background: #333333;
+  color: #a0a0a0;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .bouton-filtre:hover {
+  background: #404040;
+  color: #e0e0e0;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .bouton-filtre.actif {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .controles-semaine {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .bouton-semaine {
+  background: #404040;
+  color: #e0e0e0;
+  border: 1px solid #4a4a4a;
+}
+
+.theme-sombre .bouton-semaine:hover {
+  background: #4a4a4a;
+  border-color: #555;
+}
+
+.theme-sombre .affichage-semaine {
+  color: #e0e0e0;
+}
+
+/* VUE CLASSES en thème sombre */
+.theme-sombre .vue-classes {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .liste-classes {
+  background: #333333;
+  border-right: 1px solid #404040;
+}
+
+.theme-sombre .liste-classes h3 {
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .carte-classe {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  transition: all 0.2s ease;
+}
+
+.theme-sombre .carte-classe:hover {
+  transform: translateY(-2px);
+  border-color: #6d28d9;
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .carte-classe.selectionnee {
+  border: 2px solid #6d28d9;
+  background: #1e1e2d;
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+.theme-sombre .en-tete-carte-classe {
+  background: #404040;
+}
+
+.theme-sombre .icone-classe {
+  color: #e0e0e0;
+}
+
+.theme-sombre .badge-nombre {
+  background: #6d28d9;
+  color: white;
+}
+
+.theme-sombre .niveau-classe {
+  color: #e0e0e0;
+}
+
+/* EMPLOI CLASSE en thème sombre */
+.theme-sombre .emploi-classe {
+  background: #2d2d2d;
+}
+
+.theme-sombre .en-tete-emploi-classe {
+  background: #333333;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-emploi-classe h2 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .statistiques-classe {
+  background: #404040;
+}
+
+.theme-sombre .statistique {
+  background: #333333;
+  border: 1px solid #4a4a4a;
+}
+
+.theme-sombre .valeur-stat {
+  color: #6d28d9;
+}
+
+.theme-sombre .label-stat {
+  color: #a0a0a0;
+}
+
+/* TABLEAU EMPLOI DU TEMPS en thème sombre */
+.theme-sombre .tableau-emploi-temps {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-tableau {
+  background: #333333;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .cellule-jour {
+  color: #e0e0e0;
+  border-left: 1px solid #404040;
+  background: #404040;
+}
+
+.theme-sombre .cellule-heure {
+  background: #333333;
+  color: #a0a0a0;
+  border-right: 1px solid #404040;
+}
+
+.theme-sombre .ligne-heure {
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .ligne-heure:nth-child(even) .cellule-heure {
+  background: #404040;
+}
+
+.theme-sombre .cellule-creneau {
+  border-left: 1px solid #404040;
+  border-right: 1px solid #404040;
+  background: #2d2d2d;
+}
+
+/* CRÉNEAUX en thème sombre */
+.theme-sombre .creneau {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.theme-sombre .creneau:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+.theme-sombre .contenu-creneau {
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .titre-creneau {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.theme-sombre .details-creneau {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+}
+
+.theme-sombre .horaire-creneau {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 9px;
+}
+
+.theme-sombre .actions-creneau {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.theme-sombre .bouton-supprimer-creneau {
+  background: rgba(239, 68, 68, 0.8);
+  color: white;
+  border: none;
+}
+
+.theme-sombre .bouton-supprimer-creneau:hover {
+  background: #ef4444;
+  transform: scale(1.1);
+}
+
+/* VUE PROFESSEURS en thème sombre */
+.theme-sombre .vue-professeurs {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .liste-professeurs {
+  background: #333333;
+  border-right: 1px solid #404040;
+}
+
+.theme-sombre .liste-professeurs h3 {
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .carte-professeur {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .carte-professeur:hover {
+  transform: translateY(-2px);
+  border-color: #6d28d9;
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .carte-professeur.selectionnee {
+  border: 2px solid #6d28d9;
+  background: #1e1e2d;
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+.theme-sombre .avatar-professeur {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+}
+
+.theme-sombre .nom-professeur {
+  color: #e0e0e0;
+}
+
+.theme-sombre .specialite-professeur {
+  color: #a0a0a0;
+}
+
+.theme-sombre .email-professeur {
+  color: #808080;
+}
+
+/* SECTIONS "AUCUNE SÉLECTION" en thème sombre */
+.theme-sombre .aucune-classe-selectionnee,
+.theme-sombre .aucune-professeur-selectionne {
+  background: #2d2d2d;
+  border: 2px dashed #404040;
+}
+
+.theme-sombre .icone-aucune-classe,
+.theme-sombre .icone-aucune-professeur {
+  background: #333333;
+  color: #a0a0a0;
+  border: 3px solid #404040;
+}
+
+.theme-sombre .aucune-classe-selectionnee h3,
+.theme-sombre .aucune-professeur-selectionne h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .aucune-classe-selectionnee p,
+.theme-sombre .aucune-professeur-selectionne p {
+  color: #a0a0a0;
+}
+
+/* CHARGEMENT en thème sombre */
+.theme-sombre .chargement-emploi-temps {
+  background: #1a1a1a;
+  color: #a0a0a0;
+}
+
+.theme-sombre .spinner-grand {
+  border-color: #404040;
+  border-top-color: #6d28d9;
+}
+
+.theme-sombre .chargement-tableau {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .spinner {
+  border-color: #404040;
+  border-top-color: #6d28d9;
+}
+
+.theme-sombre .spinner-mini {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+}
+
+/* MODAL CRÉNEAU en thème sombre */
+.theme-sombre .modal-overlay {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.theme-sombre .modal-creneau {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .en-tete-modal-creneau {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-modal-creneau h2 {
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-modal {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-modal:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* FORMULAIRE CRÉNEAU en thème sombre */
+.theme-sombre .formulaire-creneau {
+  background: #2d2d2d;
+}
+
+.theme-sombre .label-champ-creneau {
+  color: #a0a0a0;
+}
+
+.theme-sombre .champ-creneau {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .champ-creneau:focus {
+  border-color: #6d28d9;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .champ-creneau::placeholder {
+  color: #808080;
+}
+
+.theme-sombre .champ-textarea {
+  background: #333333;
+  color: #e0e0e0;
+}
+
+/* LISTE COURS SYNC en thème sombre */
+.theme-sombre .section-cours-disponibles {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .section-cours-disponibles h4 {
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .liste-cours-sync {
+  background: #2d2d2d;
+}
+
+.theme-sombre .cours-item {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  transition: all 0.2s ease;
+}
+
+.theme-sombre .cours-item:hover {
+  border-color: #6d28d9;
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .cours-item.dans-emploi {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+}
+
+.theme-sombre .info-cours strong {
+  color: #e0e0e0;
+}
+
+.theme-sombre .info-cours small {
+  color: #a0a0a0;
+}
+
+.theme-sombre .bouton-ajouter {
+  background: #047857;
+  color: white;
+  border: none;
+}
+
+.theme-sombre .bouton-ajouter:hover {
+  background: #065f46;
+  transform: scale(1.05);
+}
+
+.theme-sombre .bouton-retirer {
+  background: #991b1b;
+  color: white;
+  border: none;
+}
+
+.theme-sombre .bouton-retirer:hover {
+  background: #7f1d1d;
+  transform: scale(1.05);
+}
+
+.theme-sombre .bouton-verifier {
+  background: #404040;
+  color: #e0e0e0;
+  border: 1px solid #4a4a4a;
+}
+
+.theme-sombre .bouton-verifier:hover {
+  background: #4a4a4a;
+  transform: scale(1.05);
+}
+
+/* SÉLECTEUR COULEUR en thème sombre */
+.theme-sombre .selecteur-couleur-creneau {
+  background: #333333;
+  border: 1px solid #404040;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.theme-sombre .cercle-couleur {
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.theme-sombre .cercle-couleur.selectionnee {
+  border: 2px solid white;
+  transform: scale(1.1);
+  box-shadow: 0 0 8px currentColor;
+}
+
+.theme-sombre .selecteur-couleur-input {
+  border: 1px solid #404040;
+  background: #333333;
+}
+
+/* PIED MODAL en thème sombre */
+.theme-sombre .pied-modal-creneau {
+  background: #333333;
+  border-top: 1px solid #404040;
+}
+
+.theme-sombre .bouton-annuler-creneau {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-annuler-creneau:hover {
+  background: #4a4a4a;
+  border-color: #555;
+}
+
+.theme-sombre .bouton-sauvegarder-creneau {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  border: none;
+}
+
+.theme-sombre .bouton-sauvegarder-creneau:hover {
+  background: linear-gradient(135deg, #5b21b6 0%, #4c1d95 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+/* TRANSITIONS en thème sombre */
+.theme-sombre * {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.2s ease;
+}
+
+/* RESPONSIVE en thème sombre */
+@media (max-width: 1024px) {
+  .theme-sombre .vue-classes,
+  .theme-sombre .vue-professeurs {
+    flex-direction: column;
+  }
+  
+  .theme-sombre .liste-classes,
+  .theme-sombre .liste-professeurs {
+    border-right: none;
+    border-bottom: 1px solid #404040;
+  }
+  
+  .theme-sombre .en-tete-emploi-classe,
+  .theme-sombre .en-tete-emploi-professeur {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .theme-sombre .statistiques-classe,
+  .theme-sombre .statistiques-professeur {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .theme-sombre .cartes-classes,
+  .theme-sombre .cartes-professeurs {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .groupe-champ-creneau.double,
+  .theme-sombre .groupe-champ-creneau.triple {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .actions-synchronisation {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .theme-sombre .bouton-sync,
+  .theme-sombre .bouton-verifier-sync {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .theme-sombre .boutons-export {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .theme-sombre .bouton-export {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .theme-sombre .modal-creneau {
+    width: 95%;
+    margin: 20px;
+  }
+}
+
+/* ANIMATIONS en thème sombre */
+@keyframes pulse-sombre {
+  0% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(109, 40, 217, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0);
+  }
+}
+
+.theme-sombre .carte-classe.selectionnee .en-tete-carte-classe {
+  animation: pulse-sombre 2s infinite;
+}
+
+.theme-sombre .carte-professeur.selectionnee .avatar-professeur {
+  animation: pulse-sombre 2s infinite;
+}
+
+/* SCROLLBAR en thème sombre */
+.theme-sombre .liste-classes::-webkit-scrollbar-track,
+.theme-sombre .liste-professeurs::-webkit-scrollbar-track,
+.theme-sombre .liste-cours-sync::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+.theme-sombre .liste-classes::-webkit-scrollbar-thumb,
+.theme-sombre .liste-professeurs::-webkit-scrollbar-thumb,
+.theme-sombre .liste-cours-sync::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 4px;
+}
+
+.theme-sombre .liste-classes::-webkit-scrollbar-thumb:hover,
+.theme-sombre .liste-professeurs::-webkit-scrollbar-thumb:hover,
+.theme-sombre .liste-cours-sync::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

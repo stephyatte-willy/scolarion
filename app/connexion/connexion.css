@@ -1,0 +1,666 @@
+.conteneur-connexion {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: var(--font-geist-sans);
+}
+
+.carte-connexion {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  width: 800px;
+  min-height: 480px;
+  overflow: hidden;
+  animation: slideUp 0.8s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Section gauche */
+.section-gauche {
+  flex: 1;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  padding: 30px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.section-gauche::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: float 20s infinite linear;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-50px, -50px) rotate(360deg); }
+}
+
+.contenu-gauche {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cercle-logo-ecole {
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.icone-logo {
+  font-size: 2.5rem;
+}
+
+.nom-ecole {
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1px;
+}
+
+.slogan-ecole {
+  text-align: center;
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+
+.informations-contact {
+  margin-bottom: 10px;
+}
+
+.item-contact {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.icone-contact {
+  margin-right: 15px;
+  font-size: 1.2rem;
+}
+
+.statistiques-ecole {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.statistique {
+  text-align: center;
+}
+
+.valeur-statistique {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.label-statistique {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Section droite */
+.section-droite {
+  flex: 1;
+  padding: 30px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.contenu-droite {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.en-tete-connexion {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.logo-application {
+  margin-bottom: 2px;
+}
+
+.icone-app {
+  font-size: 2rem;
+  color: white;
+}
+
+.titre-application {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #4f46e5;
+  margin-bottom: 2px;
+}
+
+.titre-application-connexion {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4f46e5;
+  margin-bottom: 2px;
+}
+
+.sous-titre {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Formulaire */
+.formulaire-connexion {
+  margin-bottom: 1px;
+}
+
+.groupe-champ {
+  margin-bottom: 10px;
+}
+
+.label-champ {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.conteneur-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icone-input {
+  position: absolute;
+  left: 15px;
+  z-index: 2;
+  font-size: 1.1rem;
+}
+
+.input-champ {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.input-champ:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Bouton */
+.bouton-connexion {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.bouton-connexion:hover:not(.chargement) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+}
+
+.bouton-connexion.chargement {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animations */
+@keyframes animate-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: animate-float 3s ease-in-out infinite;
+}
+
+@keyframes animate-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: animate-shake 0.5s ease-in-out;
+}
+
+.message-erreur {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.liens-utiles {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.lien-utile {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.lien-utile:hover {
+  color: #7c3aed;
+}
+
+.info-debug {
+  background: #f3f4f6;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #4f46e5;
+}
+
+.texte-info {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .carte-connexion {
+    flex-direction: column;
+    width: 100%;
+    min-height: auto;
+  }
+  
+  .section-gauche {
+    padding: 30px 20px;
+  }
+  
+  .section-droite {
+    padding: 30px 20px;
+  }
+  
+  .statistiques-ecole {
+    margin-top: 30px;
+  }
+}
+
+.chargement-parametres {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.chargement-parametres .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.chargement-parametres p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.chargement-parametres {
+  text-align: center;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.chargement-parametres .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.chargement-parametres p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.boution-init-bdd {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+}
+
+.boution-init-bdd:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.boution-init-bdd:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.erreur-parametres {
+  text-align: center;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.erreur-parametres p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 0;
+}
+.actions-debug {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.bouton-init-bdd, .bouton-debug {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.75rem;
+}
+
+.bouton-init-bdd:hover:not(:disabled),
+.bouton-debug:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.bouton-init-bdd:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bouton-debug-small {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.7rem;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.bouton-debug-small:hover {
+  background: #e5e7eb;
+}
+
+/* Styles pour les images de logo */
+.image-logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-logo-app {
+  width: 50px;
+  height: 50px;
+  border-radius: 20%;
+  object-fit: cover;
+  display: block;
+}
+
+.cercle-app {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #ffcb81 0%, #d7a0ff 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+  overflow: hidden; /* Important pour que l'image reste dans le cercle */
+}
+
+.image-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Styles pour les icônes de fallback */
+.icone-logo {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.icone-app {
+  font-size: 2rem;
+  color: white;
+}
+
+/* Styles pour les informations utilisateur trouvé */
+.info-utilisateur-trouve {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 15px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.avatar-utilisateur-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.details-utilisateur {
+  flex: 1;
+}
+
+.nom-complet {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.role-utilisateur {
+  color: #64748b;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+/* Style pour la recherche en cours */
+.recherche-en-cours {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.spinner-mini {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e2e8f0;
+  border-top: 2px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Styles pour les comptes de test */
+.info-comptes-test {
+  margin-top: 25px;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.titre-comptes {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.liste-comptes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compte-test {
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.compte-test strong {
+  color: #374151;
+}
+
+/* Animation d'apparition */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Styles de débogage */
+.cercle-logo.debug {
+  border: 2px dashed red;
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.cercle-app.debug {
+  border: 2px dashed blue;
+  background: rgba(0, 0, 255, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-utilisateur-trouve {
+    padding: 12px;
+  }
+  
+  .avatar-utilisateur-mini {
+    width: 35px;
+    height: 35px;
+    font-size: 0.8rem;
+  }
+  
+  .nom-complet {
+    font-size: 0.9rem;
+  }
+  
+  .role-utilisateur {
+    font-size: 0.8rem;
+  }
+
+}

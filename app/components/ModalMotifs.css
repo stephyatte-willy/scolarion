@@ -1,0 +1,374 @@
+.modal-motifs {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalAppear 0.3s ease;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.en-tete-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #2563eb;
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.en-tete-modal h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.bouton-fermer-modal {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.bouton-fermer-modal:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.contenu-modal {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.barre-outils-motifs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filtres-motifs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filtre-select {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  min-width: 150px;
+}
+
+.filtre-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.bouton-ajouter-motif {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+}
+
+.bouton-ajouter-motif:hover {
+  background: #059669;
+}
+
+.icone-ajouter {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.liste-motifs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.carte-motif {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.2s;
+}
+
+.carte-motif:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+}
+
+.en-tete-carte-motif {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.info-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pastille-couleur {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.type-motif {
+  font-size: 12px;
+  padding: 2px 6px;
+  background: #e5e7eb62;
+  border-radius: 12px;
+  color: #4b5563;
+}
+
+.statut-motif {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  background: #e5e7eb;
+}
+
+.statut-motif.actif {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statut-motif.inactif {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.actions-carte {
+  display: flex;
+  gap: 5px;
+}
+
+.bouton-modifier,
+.bouton-supprimer {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.bouton-modifier:hover {
+  background-color: #e5e7eb;
+}
+
+.bouton-supprimer:hover {
+  background-color: #fee2e2;
+}
+
+.corps-carte-motif {
+  margin-top: 5px;
+}
+
+.libelle-motif {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.description-motif {
+  margin: 5px 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.infos-supplementaires {
+  margin-top: 10px;
+}
+
+.justifiable {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 12px;
+}
+
+.justifiable.oui {
+  background: #d1fae55e;
+  color: #065f46;
+}
+
+.justifiable.non {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.formulaire-motif {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.formulaire-motif h3 {
+  margin: 0 0 20px 0;
+  color: #1f2937;
+  font-size: 1.1rem;
+}
+
+.groupe-champ {
+  margin-bottom: 20px;
+}
+
+.label-champ {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+}
+
+.champ {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.champ:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.champ.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.selecteur-couleur {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.input-couleur {
+  width: 50px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.valeur-couleur {
+  font-family: monospace;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.pied-formulaire {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.bouton-annuler {
+  padding: 10px 20px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bouton-annuler:hover {
+  background: #e5e7eb;
+}
+
+.bouton-sauvegarder {
+  padding: 10px 20px;
+  background: #2563eb;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.bouton-sauvegarder:hover {
+  background: #1d4ed8;
+}
+
+.chargement-motifs {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.aucun-motif {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}

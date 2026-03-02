@@ -1,0 +1,19 @@
+# Dépendances
+node_modules/
+package-lock.json  # Optionnel, mais souvent inclus
+
+# Next.js
+.next/
+out/
+
+# Environnements
+.env
+.env.local
+.env.production
+
+# Uploads (si vous ne voulez pas les versionner)
+uploads/
+
+# Base de données (si fichiers locaux)
+*.db
+*.sqlite

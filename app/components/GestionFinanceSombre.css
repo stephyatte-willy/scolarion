@@ -1,0 +1,3905 @@
+
+/* ==================== THÈME SOMBRE POUR GESTION FINANCE ==================== */
+.theme-sombre {
+  background: #1a1a1a;
+}
+
+.theme-sombre .conteneur-gestion-finance {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* EN-TÊTE FIXE en thème sombre */
+.theme-sombre .en-tete-fixe-eleves {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .titre-fixe-eleves h1 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .titre-fixe-eleves span[style*="font-size: 22px"] {
+  color: #a0a0a0;
+}
+
+/* BOUTON RAPPORT FINANCIER en thème sombre */
+.theme-sombre .actions-synchronisation button[style*="background: linear-gradient(135deg, #10b981"] {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%) !important;
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.3) !important;
+}
+
+.theme-sombre .actions-synchronisation button[style*="background: linear-gradient(135deg, #10b981"]:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.4) !important;
+}
+
+/* NAVIGATION PAR ONGLETS en thème sombre */
+.theme-sombre .navigation-finance {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 4px;
+  margin-top: 10px;
+}
+
+.theme-sombre .onglet-finance {
+  background: transparent;
+  color: #a0a0a0;
+  border: none;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.theme-sombre .onglet-finance:hover {
+  background: #333333;
+  color: #e0e0e0;
+}
+
+.theme-sombre .onglet-finance.actif {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+/* ALERTES en thème sombre */
+.theme-sombre .alerte-modern {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .alerte-succes-modern {
+  border-left: 4px solid #10b981;
+}
+
+.theme-sombre .alerte-erreur-modern {
+  border-left: 4px solid #ef4444;
+}
+
+.theme-sombre .titre-alerte {
+  color: #e0e0e0;
+}
+
+.theme-sombre .message-alerte {
+  color: #a0a0a0;
+}
+
+.theme-sombre .bouton-fermer-alerte-modern {
+  background: none;
+  border: none;
+  color: #808080;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.theme-sombre .bouton-fermer-alerte-modern:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+/* ALERTE AVERTISSEMENT en thème sombre */
+.theme-sombre .alerte-avertissement {
+  background: #332211;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.theme-sombre .icone-alerte-avertissement {
+  font-size: 24px;
+  color: #fbbf24;
+}
+
+.theme-sombre .texte-alerte-avertissement .titre-alerte {
+  color: #fbbf24;
+}
+
+.theme-sombre .texte-alerte-avertissement .message-alerte {
+  color: #fde68a;
+}
+
+/* CONTENU DES ONGLETS en thème sombre */
+.theme-sombre .contenu-finance {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 20px;
+}
+
+/* CHARGEMENT en thème sombre */
+.theme-sombre .chargement-finance {
+  background: #1a1a1a;
+  color: #a0a0a0;
+}
+
+.theme-sombre .spinner-grand {
+  border: 4px solid #404040;
+  border-top-color: #6d28d9;
+  animation: spin-sombre 1s linear infinite;
+}
+
+@keyframes spin-sombre {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== STYLES POUR LES COMPOSANTS ENFANTS ==================== */
+
+/* DashboardIntelligent en thème sombre */
+.theme-sombre .dashboard-intelligent {
+  background: transparent;
+}
+
+.theme-sombre .carte-statistique-finance {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.theme-sombre .carte-statistique-finance:hover {
+  border-color: #6d28d9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .carte-statistique-finance .titre-stat {
+  color: #a0a0a0;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.theme-sombre .carte-statistique-finance .valeur-stat {
+  color: #e0e0e0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.theme-sombre .carte-statistique-finance.positive .valeur-stat {
+  color: #4ade80;
+}
+
+.theme-sombre .carte-statistique-finance.negative .valeur-stat {
+  color: #f87171;
+}
+
+/* GestionFraisClasses en thème sombre */
+.theme-sombre .gestion-frais-classes {
+  background: transparent;
+}
+
+.theme-sombre .carte-frais-classe {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.theme-sombre .carte-frais-classe:hover {
+  border-color: #6d28d9;
+}
+
+.theme-sombre .en-tete-frais-classe {
+  border-bottom: 1px solid #404040;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.theme-sombre .en-tete-frais-classe h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .info-frais {
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-frais {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+/* GestionPaiements en thème sombre */
+.theme-sombre .gestion-paiements {
+  background: transparent;
+}
+
+.theme-sombre .carte-paiement {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.theme-sombre .carte-paiement:hover {
+  border-color: #6d28d9;
+}
+
+.theme-sombre .en-tete-paiement {
+  border-bottom: 1px solid #404040;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.theme-sombre .en-tete-paiement .nom-eleve {
+  color: #e0e0e0;
+}
+
+.theme-sombre .en-tete-paiement .statut-paiement {
+  background: #404040;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.theme-sombre .en-tete-paiement .statut-paiement.confirme {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.theme-sombre .en-tete-paiement .statut-paiement.en_attente {
+  background: #78350f;
+  color: #fde68a;
+}
+
+.theme-sombre .en-tete-paiement .statut-paiement.annule {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.theme-sombre .info-paiement {
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-paiement {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+/* GestionBudget en thème sombre */
+.theme-sombre .gestion-budget {
+  background: transparent;
+}
+
+.theme-sombre .carte-budget {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.theme-sombre .carte-budget:hover {
+  border-color: #6d28d9;
+}
+
+.theme-sombre .en-tete-budget {
+  border-bottom: 1px solid #404040;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.theme-sombre .en-tete-budget h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .categorie-budget {
+  background: #404040;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-budget {
+  color: #e0e0e0;
+  font-weight: 600;
+}
+
+.theme-sombre .montant-budget.positif {
+  color: #4ade80;
+}
+
+.theme-sombre .montant-budget.negatif {
+  color: #f87171;
+}
+
+.theme-sombre .progress-bar-budget {
+  background: #404040;
+  border-radius: 8px;
+  height: 8px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.theme-sombre .progress-bar-budget .progress-fill {
+  background: linear-gradient(90deg, #6d28d9, #7c3aed);
+  height: 100%;
+  border-radius: 8px;
+}
+
+/* TABLEAUX en thème sombre */
+.theme-sombre .tableau-finance {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.theme-sombre .tableau-finance th {
+  background: #333333;
+  color: #a0a0a0;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #404040;
+  font-weight: 500;
+}
+
+.theme-sombre .tableau-finance td {
+  padding: 12px;
+  border-bottom: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .tableau-finance tr:hover td {
+  background: #333333;
+}
+
+.theme-sombre .tableau-finance .montant {
+  font-weight: 600;
+}
+
+.theme-sombre .tableau-finance .montant.positif {
+  color: #4ade80;
+}
+
+.theme-sombre .tableau-finance .montant.negatif {
+  color: #f87171;
+}
+
+/* FORMULAIRES en thème sombre */
+.theme-sombre .formulaire-finance {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.theme-sombre .formulaire-finance .groupe-champ {
+  margin-bottom: 16px;
+}
+
+.theme-sombre .formulaire-finance label {
+  color: #a0a0a0;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.theme-sombre .formulaire-finance input,
+.theme-sombre .formulaire-finance select,
+.theme-sombre .formulaire-finance textarea {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+  color: #e0e0e0;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.theme-sombre .formulaire-finance input:focus,
+.theme-sombre .formulaire-finance select:focus,
+.theme-sombre .formulaire-finance textarea:focus {
+  outline: none;
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .formulaire-finance input::placeholder,
+.theme-sombre .formulaire-finance textarea::placeholder {
+  color: #808080;
+}
+
+/* BOUTONS D'ACTION en thème sombre */
+.theme-sombre .bouton-finance {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.theme-sombre .bouton-finance:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .bouton-finance.primary {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  border: none;
+  color: white;
+}
+
+.theme-sombre .bouton-finance.primary:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+.theme-sombre .bouton-finance.success {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  border: none;
+  color: white;
+}
+
+.theme-sombre .bouton-finance.success:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.3);
+}
+
+.theme-sombre .bouton-finance.danger {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+  border: none;
+  color: white;
+}
+
+.theme-sombre .bouton-finance.danger:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(153, 27, 27, 0.3);
+}
+
+/* MODALS en thème sombre */
+.theme-sombre .modal-overlay {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.theme-sombre .modal-finance {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .modal-finance .en-tete-modal {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  border-bottom: 1px solid #404040;
+  border-radius: 16px 16px 0 0;
+}
+
+.theme-sombre .modal-finance .en-tete-modal h2 {
+  color: white;
+}
+
+.theme-sombre .modal-finance .bouton-fermer-modal {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+}
+
+.theme-sombre .modal-finance .bouton-fermer-modal:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* GRILLES ET CARTES */
+.theme-sombre .grille-statistiques {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.theme-sombre .carte-statistique {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.theme-sombre .carte-statistique::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #6d28d9, #7c3aed);
+}
+
+.theme-sombre .carte-statistique:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .carte-statistique .titre-stat {
+  color: #a0a0a0;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.theme-sombre .carte-statistique .valeur-stat {
+  color: #e0e0e0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* GRAPHIQUES */
+.theme-sombre .graphique-container {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.theme-sombre .graphique-container h3 {
+  color: #e0e0e0;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.theme-sombre .barre-graphique {
+  background: #404040;
+  border-radius: 8px;
+  height: 24px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.theme-sombre .barre-graphique .remplissage {
+  background: linear-gradient(90deg, #6d28d9, #7c3aed);
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.3s ease;
+}
+
+/* SCROLLBAR */
+.theme-sombre .contenu-finance::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+.theme-sombre .contenu-finance::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 4px;
+}
+
+.theme-sombre .contenu-finance::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* RESPONSIVE en thème sombre */
+@media (max-width: 1024px) {
+  .theme-sombre .grille-statistiques {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .theme-sombre .navigation-finance {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .theme-sombre .onglet-finance {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .theme-sombre .grille-statistiques {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .contenu-finance {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-sombre .en-tete-fixe-eleves .conteneur-en-tete-fixe-eleves {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .theme-sombre .actions-fixes-eleves {
+    width: 100%;
+  }
+  
+  .theme-sombre .actions-synchronisation {
+    width: 100%;
+  }
+  
+  .theme-sombre .actions-synchronisation button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* TRANSITIONS */
+.theme-sombre * {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.2s ease;
+}
+
+/* ANIMATIONS */
+@keyframes pulse-sombre-finance {
+  0% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(109, 40, 217, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0);
+  }
+}
+
+.theme-sombre .carte-statistique:hover {
+  animation: pulse-sombre-finance 2s infinite;
+}
+
+/* BADGES */
+.theme-sombre .badge-statut {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.theme-sombre .badge-statut.success {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.theme-sombre .badge-statut.warning {
+  background: #78350f;
+  color: #fde68a;
+}
+
+.theme-sombre .badge-statut.error {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.theme-sombre .badge-statut.info {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+/* LIENS */
+.theme-sombre a {
+  color: #7c3aed;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.theme-sombre a:hover {
+  color: #9b59b6;
+  text-decoration: underline;
+}
+
+
+/* ==================== THÈME SOMBRE POUR DASHBOARD INTELLIGENT ==================== */
+.theme-sombre .dashboard-intelligent {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* En-tête du dashboard en thème sombre */
+.theme-sombre .dashboard-header {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .header-left h2 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .annee-scolaire {
+  color: #a0a0a0;
+}
+
+.theme-sombre .filtres-periode-fin {
+  background: #333333;
+}
+
+.theme-sombre .filtre-periode-fin {
+  color: #a0a0a0;
+}
+
+.theme-sombre .filtre-periode-fin:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .filtre-periode-fin.actif {
+  background: #6d28d9;
+  color: white;
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.3);
+}
+
+.theme-sombre .bouton-reinitialiser {
+  background: #333333;
+  color: #a0a0a0;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .bouton-reinitialiser:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-imprimer {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+}
+
+.theme-sombre .bouton-imprimer:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.theme-sombre .bouton-rafraichir {
+  background: #333333;
+  color: #a0a0a0;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .bouton-rafraichir:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+/* Alertes en thème sombre */
+.theme-sombre .alerte-dashboard {
+  background: #2d2d2d;
+  border-left: 4px solid;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .alerte-dashboard.danger {
+  background: #3b1818;
+  border-left-color: #ef4444;
+}
+
+.theme-sombre .alerte-dashboard.warning {
+  background: #332211;
+  border-left-color: #f59e0b;
+}
+
+.theme-sombre .alerte-dashboard.info {
+  background: #1e3a8a;
+  border-left-color: #3b82f6;
+}
+
+.theme-sombre .alerte-dashboard.success {
+  background: #064e3b;
+  border-left-color: #10b981;
+}
+
+.theme-sombre .alerte-message {
+  color: #e0e0e0;
+}
+
+.theme-sombre .alerte-action {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .alerte-action:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+/* KPI Cards en thème sombre */
+.theme-sombre .kpi-card-fin {
+  background: #2d2d2d;
+  border-radius: 20px;
+  padding: 10px;
+  border: 1px solid #404040;
+  border-left: 4px solid;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .kpi-card-fin:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  border-color: #6d28d9;
+}
+
+.theme-sombre .kpi-icon {
+  background: #333333;
+  color: #e0e0e0;
+}
+
+.theme-sombre .kpi-label-fin {
+  color: #a0a0a0;
+}
+
+.theme-sombre .kpi-valeur-fin {
+  color: #e0e0e0;
+}
+
+.theme-sombre .kpi-sous-titre-fin {
+  color: #808080;
+}
+
+.theme-sombre .alerte-icone-fin {
+  color: #363535;
+}
+
+/* Graphiques en thème sombre */
+.theme-sombre .graphique-card {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .graphique-header h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .graphique-legendes .legende {
+  background: #333333;
+  color: #a0a0a0;
+  border: 1px solid #404040;
+}
+
+/* Tableau en thème sombre */
+.theme-sombre .section-tableau {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .section-header h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .badge-info {
+  background: #333333;
+  color: #a0a0a0;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .tableau-dashboard th {
+  background: #333333;
+  color: #a0a0a0;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .tableau-dashboard td {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .tableau-dashboard tr:hover td {
+  background: #333333;
+}
+
+/* Badges dans le tableau */
+.theme-sombre .badge {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .badge.success {
+  background: #064e3b;
+  color: #a7f3d0;
+  border-color: #10b981;
+}
+
+.theme-sombre .badge.danger {
+  background: #7f1d1d;
+  color: #fecaca;
+  border-color: #ef4444;
+}
+
+.theme-sombre .badge-type.recette {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.theme-sombre .badge-type.depense {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.theme-sombre .montant-positif {
+  color: #4ade80;
+}
+
+.theme-sombre .montant-negatif {
+  color: #f87171;
+}
+
+/* MODALE DES IMPAYÉS en thème sombre */
+.theme-sombre .modal-overlay-modern {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+.theme-sombre .modal-modern {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* En-tête de la modale */
+.theme-sombre .modal-header-modern[style*="background: linear-gradient(135deg, #667eea"] {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%) !important;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .modal-header-modern h2 {
+  color: white;
+}
+
+.theme-sombre .modal-header-modern p {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.theme-sombre .modal-close-modern {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.theme-sombre .modal-close-modern:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Corps de la modale */
+.theme-sombre .modal-body-modern[style*="background: #f8fafc"] {
+  background: #1a1a1a !important;
+}
+
+/* Filtres */
+.theme-sombre .modal-body-modern div[style*="background: white"] {
+  background: #2d2d2d !important;
+  border: 1px solid #404040;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .filtre-groupe-modern label {
+  color: #a0a0a0 !important;
+}
+
+.theme-sombre .filtre-groupe-modern select,
+.theme-sombre .filtre-groupe-modern input {
+  background: #333333 !important;
+  border: 2px solid #404040 !important;
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .filtre-groupe-modern select:focus,
+.theme-sombre .filtre-groupe-modern input:focus {
+  border-color: #6d28d9 !important;
+}
+
+.theme-sombre .filtre-groupe-modern select option {
+  background: #333333;
+  color: #e0e0e0;
+}
+
+.theme-sombre .filtre-groupe-modern span[style*="color: #9ca3af"] {
+  color: #808080 !important;
+}
+
+.theme-sombre .filtre-groupe-modern button[style*="background: #f3f4f6"] {
+  background: #404040 !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #4a4a4a;
+}
+
+.theme-sombre .filtre-groupe-modern button[style*="background: #f3f4f6"]:hover {
+  background: #4a4a4a !important;
+  border-color: #6d28d9;
+}
+
+/* Tableau des impayés */
+.theme-sombre .modal-body-modern div[style*="background: white"] + div[style*="background: white"] {
+  background: #2d2d2d !important;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .modal-body-modern table {
+  background: #2d2d2d;
+}
+
+.theme-sombre .modal-body-modern thead tr[style*="background: linear-gradient(135deg, #efefef"] {
+  background: linear-gradient(135deg, #404040 0%, #4a4a4a 100%) !important;
+}
+
+.theme-sombre .modal-body-modern thead th {
+  color: #e0e0e0 !important;
+  border-bottom: 1px solid #4a4a4a;
+}
+
+.theme-sombre .modal-body-modern tbody tr {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .modal-body-modern tbody tr[style*="background: linear-gradient(90deg, #fef2f2"] {
+  background: linear-gradient(90deg, #3b1818 0%, #2d2d2d 100%) !important;
+}
+
+.theme-sombre .modal-body-modern tbody tr:hover {
+  background: #333333 !important;
+}
+
+.theme-sombre .modal-body-modern tbody td {
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .modal-body-modern tbody td strong {
+  color: #e0e0e0;
+}
+
+.theme-sombre .modal-body-modern tbody td span[style*="background: #f3f4f6"] {
+  background: #404040 !important;
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .modal-body-modern tbody td span[style*="background: #fee2e2"] {
+  background: #3b1818 !important;
+  color: #fecaca !important;
+}
+
+.theme-sombre .modal-body-modern tbody td span[style*="background: #fef3c7"] {
+  background: #332211 !important;
+  color: #fde68a !important;
+}
+
+.theme-sombre .modal-body-modern tbody td span[style*="background: #dbeafe"] {
+  background: #1e3a8a !important;
+  color: #bfdbfe !important;
+}
+
+/* Total des impayés */
+.theme-sombre .modal-body-modern tfoot tr {
+  background: #333333 !important;
+  border-top: 2px solid #4a4a4a;
+}
+
+.theme-sombre .modal-body-modern tfoot td {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .modal-body-modern tfoot td[style*="color: #dc2626"] {
+  color: #f87171 !important;
+}
+
+/* Pied de la modale */
+.theme-sombre .modal-modern > div:last-child[style*="background: white"] {
+  background: #2d2d2d !important;
+  border-top: 2px solid #404040;
+}
+
+.theme-sombre .modal-modern > div:last-child button[style*="background: white"] {
+  background: #404040 !important;
+  border: 2px solid #4a4a4a !important;
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .modal-modern > div:last-child button[style*="background: white"]:hover {
+  background: #4a4a4a !important;
+  border-color: #6d28d9 !important;
+}
+
+.theme-sombre .modal-modern > div:last-child button[style*="background: linear-gradient(135deg, #f4cf8a"] {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.theme-sombre .modal-modern > div:last-child button[style*="background: linear-gradient(135deg, #f4cf8a"]:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px -1px rgba(4, 120, 87, 0.5) !important;
+}
+
+/* Spinner de chargement */
+.theme-sombre .spinner-modern {
+  border: 3px solid #404040;
+  border-top-color: #6d28d9;
+}
+
+/* Message "Aucun impayé" */
+.theme-sombre .modal-body-modern div[style*="text-align: center"][style*="padding: 60px"] {
+  background: #2d2d2d !important;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .modal-body-modern h3[style*="color: #1f2937"] {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .modal-body-modern p[style*="color: #6b7280"] {
+  color: #a0a0a0 !important;
+}
+
+/* Chargement et erreur du dashboard */
+.theme-sombre .chargement-dashboard,
+.theme-sombre .erreur-dashboard {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .erreur-dashboard h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .erreur-dashboard p {
+  color: #a0a0a0;
+}
+
+.theme-sombre .bouton-reessayer {
+  background: #6d28d9;
+  color: white;
+}
+
+.theme-sombre .bouton-reessayer:hover {
+  background: #7c3aed;
+}
+
+.theme-sombre .spinner-grand {
+  border: 4px solid #404040;
+  border-top-color: #6d28d9;
+}
+
+/* Scrollbar dans la modale */
+.theme-sombre .modal-body-modern[style*="overflow-y: auto"]::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+.theme-sombre .modal-body-modern[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 4px;
+}
+
+.theme-sombre .modal-body-modern[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Adaptations responsives en thème sombre */
+@media (max-width: 768px) {
+  .theme-sombre .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .theme-sombre .filtres-periode-fin {
+    width: 100%;
+  }
+  
+  .theme-sombre .filtre-periode {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .theme-sombre .bouton-reinitialiser,
+  .theme-sombre .bouton-imprimer {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .theme-sombre .kpi-grid-fin {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .graphiques-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .modal-modern {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .theme-sombre .modal-header-modern {
+    padding: 15px !important;
+  }
+  
+  .theme-sombre .modal-body-modern {
+    padding: 15px !important;
+  }
+  
+  .theme-sombre .modal-modern > div:last-child {
+    padding: 15px !important;
+    flex-direction: column;
+  }
+  
+  .theme-sombre .modal-modern > div:last-child button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .theme-sombre .kpi-grid-fin {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .theme-sombre .kpi-grid-fin.second-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .theme-sombre .graphiques-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* Transitions */
+.theme-sombre * {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.2s ease;
+}
+
+/* Animations spécifiques au thème sombre */
+@keyframes pulse-sombre-dashboard {
+  0% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(109, 40, 217, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0);
+  }
+}
+
+.theme-sombre .kpi-card-fin:hover {
+  animation: pulse-sombre-dashboard 2s infinite;
+}
+
+/* ==================== THÈME SOMBRE POUR GESTION FRAIS CLASSES ==================== */
+.theme-sombre .conteneur-frais-classes {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* En-tête en thème sombre */
+.theme-sombre .en-tete-fixe-finance {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .en-tete-fixe-finance .titre-fixe-finance span[style*="color: #000000"] {
+  color: #e0e0e0 !important;
+}
+
+/* Boutons globaux en thème sombre */
+.theme-sombre .actions-globales {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.theme-sombre .bouton-export2,
+.theme-sombre .bouton-print2 {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.theme-sombre .bouton-export2:hover:not(:disabled),
+.theme-sombre .bouton-print2:hover:not(:disabled) {
+  background: #404040;
+  border-color: #6d28d9;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .bouton-export2:disabled,
+.theme-sombre .bouton-print2:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #404040;
+  color: #808080;
+}
+
+.theme-sombre .bouton-suppression-multiple {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(153, 27, 27, 0.2);
+}
+
+.theme-sombre .bouton-suppression-multiple:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(153, 27, 27, 0.3);
+}
+
+.theme-sombre .bouton-ajouter-premier {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
+}
+
+.theme-sombre .bouton-ajouter-premier:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.3);
+}
+
+/* Filtres en thème sombre */
+.theme-sombre .section-filtres {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.theme-sombre .groupe-filtre label {
+  color: #a0a0a0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.theme-sombre .input-filtre {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+  color: #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.theme-sombre .input-filtre:focus {
+  outline: none;
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .input-filtre option {
+  background: #333333;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-secondaire.petit {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.theme-sombre .bouton-secondaire.petit:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .resume-filtres {
+  margin-top: 15px;
+  padding: 10px 0;
+  border-top: 1px solid #404040;
+}
+
+.theme-sombre .nombre-resultats {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+}
+
+/* Tableau en thème sombre */
+.theme-sombre .tableau-simple {
+  width: 100%;
+  border-collapse: collapse;
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.theme-sombre .tableau-simple thead th {
+  background: #333333;
+  color: #a0a0a0;
+  padding: 16px 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .tableau-simple tbody td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .tableau-simple tbody tr:hover {
+  background: #333333;
+}
+
+.theme-sombre .tableau-simple tbody tr.ligne-selectionnee {
+  background: rgba(109, 40, 217, 0.15);
+  border-left: 3px solid #6d28d9;
+}
+
+/* Badges en thème sombre */
+.theme-sombre .badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.theme-sombre .badge.unique {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.theme-sombre .badge.mensuel {
+  background: #065f46;
+  color: #a7f3d0;
+}
+
+.theme-sombre .badge.trimestriel {
+  background: #78350f;
+  color: #fde68a;
+}
+
+.theme-sombre .badge.annuel {
+  background: #6b21a8;
+  color: #e9d5ff;
+}
+
+.theme-sombre .badge.actif {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.theme-sombre .badge.inactif {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .badge.avec-eleves {
+  background: #1e3a8a;
+  color: #bfdbfe;
+  font-weight: 600;
+}
+
+.theme-sombre .badge.sans-eleves {
+  background: #404040;
+  color: #a0a0a0;
+}
+
+/* Cases à cocher en thème sombre */
+.theme-sombre .checkbox-container {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.theme-sombre .checkbox-modern {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.theme-sombre .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  background: #333333;
+  border: 2px solid #404040;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.theme-sombre .checkbox-container:hover .checkmark {
+  border-color: #6d28d9;
+}
+
+.theme-sombre .checkbox-modern:checked ~ .checkmark {
+  background: #6d28d9;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .checkbox-modern:checked ~ .checkmark:after {
+  content: '';
+  position: absolute;
+  display: block;
+  left: 5px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Boutons d'action en thème sombre */
+.theme-sombre .actions-ligne {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.theme-sombre .bouton-icone {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-sombre .bouton-icone:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+  transform: scale(1.1);
+}
+
+.theme-sombre .bouton-icone.danger:hover {
+  background: #991b1b;
+  border-color: #ef4444;
+  color: white;
+}
+
+/* Numéro de ligne en thème sombre */
+.theme-sombre .numero-ligne strong {
+  color: #6d28d9;
+  font-weight: 600;
+}
+
+/* MODAL en thème sombre */
+.theme-sombre .overlay-modal-modern {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.theme-sombre .modal-modern {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .en-tete-modal-modern {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-modal-modern h2 {
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-modal-modern {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.theme-sombre .bouton-fermer-modal-modern:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Formulaire dans la modale */
+.theme-sombre .groupe-champ-modern label {
+  color: #a0a0a0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.theme-sombre .input-modern {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 12px;
+  width: 100%;
+  color: #e0e0e0;
+  transition: all 0.3s;
+}
+
+.theme-sombre .input-modern:focus {
+  outline: none;
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .input-modern::placeholder {
+  color: #808080;
+}
+
+.theme-sombre .input-modern option {
+  background: #333333;
+  color: #e0e0e0;
+}
+
+/* Vérification frais existant */
+.theme-sombre .verification-frais .alerte-avertissement[style*="background: #fff3cd"] {
+  background: #332211 !important;
+  border: 1px solid #f59e0b !important;
+  color: #fde68a !important;
+}
+
+.theme-sombre .verification-frais small {
+  color: #a0a0a0 !important;
+}
+
+/* Boutons de la modale */
+.theme-sombre .bouton-secondaire-modern {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: #e0e0e0;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.theme-sombre .bouton-secondaire-modern:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+  transform: translateY(-1px);
+}
+
+.theme-sombre .bouton-primaire-modern {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.theme-sombre .bouton-primaire-modern:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+.theme-sombre .bouton-primaire-modern:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* MODAL SUPPRESSION en thème sombre */
+.theme-sombre .modal-modern.confirmation .icone-avertissement {
+  font-size: 48px;
+  text-align: center;
+  margin: 20px 0;
+  color: #f87171;
+}
+
+.theme-sombre .modal-modern.confirmation h3.avertissement-text {
+  color: #e0e0e0;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.theme-sombre .details-suppression {
+  background: #333333;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.theme-sombre .details-suppression p {
+  color: #e0e0e0;
+  margin: 8px 0;
+}
+
+.theme-sombre .details-suppression p strong {
+  color: #a0a0a0;
+  min-width: 100px;
+  display: inline-block;
+}
+
+.theme-sombre .bouton-danger-modern {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-sombre .bouton-danger-modern:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(153, 27, 27, 0.3);
+}
+
+/* MODAL SUPPRESSION MULTIPLE en thème sombre */
+.theme-sombre .modal-modern.confirmation.large .en-tete-modal-modern[style*="border-bottom: 2px solid #fee2e2"] {
+  border-bottom: 2px solid #991b1b !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large .en-tete-modal-modern h2[style*="color: #dc2626"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large div[style*="background: #fef2f2"] {
+  background: #3b1818 !important;
+  border: 1px solid #991b1b !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large h3[style*="color: #991b1b"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large p[style*="color: #b91c1c"] {
+  color: #fecaca !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large p[style*="color: #7f1d1d"] {
+  color: #fca5a5 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large h4[style*="color: #1e293b"] {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large div[style*="border: 1px solid #e2e8f0"] {
+  border: 1px solid #404040 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large thead[style*="background: #f8fafc"] {
+  background: #333333 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large th {
+  color: #a0a0a0 !important;
+  border-bottom: 2px solid #404040 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large tbody tr {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .modal-modern.confirmation.large tbody tr[style*="background: white"] {
+  background: #2d2d2d !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large tbody tr[style*="background: #fafafa"] {
+  background: #333333 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large td {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large tfoot[style*="background: #f1f5f9"] {
+  background: #333333 !important;
+  border-top: 2px solid #404040 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large tfoot td[style*="color: #dc2626"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large tfoot td[style*="color: #059669"] {
+  color: #4ade80 !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large button[style*="background: #dc2626"] {
+  background: #991b1b !important;
+}
+
+.theme-sombre .modal-modern.confirmation.large button[style*="background: #dc2626"]:hover {
+  background: #b91c1c !important;
+}
+
+/* Aucun frais trouvé */
+.theme-sombre .aucun-frais {
+  text-align: center;
+  padding: 40px;
+}
+
+.theme-sombre .icone-aucun-frais {
+  font-size: 48px;
+  color: #808080;
+  margin-bottom: 20px;
+}
+
+.theme-sombre .aucun-frais h3 {
+  color: #e0e0e0;
+  margin-bottom: 10px;
+}
+
+.theme-sombre .aucun-frais p {
+  color: #a0a0a0;
+}
+
+/* Chargement */
+.theme-sombre .chargement-frais {
+  background: #1a1a1a;
+  color: #a0a0a0;
+}
+
+/* Scrollbar pour les listes */
+.theme-sombre .modal-modern.large .contenu-modal-modern::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+.theme-sombre .modal-modern.large .contenu-modal-modern::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 4px;
+}
+
+.theme-sombre .modal-modern.large .contenu-modal-modern::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* En-tête d'impression (caché) */
+.theme-sombre .en-tete-impression[style*="display: none"] {
+  display: none !important;
+}
+
+/* RESPONSIVE en thème sombre */
+@media (max-width: 1024px) {
+  .theme-sombre .actions-globales {
+    flex-wrap: wrap;
+  }
+  
+  .theme-sombre .grille-filtres {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .theme-sombre .grille-filtres {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .tableau-simple {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .theme-sombre .modal-modern.large {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .theme-sombre .actions-globales {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .theme-sombre .en-tete-fixe-finance .conteneur-en-tete-fixe-finance {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .theme-sombre .bouton-export2,
+  .theme-sombre .bouton-print2,
+  .theme-sombre .bouton-suppression-multiple,
+  .theme-sombre .bouton-ajouter-premier {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .theme-sombre .modal-modern.confirmation.large {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .theme-sombre .modal-modern.confirmation.large div[style*="max-height: 300px"] {
+    max-height: 200px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-sombre .en-tete-fixe-finance .conteneur-en-tete-fixe-finance {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .theme-sombre .actions-globales {
+    width: 100%;
+  }
+  
+  .theme-sombre .grille-formulaire-modern {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Transitions */
+.theme-sombre * {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.2s ease;
+}
+
+/* ==================== THÈME SOMBRE POUR GESTION PAIEMENTS ==================== */
+.theme-sombre .conteneur-gestion-paiements {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* En-tête en thème sombre */
+.theme-sombre .en-tete-fixe-finance {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-fixe-finance span[style*="color: #000000"] {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .bouton-vue-finance {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #a0a0a0;
+}
+
+.theme-sombre .bouton-vue-finance:hover {
+  background: #404040;
+  color: #e0e0e0;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .bouton-vue-finance.actif {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  border-color: #6d28d9;
+}
+
+/* Alertes en thème sombre */
+.theme-sombre .alerte-modern {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.theme-sombre .alerte-succes-modern {
+  background: linear-gradient(to right, #064e3b, #065f46);
+}
+
+.theme-sombre .alerte-erreur-modern {
+  background: linear-gradient(to right, #7f1d1d, #991b1b);
+}
+
+.theme-sombre .contenu-alerte-modern {
+  padding: 15px 20px;
+  color: white;
+}
+
+.theme-sombre .message-alerte {
+  color: #ffffff;
+}
+
+.theme-sombre .bouton-fermer-alerte-modern {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-alerte-modern:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Filtres en thème sombre */
+.theme-sombre .carte-filtres {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .carte-filtres h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .groupe-champ label,
+.theme-sombre .groupe-champ2 label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .groupe-champ input,
+.theme-sombre .groupe-champ select,
+.theme-sombre .groupe-champ2 input,
+.theme-sombre .groupe-champ2 select {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .groupe-champ input:focus,
+.theme-sombre .groupe-champ select:focus,
+.theme-sombre .groupe-champ2 input:focus,
+.theme-sombre .groupe-champ2 select:focus {
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .checkbox-label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .filtres-rapides {
+  background: #333333;
+  border: 1px solid #404040;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.theme-sombre .bouton-secondaire {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-secondaire:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .bouton-primaire {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  border: none;
+}
+
+.theme-sombre .bouton-primaire:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+/* Tableau en thème sombre */
+.theme-sombre .entete-tableau {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .entete-tableau h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-print2 {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-print2:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .info-pagination {
+  color: #a0a0a0;
+}
+
+.theme-sombre table {
+  background: #2d2d2d;
+}
+
+.theme-sombre th {
+  background: #333333;
+  color: #a0a0a0;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre td {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre tr:hover td {
+  background: #333333;
+}
+
+.theme-sombre .numero-ligne strong {
+  color: #e0e0e0;
+}
+
+.theme-sombre .eleve-info small {
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-cell .montant {
+  color: #4ade80;
+}
+
+.theme-sombre .montant-cell small {
+  color: #808080;
+}
+
+.theme-sombre td[style*="color: #474747"] {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre td[style*="background: #e98fff"] {
+  background: #6d28d9 !important;
+  color: white !important;
+}
+
+.theme-sombre .date-paiement {
+  color: #e0e0e0;
+}
+
+.theme-sombre .heure-paiement {
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-cell .style3 {
+  color: #4ade80;
+}
+
+.theme-sombre .style4 span {
+  color: #f87171;
+}
+
+.theme-sombre .style5 {
+  color: #4ade80;
+}
+
+/* Badges en thème sombre */
+.theme-sombre .badge-succes {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.theme-sombre .badge-attente {
+  background: #78350f;
+  color: #fde68a;
+}
+
+.theme-sombre .badge-partiel {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.theme-sombre .badge-retard {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.theme-sombre .badge-default {
+  background: #404040;
+  color: #a0a0a0;
+}
+
+.theme-sombre .badge-mode {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+/* Boutons d'action dans le tableau */
+.theme-sombre .action-button.details {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.theme-sombre .action-button.details:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.theme-sombre .action-button.receipt {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.theme-sombre .action-button.receipt:hover {
+  background: #059669;
+  color: white;
+}
+
+.theme-sombre .action-button.delete {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.theme-sombre .action-button.delete:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* Totaux en thème sombre */
+.theme-sombre .totaux-container {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .total-label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .total-valeur {
+  color: #e0e0e0;
+}
+
+.theme-sombre .total-paye {
+  color: #4ade80;
+}
+
+.theme-sombre .total-reste {
+  color: #f87171;
+}
+
+.theme-sombre .total-reel {
+  color: #e0e0e0;
+}
+
+.theme-sombre .total-paye-reel {
+  color: #4ade80;
+}
+
+.theme-sombre .total-reste-reel {
+  color: #f87171;
+}
+
+/* Pagination en thème sombre */
+.theme-sombre .pagination {
+  border-top: 1px solid #404040;
+}
+
+.theme-sombre .bouton-pagination {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-pagination:disabled {
+  background: #333333;
+  color: #808080;
+}
+
+.theme-sombre .bouton-page {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-page.active {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  border-color: #6d28d9;
+}
+
+/* Formulaire nouveau paiement */
+.theme-sombre .section-nouveau-paiement {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .section-nouveau-paiement h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .info-annee {
+  color: #a0a0a0;
+}
+
+.theme-sombre .etape {
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .etape h4 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .etape h4:before {
+  background: #6d28d9;
+  color: white;
+}
+
+/* Cartes frais en thème sombre */
+.theme-sombre .liste-frais-scolaires {
+  background: #2d2d2d;
+}
+
+.theme-sombre .carte-frais-scolaire {
+  background: #333333;
+  border: 2px solid #404040;
+}
+
+.theme-sombre .carte-frais-scolaire:hover {
+  border-color: #6d28d9;
+  transform: translateY(-2px);
+}
+
+.theme-sombre .carte-frais-scolaire.selectionne {
+  border-color: #6d28d9;
+  background: #1e1e3a;
+}
+
+.theme-sombre .entete-carte-frais h5 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .periodicite-frais {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.theme-sombre .montant-frais span {
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-restant {
+  color: #f87171;
+}
+
+.theme-sombre .info-frais {
+  color: #a0a0a0;
+}
+
+.theme-sombre .statut-frais-existant {
+  border-top-color: #404040;
+}
+
+/* Info scolarité en thème sombre */
+.theme-sombre .info-scolarite-globale {
+  background: #1e3a8a;
+  border: 1px solid #2563eb;
+}
+
+.theme-sombre .montant-total-scolarite,
+.theme-sombre .montant-restant-scolarite {
+  border-bottom: 1px solid #2563eb;
+  color: #e0e0e0;
+}
+
+.theme-sombre .versements-existants h5 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .carte-versement-existant {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .entete-versement {
+  color: #e0e0e0;
+}
+
+.theme-sombre .details-versement {
+  color: #a0a0a0;
+}
+
+.theme-sombre .date-paiement {
+  color: #808080;
+}
+
+/* Choix type paiement en thème sombre */
+.theme-sombre .choix-type-paiement h5 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .radio-label {
+  background: #333333;
+  border: 2px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .radio-label:hover {
+  border-color: #6d28d9;
+}
+
+.theme-sombre .radio-label input[type="radio"]:checked + * {
+  border-color: #6d28d9;
+  background: #1e1e3a;
+}
+
+/* Configuration versements en thème sombre */
+.theme-sombre .configuration-versements {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .simulation-versements h6 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .ligne-simulation {
+  border-bottom: 1px dashed #404040;
+  color: #a0a0a0;
+}
+
+.theme-sombre .ligne-simulation.total {
+  color: #e0e0e0;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .hint {
+  color: #a0a0a0;
+}
+
+.theme-sombre textarea {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre textarea:focus {
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.2);
+}
+
+/* Résumé paiement en thème sombre */
+.theme-sombre .resume-paiement {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .resume-paiement h5 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .ligne-resume {
+  border-bottom: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .montant-total {
+  color: #4ade80;
+}
+
+.theme-sombre .montant-restant {
+  color: #f87171;
+}
+
+/* Bouton suppression multiple */
+.theme-sombre .bouton-suppression-multiple {
+  background: #7f1d1d;
+  color: #fecaca;
+  border: 1px solid #991b1b;
+}
+
+.theme-sombre .bouton-suppression-multiple:hover:not(:disabled) {
+  background: #991b1b;
+  color: white;
+  border-color: #b91c1c;
+}
+
+.theme-sombre .bouton-suppression-multiple.actif {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+  color: white;
+}
+
+/* Bouton relance multiple */
+.theme-sombre .bouton-relance-multiple {
+  background: #064e3b;
+  color: #a7f3d0;
+  border: 1px solid #059669;
+}
+
+.theme-sombre .bouton-relance-multiple:hover:not(:disabled) {
+  background: #047857;
+  color: white;
+}
+
+/* Modal suppression multiple */
+.theme-sombre .overlay-modal-modern {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+.theme-sombre .modal-modern {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .en-tete-modal-modern {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-modal-modern h2 {
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-modal-modern {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-modal-modern:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.theme-sombre .en-tete-modal-modern[style*="border-bottom: 2px solid #fee2e2"] {
+  border-bottom-color: #7f1d1d !important;
+}
+
+.theme-sombre .en-tete-modal-modern h2[style*="color: #dc2626"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .contenu-modal-modern div[style*="background: #fef2f2"] {
+  background: #3b1818 !important;
+  border-color: #7f1d1d !important;
+}
+
+.theme-sombre .contenu-modal-modern h3[style*="color: #991b1b"] {
+  color: #fecaca !important;
+}
+
+.theme-sombre .contenu-modal-modern p[style*="color: #b91c1c"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .contenu-modal-modern p[style*="color: #7f1d1d"] {
+  color: #fecaca !important;
+}
+
+.theme-sombre .contenu-modal-modern h4[style*="color: #1e293b"] {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .contenu-modal-modern div[style*="border: 1px solid #e2e8f0"] {
+  border-color: #404040 !important;
+  background: #2d2d2d !important;
+}
+
+.theme-sombre .contenu-modal-modern thead[style*="background: #f8fafc"] {
+  background: #333333 !important;
+  border-bottom-color: #404040 !important;
+}
+
+.theme-sombre .contenu-modal-modern th {
+  background: #333333;
+  color: #a0a0a0;
+}
+
+.theme-sombre .contenu-modal-modern td {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.theme-sombre .contenu-modal-modern tr[style*="background: white"] {
+  background: #2d2d2d !important;
+}
+
+.theme-sombre .contenu-modal-modern tr[style*="background: #fafafa"] {
+  background: #333333 !important;
+}
+
+.theme-sombre .contenu-modal-modern td[style*="color: #64748b"] {
+  color: #a0a0a0 !important;
+}
+
+.theme-sombre .contenu-modal-modern td[style*="color: #059669"] {
+  color: #4ade80 !important;
+}
+
+.theme-sombre .contenu-modal-modern tfoot[style*="background: #f1f5f9"] {
+  background: #333333 !important;
+  border-top-color: #404040 !important;
+}
+
+.theme-sombre .contenu-modal-modern td[style*="color: #dc2626"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .bouton-danger-modern[style*="background: #94a3b8"] {
+  background: #404040 !important;
+}
+
+.theme-sombre .bouton-danger-modern[style*="background: #dc2626"] {
+  background: #991b1b !important;
+}
+
+.theme-sombre .bouton-danger-modern:hover:not(:disabled) {
+  background: #7f1d1d !important;
+}
+
+/* Modal relance multiple */
+.theme-sombre .stats-relance {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .stat-label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .stat-value {
+  color: #e0e0e0;
+}
+
+.theme-sombre .liste-eleves-relance h4 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .tableau-eleves-relance {
+  border: 1px solid #404040;
+}
+
+.theme-sombre .tableau-eleves-relance thead {
+  background: #333333;
+}
+
+.theme-sombre .tableau-eleves-relance th {
+  background: #333333;
+  color: #a0a0a0;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .tableau-eleves-relance td {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .eleve-matricule {
+  color: #a0a0a0;
+}
+
+.theme-sombre .contact-ok {
+  color: #4ade80;
+}
+
+.theme-sombre .contact-manquant {
+  color: #f87171;
+}
+
+.theme-sombre .message-relance-preview h4 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .message-editor textarea {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .message-editor textarea:focus {
+  border-color: #6d28d9;
+}
+
+.theme-sombre .btn-tool {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .btn-tool:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .methodes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.theme-sombre .methode-btn {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .methode-btn.whatsapp {
+  background: #064e3b;
+  border-color: #059669;
+}
+
+.theme-sombre .methode-btn.whatsapp:hover:not(:disabled) {
+  background: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.3);
+}
+
+.theme-sombre .methode-btn.impression {
+  background: #1e3a8a;
+  border-color: #2563eb;
+}
+
+.theme-sombre .methode-btn.impression:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.theme-sombre .methode-desc {
+  color: #a0a0a0;
+}
+
+/* Actions formulaire */
+.theme-sombre .actions-formulaire {
+  border-top: 1px solid #404040;
+}
+
+/* Chargement */
+.theme-sombre .chargement-tableau {
+  background: #2d2d2d;
+  color: #a0a0a0;
+}
+
+.theme-sombre .spinner {
+  border: 4px solid #404040;
+  border-top-color: #6d28d9;
+}
+
+/* Aucune donnée */
+.theme-sombre .aucune-donnee {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  color: #a0a0a0;
+}
+
+/* Élève nom lien */
+.theme-sombre .eleve-nom-link {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  cursor: pointer;
+}
+
+.theme-sombre .eleve-nom-link:hover {
+  color: #9b59b6;
+  text-decoration: underline;
+}
+
+/* Badge unique payé */
+.theme-sombre .badge-unique-paye[style*="background-color: #d4edda"] {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
+}
+
+.theme-sombre .badge-annuel-paye[style*="background-color: #cce5ff"] {
+  background-color: #1e3a8a !important;
+  color: #bfdbfe !important;
+}
+
+/* Scrollbar dans les modales */
+.theme-sombre .contenu-modal-modern::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+.theme-sombre .contenu-modal-modern::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 4px;
+}
+
+.theme-sombre .contenu-modal-modern::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Spinner petit */
+.theme-sombre .spinner-small {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* Transitions */
+.theme-sombre * {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.2s ease;
+}
+
+/* Responsive en thème sombre */
+@media (max-width: 768px) {
+  .theme-sombre .en-tete-paiements {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .theme-sombre .boutons-actions {
+    justify-content: center;
+  }
+  
+  .theme-sombre .entete-tableau {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .theme-sombre .actions-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .theme-sombre .liste-frais-scolaires {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .grille-details-paiement {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .actions-formulaire {
+    flex-direction: column;
+  }
+  
+  .theme-sombre .actions-formulaire button {
+    width: 100%;
+  }
+  
+  .theme-sombre .carte-frais-scolaire.desactive {
+    background-color: #333333;
+    border-color: #404040;
+  }
+}
+
+/* Animation de pulsation pour les boutons actifs */
+@keyframes pulse-sombre-paiements {
+  0% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(109, 40, 217, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0);
+  }
+}
+
+.theme-sombre .bouton-vue-finance.actif {
+  animation: pulse-sombre-paiements 2s infinite;
+}
+
+/* ==================== THÈME SOMBRE POUR GESTION PAIEMENTS ==================== */
+.theme-sombre .conteneur-gestion-paiements {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* En-tête en thème sombre */
+.theme-sombre .en-tete-fixe-finance {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-fixe-finance span[style*="color: #000000"] {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .bouton-vue-finance {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #a0a0a0;
+}
+
+.theme-sombre .bouton-vue-finance:hover {
+  background: #404040;
+  color: #e0e0e0;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .bouton-vue-finance.actif {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  border-color: #6d28d9;
+}
+
+/* Alertes en thème sombre */
+.theme-sombre .alerte-modern {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.theme-sombre .alerte-succes-modern {
+  background: linear-gradient(to right, #064e3b, #065f46);
+}
+
+.theme-sombre .alerte-erreur-modern {
+  background: linear-gradient(to right, #7f1d1d, #991b1b);
+}
+
+.theme-sombre .contenu-alerte-modern {
+  padding: 15px 20px;
+  color: white;
+}
+
+.theme-sombre .message-alerte {
+  color: #ffffff;
+}
+
+.theme-sombre .bouton-fermer-alerte-modern {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-alerte-modern:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Filtres en thème sombre */
+.theme-sombre .carte-filtres {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .carte-filtres h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .groupe-champ label,
+.theme-sombre .groupe-champ2 label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .groupe-champ input,
+.theme-sombre .groupe-champ select,
+.theme-sombre .groupe-champ2 input,
+.theme-sombre .groupe-champ2 select {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .groupe-champ input:focus,
+.theme-sombre .groupe-champ select:focus,
+.theme-sombre .groupe-champ2 input:focus,
+.theme-sombre .groupe-champ2 select:focus {
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.2);
+}
+
+.theme-sombre .checkbox-label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .filtres-rapides {
+  background: #333333;
+  border: 1px solid #404040;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.theme-sombre .bouton-secondaire {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-secondaire:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .bouton-primaire {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  border: none;
+}
+
+.theme-sombre .bouton-primaire:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+/* Tableau en thème sombre */
+.theme-sombre .entete-tableau {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .entete-tableau h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-print2 {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-print2:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .info-pagination {
+  color: #a0a0a0;
+}
+
+.theme-sombre table {
+  background: #2d2d2d;
+}
+
+.theme-sombre th {
+  background: #333333;
+  color: #a0a0a0;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre td {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre tr:hover td {
+  background: #333333;
+}
+
+.theme-sombre .numero-ligne strong {
+  color: #e0e0e0;
+}
+
+.theme-sombre .eleve-info small {
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-cell .montant {
+  color: #4ade80;
+}
+
+.theme-sombre .montant-cell small {
+  color: #808080;
+}
+
+.theme-sombre td[style*="color: #474747"] {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre td[style*="background: #e98fff"] {
+  background: #6d28d9 !important;
+  color: white !important;
+}
+
+.theme-sombre .date-paiement {
+  color: #e0e0e0;
+}
+
+.theme-sombre .heure-paiement {
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-cell .style3 {
+  color: #4ade80;
+}
+
+.theme-sombre .style4 span {
+  color: #f87171;
+}
+
+.theme-sombre .style5 {
+  color: #4ade80;
+}
+
+/* Badges en thème sombre */
+.theme-sombre .badge-succes {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.theme-sombre .badge-attente {
+  background: #78350f;
+  color: #fde68a;
+}
+
+.theme-sombre .badge-partiel {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.theme-sombre .badge-retard {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.theme-sombre .badge-default {
+  background: #404040;
+  color: #a0a0a0;
+}
+
+.theme-sombre .badge-mode {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+/* Boutons d'action dans le tableau */
+.theme-sombre .action-button.details {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.theme-sombre .action-button.details:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.theme-sombre .action-button.receipt {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.theme-sombre .action-button.receipt:hover {
+  background: #059669;
+  color: white;
+}
+
+.theme-sombre .action-button.delete {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.theme-sombre .action-button.delete:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* Totaux en thème sombre */
+.theme-sombre .totaux-container {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .total-label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .total-valeur {
+  color: #e0e0e0;
+}
+
+.theme-sombre .total-paye {
+  color: #4ade80;
+}
+
+.theme-sombre .total-reste {
+  color: #f87171;
+}
+
+.theme-sombre .total-reel {
+  color: #e0e0e0;
+}
+
+.theme-sombre .total-paye-reel {
+  color: #4ade80;
+}
+
+.theme-sombre .total-reste-reel {
+  color: #f87171;
+}
+
+/* Pagination en thème sombre */
+.theme-sombre .pagination {
+  border-top: 1px solid #404040;
+}
+
+.theme-sombre .bouton-pagination {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-pagination:disabled {
+  background: #333333;
+  color: #808080;
+}
+
+.theme-sombre .bouton-page {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-page.active {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  color: white;
+  border-color: #6d28d9;
+}
+
+/* Formulaire nouveau paiement */
+.theme-sombre .section-nouveau-paiement {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .section-nouveau-paiement h3 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .info-annee {
+  color: #a0a0a0;
+}
+
+.theme-sombre .etape {
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .etape h4 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .etape h4:before {
+  background: #6d28d9;
+  color: white;
+}
+
+/* Cartes frais en thème sombre */
+.theme-sombre .liste-frais-scolaires {
+  background: #2d2d2d;
+}
+
+.theme-sombre .carte-frais-scolaire {
+  background: #333333;
+  border: 2px solid #404040;
+}
+
+.theme-sombre .carte-frais-scolaire:hover {
+  border-color: #6d28d9;
+  transform: translateY(-2px);
+}
+
+.theme-sombre .carte-frais-scolaire.selectionne {
+  border-color: #6d28d9;
+  background: #1e1e3a;
+}
+
+.theme-sombre .entete-carte-frais h5 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .periodicite-frais {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.theme-sombre .montant-frais span {
+  color: #a0a0a0;
+}
+
+.theme-sombre .montant-restant {
+  color: #f87171;
+}
+
+.theme-sombre .info-frais {
+  color: #a0a0a0;
+}
+
+.theme-sombre .statut-frais-existant {
+  border-top-color: #404040;
+}
+
+/* Info scolarité en thème sombre */
+.theme-sombre .info-scolarite-globale {
+  background: #1e3a8a;
+  border: 1px solid #2563eb;
+}
+
+.theme-sombre .montant-total-scolarite,
+.theme-sombre .montant-restant-scolarite {
+  border-bottom: 1px solid #2563eb;
+  color: #e0e0e0;
+}
+
+.theme-sombre .versements-existants h5 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .carte-versement-existant {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .entete-versement {
+  color: #e0e0e0;
+}
+
+.theme-sombre .details-versement {
+  color: #a0a0a0;
+}
+
+.theme-sombre .date-paiement {
+  color: #808080;
+}
+
+/* Choix type paiement en thème sombre */
+.theme-sombre .choix-type-paiement h5 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .radio-label {
+  background: #333333;
+  border: 2px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .radio-label:hover {
+  border-color: #6d28d9;
+}
+
+.theme-sombre .radio-label input[type="radio"]:checked + * {
+  border-color: #6d28d9;
+  background: #1e1e3a;
+}
+
+/* Configuration versements en thème sombre */
+.theme-sombre .configuration-versements {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .simulation-versements h6 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .ligne-simulation {
+  border-bottom: 1px dashed #404040;
+  color: #a0a0a0;
+}
+
+.theme-sombre .ligne-simulation.total {
+  color: #e0e0e0;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .hint {
+  color: #a0a0a0;
+}
+
+.theme-sombre textarea {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre textarea:focus {
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.2);
+}
+
+/* Résumé paiement en thème sombre */
+.theme-sombre .resume-paiement {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .resume-paiement h5 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .ligne-resume {
+  border-bottom: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .montant-total {
+  color: #4ade80;
+}
+
+.theme-sombre .montant-restant {
+  color: #f87171;
+}
+
+/* Bouton suppression multiple */
+.theme-sombre .bouton-suppression-multiple {
+  background: #7f1d1d;
+  color: #fecaca;
+  border: 1px solid #991b1b;
+}
+
+.theme-sombre .bouton-suppression-multiple:hover:not(:disabled) {
+  background: #991b1b;
+  color: white;
+  border-color: #b91c1c;
+}
+
+.theme-sombre .bouton-suppression-multiple.actif {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+  color: white;
+}
+
+/* Bouton relance multiple */
+.theme-sombre .bouton-relance-multiple {
+  background: #064e3b;
+  color: #a7f3d0;
+  border: 1px solid #059669;
+}
+
+.theme-sombre .bouton-relance-multiple:hover:not(:disabled) {
+  background: #047857;
+  color: white;
+}
+
+/* Modal suppression multiple */
+.theme-sombre .overlay-modal-modern {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+.theme-sombre .modal-modern {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .en-tete-modal-modern {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-modal-modern h2 {
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-modal-modern {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.theme-sombre .bouton-fermer-modal-modern:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.theme-sombre .en-tete-modal-modern[style*="border-bottom: 2px solid #fee2e2"] {
+  border-bottom-color: #7f1d1d !important;
+}
+
+.theme-sombre .en-tete-modal-modern h2[style*="color: #dc2626"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .contenu-modal-modern div[style*="background: #fef2f2"] {
+  background: #3b1818 !important;
+  border-color: #7f1d1d !important;
+}
+
+.theme-sombre .contenu-modal-modern h3[style*="color: #991b1b"] {
+  color: #fecaca !important;
+}
+
+.theme-sombre .contenu-modal-modern p[style*="color: #b91c1c"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .contenu-modal-modern p[style*="color: #7f1d1d"] {
+  color: #fecaca !important;
+}
+
+.theme-sombre .contenu-modal-modern h4[style*="color: #1e293b"] {
+  color: #e0e0e0 !important;
+}
+
+.theme-sombre .contenu-modal-modern div[style*="border: 1px solid #e2e8f0"] {
+  border-color: #404040 !important;
+  background: #2d2d2d !important;
+}
+
+.theme-sombre .contenu-modal-modern thead[style*="background: #f8fafc"] {
+  background: #333333 !important;
+  border-bottom-color: #404040 !important;
+}
+
+.theme-sombre .contenu-modal-modern th {
+  background: #333333;
+  color: #a0a0a0;
+}
+
+.theme-sombre .contenu-modal-modern td {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.theme-sombre .contenu-modal-modern tr[style*="background: white"] {
+  background: #2d2d2d !important;
+}
+
+.theme-sombre .contenu-modal-modern tr[style*="background: #fafafa"] {
+  background: #333333 !important;
+}
+
+.theme-sombre .contenu-modal-modern td[style*="color: #64748b"] {
+  color: #a0a0a0 !important;
+}
+
+.theme-sombre .contenu-modal-modern td[style*="color: #059669"] {
+  color: #4ade80 !important;
+}
+
+.theme-sombre .contenu-modal-modern tfoot[style*="background: #f1f5f9"] {
+  background: #333333 !important;
+  border-top-color: #404040 !important;
+}
+
+.theme-sombre .contenu-modal-modern td[style*="color: #dc2626"] {
+  color: #f87171 !important;
+}
+
+.theme-sombre .bouton-danger-modern[style*="background: #94a3b8"] {
+  background: #404040 !important;
+}
+
+.theme-sombre .bouton-danger-modern[style*="background: #dc2626"] {
+  background: #991b1b !important;
+}
+
+.theme-sombre .bouton-danger-modern:hover:not(:disabled) {
+  background: #7f1d1d !important;
+}
+
+/* Modal relance multiple */
+.theme-sombre .stats-relance {
+  background: #333333;
+  border: 1px solid #404040;
+}
+
+.theme-sombre .stat-label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .stat-value {
+  color: #e0e0e0;
+}
+
+.theme-sombre .liste-eleves-relance h4 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .tableau-eleves-relance {
+  border: 1px solid #404040;
+}
+
+.theme-sombre .tableau-eleves-relance thead {
+  background: #333333;
+}
+
+.theme-sombre .tableau-eleves-relance th {
+  background: #333333;
+  color: #a0a0a0;
+  border-bottom: 2px solid #404040;
+}
+
+.theme-sombre .tableau-eleves-relance td {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+.theme-sombre .eleve-matricule {
+  color: #a0a0a0;
+}
+
+.theme-sombre .contact-ok {
+  color: #4ade80;
+}
+
+.theme-sombre .contact-manquant {
+  color: #f87171;
+}
+
+.theme-sombre .message-relance-preview h4 {
+  color: #e0e0e0;
+}
+
+.theme-sombre .message-editor textarea {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .message-editor textarea:focus {
+  border-color: #6d28d9;
+}
+
+.theme-sombre .btn-tool {
+  background: #404040;
+  border: 1px solid #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .btn-tool:hover {
+  background: #4a4a4a;
+  border-color: #6d28d9;
+}
+
+.theme-sombre .methodes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.theme-sombre .methode-btn {
+  background: #333333;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .methode-btn.whatsapp {
+  background: #064e3b;
+  border-color: #059669;
+}
+
+.theme-sombre .methode-btn.whatsapp:hover:not(:disabled) {
+  background: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.3);
+}
+
+.theme-sombre .methode-btn.impression {
+  background: #1e3a8a;
+  border-color: #2563eb;
+}
+
+.theme-sombre .methode-btn.impression:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.theme-sombre .methode-desc {
+  color: #a0a0a0;
+}
+
+/* Actions formulaire */
+.theme-sombre .actions-formulaire {
+  border-top: 1px solid #404040;
+}
+
+/* Chargement */
+.theme-sombre .chargement-tableau {
+  background: #2d2d2d;
+  color: #a0a0a0;
+}
+
+.theme-sombre .spinner {
+  border: 4px solid #404040;
+  border-top-color: #6d28d9;
+}
+
+/* Aucune donnée */
+.theme-sombre .aucune-donnee {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  color: #a0a0a0;
+}
+
+/* Élève nom lien */
+.theme-sombre .eleve-nom-link {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  cursor: pointer;
+}
+
+.theme-sombre .eleve-nom-link:hover {
+  color: #9b59b6;
+  text-decoration: underline;
+}
+
+/* Badge unique payé */
+.theme-sombre .badge-unique-paye[style*="background-color: #d4edda"] {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
+}
+
+.theme-sombre .badge-annuel-paye[style*="background-color: #cce5ff"] {
+  background-color: #1e3a8a !important;
+  color: #bfdbfe !important;
+}
+
+/* Scrollbar dans les modales */
+.theme-sombre .contenu-modal-modern::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+.theme-sombre .contenu-modal-modern::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 4px;
+}
+
+.theme-sombre .contenu-modal-modern::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Spinner petit */
+.theme-sombre .spinner-small {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* Transitions */
+.theme-sombre * {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.2s ease;
+}
+
+/* Responsive en thème sombre */
+@media (max-width: 768px) {
+  .theme-sombre .en-tete-paiements {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .theme-sombre .boutons-actions {
+    justify-content: center;
+  }
+  
+  .theme-sombre .entete-tableau {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .theme-sombre .actions-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .theme-sombre .liste-frais-scolaires {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .grille-details-paiement {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-sombre .actions-formulaire {
+    flex-direction: column;
+  }
+  
+  .theme-sombre .actions-formulaire button {
+    width: 100%;
+  }
+  
+  .theme-sombre .carte-frais-scolaire.desactive {
+    background-color: #333333;
+    border-color: #404040;
+  }
+}
+
+/* Animation de pulsation pour les boutons actifs */
+@keyframes pulse-sombre-paiements {
+  0% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(109, 40, 217, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0);
+  }
+}
+
+.theme-sombre .bouton-vue-finance.actif {
+  animation: pulse-sombre-paiements 2s infinite;
+}
+

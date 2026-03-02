@@ -1,0 +1,1142 @@
+.conteneur-gestion-frais {
+  padding: 20px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.en-tete-gestion-frais {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.titre-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.bouton-retour {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.bouton-retour:hover {
+  background: #4b5563;
+}
+
+.actions-principales {
+  display: flex;
+  gap: 15px;
+}
+
+.bouton-generation {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.bouton-generation:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+}
+
+.bouton-ajouter {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.bouton-ajouter:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+}
+
+/* Résumé financier */
+.resume-financier-frais {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.carte-resume {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-left: 4px solid #3b82f6;
+}
+
+.carte-resume:nth-child(2) {
+  border-left-color: #10b981;
+}
+
+.carte-resume:nth-child(3) {
+  border-left-color: #ef4444;
+}
+
+.carte-resume:nth-child(4) {
+  border-left-color: #8b5cf6;
+}
+
+.icone-resume {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.icone-resume.total {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.icone-resume.paye {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.icone-resume.impaye {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.icone-resume.count {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.info-resume {
+  flex: 1;
+}
+
+.valeur-resume {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.label-resume {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Filtres */
+.section-filtres-frais {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-filtres-frais h3 {
+  margin: 0 0 20px 0;
+  color: #1f2937;
+  font-size: 1.2rem;
+}
+
+.grille-filtres-frais {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  align-items: end;
+}
+
+.groupe-filtre {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupe-filtre label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.groupe-filtre input,
+.groupe-filtre select {
+  padding: 10px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.groupe-filtre input:focus,
+.groupe-filtre select:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.groupe-filtre.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.groupe-filtre.checkbox label {
+  margin-bottom: 0;
+  font-weight: normal;
+}
+
+.bouton-reinitialiser {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.bouton-reinitialiser:hover {
+  background: #4b5563;
+}
+
+/* Tableau */
+.tableau-frais-scolaires-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.en-tete-tableau {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.en-tete-tableau h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.3rem;
+}
+
+.actions-tableau {
+  display: flex;
+  gap: 10px;
+}
+
+.bouton-export {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.bouton-export:hover {
+  background: #059669;
+}
+
+.tableau-frais-scolaires {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableau-frais-scolaires th {
+  background: #ECECFB;
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.tableau-frais-scolaires td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+}
+
+.tableau-frais-scolaires tr:hover {
+  background: #f8fafc;
+}
+
+/* Lignes avec statuts colorés */
+.ligne-frais.statut-en_retard {
+  background: #fef2f2 !important;
+  border-left: 4px solid #ef4444;
+}
+
+.ligne-frais.statut-en_retard:hover {
+  background: #fecaca !important;
+}
+
+.ligne-frais.statut-partiel {
+  border-left: 4px solid #3b82f6;
+}
+
+.ligne-frais.statut-paye {
+  border-left: 4px solid #10b981;
+}
+
+/* Informations élève */
+.info-eleve {
+  min-width: 150px;
+}
+
+.nom-eleve {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.matricule-eleve {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+}
+
+/* Informations classe */
+.info-classe {
+  min-width: 100px;
+}
+
+.niveau-classe {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+
+.nom-classe {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Catégories */
+.badge-categorie {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-categorie.scolarite {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-categorie.divers {
+  background: #f0f9ff;
+  color: #0369a1;
+}
+
+.badge-categorie.penalite {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Montants */
+.montant-total {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.montant-paye {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.montant-reste {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* Date échéance */
+.date-echeance {
+  min-width: 120px;
+}
+
+.indicateur-retard {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+/* Badge statut */
+.badge-statut-frais {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+  display: inline-block;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Actions */
+.actions-frais {
+  display: flex;
+  gap: 8px;
+}
+
+.bouton-details,
+.bouton-payer {
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bouton-details {
+  background: #3b82f6;
+  color: white;
+}
+
+.bouton-details:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+.bouton-payer {
+  background: #10b981;
+  color: white;
+}
+
+.bouton-payer:hover:not(:disabled) {
+  background: #059669;
+  transform: scale(1.05);
+}
+
+.bouton-payer:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Aucun frais */
+.aucun-frais {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.icone-aucun-frais {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.aucun-frais h3 {
+  margin: 0 0 10px 0;
+  color: #374151;
+}
+
+.aucun-frais p {
+  margin: 0 0 20px 0;
+  font-size: 1rem;
+}
+
+.bouton-ajouter-premier {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.bouton-ajouter-premier:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+}
+
+/* Modals */
+.overlay-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-paiement-frais,
+.modal-generation-frais,
+.modal-detail-frais {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.en-tete-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.en-tete-modal h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.5rem;
+}
+
+.bouton-fermer-modal {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.bouton-fermer-modal:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.contenu-modal-paiement,
+.contenu-modal-generation,
+.contenu-modal-detail {
+  padding: 30px;
+}
+
+/* Styles spécifiques pour chaque modal */
+.info-frais-paiement {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.info-frais-paiement h3 {
+  margin: 0 0 15px 0;
+  color: #0369a1;
+}
+
+.details-frais p {
+  margin: 8px 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.formulaire-paiement,
+.formulaire-generation {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.groupe-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.groupe-champ label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.groupe-champ input,
+.groupe-champ select,
+.groupe-champ textarea {
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.groupe-champ input:focus,
+.groupe-champ select:focus,
+.groupe-champ textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.groupe-champ small {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Résumé paiement */
+.resume-paiement {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.resume-paiement h4 {
+  margin: 0 0 15px 0;
+  color: #374151;
+}
+
+.ligne-resume {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ligne-resume:last-child {
+  border-bottom: none;
+}
+
+.notification-complet {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+/* Prévisualisation génération */
+.previsualisation-generation {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.previsualisation-generation h4 {
+  margin: 0 0 10px 0;
+  color: #0369a1;
+}
+
+.previsualisation-generation p {
+  margin: 5px 0;
+  color: #64748b;
+}
+
+/* Sections détail */
+.section-info-eleve,
+.section-info-frais,
+.section-montants,
+.section-paiement,
+.section-notes {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.section-info-eleve h3,
+.section-info-frais h3,
+.section-montants h3,
+.section-paiement h3,
+.section-notes h3 {
+  margin: 0 0 15px 0;
+  color: #1f2937;
+  font-size: 1.1rem;
+}
+
+.grille-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.info-item span {
+  color: #1f2937;
+}
+
+.grille-montants {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.montant-item {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.montant-item label {
+  display: block;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.montant-item span {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.montant-item.total span {
+  color: #1f2937;
+}
+
+.montant-item.paye span {
+  color: #10b981;
+}
+
+.montant-item.reste span {
+  color: #ef4444;
+}
+
+/* Actions modal */
+.actions-modal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.bouton-annuler {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.bouton-annuler:hover {
+  background: #4b5563;
+}
+
+.bouton-confirmer {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.bouton-confirmer:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+}
+
+.bouton-confirmer:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Chargement */
+.chargement-frais {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.spinner-grand {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-left: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .en-tete-gestion-frais {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .actions-principales {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .grille-filtres-frais {
+    grid-template-columns: 1fr;
+  }
+  
+  .resume-financier-frais {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .modal-paiement-frais,
+  .modal-generation-frais,
+  .modal-ajout-frais,
+  .modal-detail-frais {
+    margin: 10px;
+    max-height: calc(100vh - 20px);
+  }
+  
+  .actions-modal {
+    flex-direction: column;
+  }
+  
+  .tableau-frais-scolaires-container {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .resume-financier-frais {
+    grid-template-columns: 1fr;
+  }
+  
+  .carte-resume {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .grille-info,
+  .grille-montants {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Styles pour le nouveau champ montant_base */
+.aide-montant {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Amélioration de la prévisualisation */
+.details-previsualisation {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.details-previsualisation p {
+  margin: 8px 0;
+  font-size: 0.9rem;
+}
+
+.details-previsualisation strong {
+  color: #374151;
+}
+
+/* Amélioration des champs du formulaire */
+.formulaire-generation .groupe-champ {
+  margin-bottom: 20px;
+}
+
+.formulaire-generation label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.formulaire-generation input,
+.formulaire-generation select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.formulaire-generation input:focus,
+.formulaire-generation select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Styles pour les badges de statut dans le solde détaillé */
+.badge-statut {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-statut.paye {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-statut.retard {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-statut.en-cours {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+/* Styles pour les nouveaux champs */
+.aide-periodicite {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Correction des inputs pour éviter les valeurs null */
+.formulaire-generation input[type="number"],
+.formulaire-ajout-frais input[type="number"],
+.formulaire-paiement input[type="number"] {
+  /* S'assurer que les valeurs sont toujours définies */
+  background-color: white;
+}
+
+/* Styles pour les inputs vides */
+.formulaire-generation input[type="number"]:placeholder-shown,
+.formulaire-ajout-frais input[type="number"]:placeholder-shown,
+.formulaire-paiement input[type="number"]:placeholder-shown {
+  color: #6b7280;
+}
+
+/* Amélioration de la prévisualisation */
+.details-previsualisation {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.details-previsualisation p {
+  margin: 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.details-previsualisation strong {
+  color: #374151;
+  min-width: 100px;
+  display: inline-block;
+}
+
+/* Styles pour les messages d'erreur */
+.erreur-champ {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Styles pour les champs obligatoires */
+.groupe-champ label::after {
+  content: " *";
+  color: #ef4444;
+}
+
+.groupe-champ:has(select[required]) label::after,
+.groupe-champ:has(input[required]) label::after {
+  content: " *";
+  color: #ef4444;
+}
+/* Styles pour les filtres */
+.section-filtres {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e9ecef;
+}
+
+.en-tete-filtres {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.en-tete-filtres h3 {
+  margin: 0;
+  color: #495057;
+  font-size: 1.1rem;
+}
+
+.grille-filtres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.groupe-filtre {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.groupe-filtre label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #495057;
+}
+
+.input-filtre {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: white;
+}
+
+.input-filtre:focus {
+  outline: none;
+  border-color: #4dabf7;
+  box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.1);
+}
+
+.resume-filtres {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+}
+
+.nombre-resultats {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Styles pour les colonnes triables */
+.colonne-triable {
+  position: relative;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.colonne-triable:hover {
+  background-color: #f8f9fa;
+}
+
+/* Styles pour les numéros de ligne */
+.numero-ligne {
+  text-align: center;
+  font-weight: 600;
+  color: #6c757d;
+  width: 60px;
+}
+
+/* Badges améliorés */
+.badge.avec-eleves {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge.sans-eleves {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Boutons améliorés */
+.bouton-secondaire.petit {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grille-filtres {
+    grid-template-columns: 1fr;
+  }
+  
+  .en-tete-filtres {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+}

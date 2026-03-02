@@ -1,0 +1,2073 @@
+.conteneur-tableau-de-bord {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: var(--font-geist-sans);
+}
+
+/* Barre latérale */
+.barre-laterale {
+  width: 280px;
+  background: linear-gradient(135deg, #1e293b 0%, #1b0f2a 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.en-tete-barre {
+  padding: 10px 28px;
+  border-bottom: 1px solid #334155;
+  text-align: center;
+}
+
+.logo-tableau-bord {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #f84aec 0%, #f8c567 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2px;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+}
+
+.icone-logo {
+  font-size: 1.8rem;
+}
+
+.titre-application {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #5e18f5;
+}
+
+.navigation-principale {
+  flex: 1;
+  padding: 5px 10px;
+  overflow-y: auto;
+}
+
+.groupe-menu {
+  margin-bottom: 2px;
+}
+
+.label-groupe {
+  font-size: 1rem;
+  background: linear-gradient(135deg, #610f6c21, #ff73f82d);
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 10px;
+  padding-left: 50px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.item-menu {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 5px 15px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.item-menu:hover {
+  background: linear-gradient(135deg, #b046e562 0%, #7c3aed65 100%);
+  color: white;
+  transform: translateX(5px);
+}
+
+.item-menu.actif {
+  background: linear-gradient(135deg, #b046e5 0%, #7c3aed 100%);
+  color: white;
+  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+}
+
+.icone-menu {
+  margin-right: 12px;
+  font-size: 1.1rem;
+}
+
+.pied-barre {
+  padding: 25px 20px;
+}
+
+.bouton-deconnexion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bouton-deconnexion:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
+}
+
+.icone-deconnexion {
+  margin-right: 12px;
+}
+
+.annee-scolaire-mini {
+  font-size: 14px;
+  color: #000c3b;
+  font-weight: 500;
+  text-align: center;
+  margin: 4px;
+}
+
+/* Contenu principal */
+.contenu-principal {
+  flex: 1;
+  margin-left: 280px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.en-tete-principal {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, #ffbd44 0%, #e988ff 100%);
+  padding: 10px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.recherche-globale {
+  position: relative;
+  width: 400px;
+}
+
+.champ-recherche {
+  width: 100%;
+  padding: 12px 20px 12px 45px;
+  border: 1px solid #bcbec1;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: #f8fafc;
+}
+
+.champ-recherche:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.icone-recherche {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+}
+
+.actions-utilisateur {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.bouton-notification {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.bouton-notification:hover {
+  background: #f1f5f9;
+}
+
+.badge-notification {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profil-utilisateur {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.initiale-avatar {
+  color: white;
+}
+
+.info-utilisateur {
+  text-align: left;
+}
+
+/* Contenu du tableau de bord */
+.contenu-tableau-bord {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.en-tete-section {
+  margin-bottom: 30px;
+}
+
+.titre-section {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.sous-titre-section {
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+/* Grille de cartes statistiques */
+.grille-cartes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.carte-statistique {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #f1f5f9;
+}
+
+.carte-statistique:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.carte-primaire {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+}
+
+.carte-secondaire {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  color: white;
+}
+
+.carte-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.carte-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.effet-lueur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.contenu-carte {
+  position: relative;
+  z-index: 2;
+}
+
+.en-tete-carte {
+  display: flex;
+  justify-content: between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.titre-carte {
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.9;
+  margin: 0;
+  flex: 1;
+}
+
+.icone-carte {
+  font-size: 1.5rem;
+  opacity: 0.8;
+}
+
+.valeur-carte {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.evolution-carte {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.evolution-carte.positive {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.evolution-carte.negative {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.slogan-ecole-en-tete {
+  background: linear-gradient(135deg, #f59f0b0e 0%, #06a8d919 100%);
+  color: white;
+  font-size: 13px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid #f1f5f9;
+}
+
+/* Grille de contenu */
+.grille-contenu {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+}
+
+.carte-graphique, .carte-activites {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f1f5f9;
+}
+
+.en-tete-carte {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.bouton-options {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #64748b;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.bouton-options:hover {
+  background: #f1f5f9;
+}
+
+/* Graphique placeholder */
+.contenu-graphique {
+  height: 200px;
+}
+
+.graphique-placeholder {
+  display: flex;
+  align-items: end;
+  gap: 15px;
+  height: 100%;
+  padding: 20px 0;
+}
+
+.barre-graphique {
+  flex: 1;
+  background: linear-gradient(to top, #4f46e5, #7c3aed);
+  border-radius: 4px 4px 0 0;
+  min-height: 20px;
+  transition: all 0.3s ease;
+}
+
+.barre-graphique:hover {
+  opacity: 0.8;
+  transform: scaleY(1.1);
+}
+
+.item-activite {
+  display: flex;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.3s ease;
+}
+
+.item-activite:hover {
+  background: #f8fafc;
+  margin: 0 -15px;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.item-activite:last-child {
+  border-bottom: none;
+}
+
+.icone-activite {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.icone-activite.nouvelle {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.icone-activite.note {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.icone-activite.absence {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.details-activite {
+  flex: 1;
+}
+
+.titre-activite {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.description-activite {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.heure-activite {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+/* Écran de chargement */
+.chargement-ecran {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.spinner-grand {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .barre-laterale {
+    width: 250px;
+  }
+  
+  .contenu-principal {
+    margin-left: 250px;
+  }
+  
+  .grille-contenu {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .barre-laterale {
+    transform: translateX(-100%);
+  }
+  
+  .barre-laterale.mobile-ouvert {
+    transform: translateX(0);
+  }
+  
+  .contenu-principal {
+    margin-left: 0;
+  }
+  
+  .en-tete-principal {
+    padding: 15px 20px;
+  }
+   
+  .grille-cartes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Menu déroulant du profil */
+.conteneur-profil-utilisateur {
+  position: relative;
+}
+
+.profil-utilisateur {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  border: none;
+}
+
+.profil-utilisateur:hover {
+  background: #eeaaff;
+}
+
+.avatar-utilisateur {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.initiale-avatar {
+  color: white;
+}
+
+.info-utilisateur {
+  text-align: left;
+  flex: 1;
+}
+
+.nom-utilisateur {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.8rem;
+}
+
+.role-utilisateur {
+  font-size: 0.8rem;
+  color: #414f62;
+  text-transform: capitalize;
+}
+
+.fleche-menu {
+  transition: transform 0.3s ease;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.fleche-menu.ouvert {
+  transform: rotate(180deg);
+}
+
+/* Menu déroulant */
+.menu-deroulant-profil {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+  z-index: 100;
+  animation: slideDown 0.3s ease;
+  margin-top: 8px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.en-tete-menu-profil {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.avatar-menu {
+  width: 53px;
+  height: 53px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #160be0 0%, #bf00ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.initiale-avatar-menu {
+  color: white;
+}
+
+.info-menu-profil {
+  flex: 1;
+}
+
+.nom-menu-profil {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.7rem;
+}
+
+.email-menu-profil {
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.separateur-menu {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 0;
+}
+
+.item-menu-profil {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  background: none;
+  border: none;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.item-menu-profil:hover {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.icone-item-menu {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Modal de profil */
+.overlay-profil {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-profil {
+  background: white;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: scaleIn 0.3s ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.en-tete-modal-profil {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 25px 30px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.titre-modal-profil {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1e293b;
+  margin: 0;
+}
+
+.bouton-fermer-modal {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.bouton-fermer-modal:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.contenu-modal-profil {
+  padding: 30px;
+}
+
+.section-avatar-profil {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.avatar-grand {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 2rem;
+  margin: 0 auto 15px;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+}
+
+.initiale-avatar-grand {
+  color: white;
+}
+
+.bouton-changer-avatar {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.bouton-changer-avatar:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.formulaire-profil {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.groupe-champ-profil {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label-champ-profil {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.champ-profil {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.champ-profil:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.champ-role-profil {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #f8fafc;
+  color: #64748b;
+  text-transform: capitalize;
+}
+
+.texte-aide-profil {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.actions-modal-profil {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.bouton-annuler-profil {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.bouton-annuler-profil:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.bouton-sauvegarder-profil {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bouton-sauvegarder-profil:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .menu-deroulant-profil {
+    width: 250px;
+    right: -10px;
+  }
+  
+  .modal-profil {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .en-tete-modal-profil {
+    padding: 20px;
+  }
+  
+  .contenu-modal-profil {
+    padding: 20px;
+  }
+  
+  .actions-modal-profil {
+    flex-direction: column;
+  }
+}
+
+/* En-tête de l'école */
+.en-tete-ecole {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-right: auto;
+}
+
+.logo-ecole-en-tete {
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-ecole-image {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+}
+
+.logo-ecole-placeholder {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.info-ecole-en-tete {
+  display: flex;
+  flex-direction: column;
+}
+
+.nom-ecole-en-tete {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+  text-shadow: 1px 1px 1px rgb(255, 255, 255);
+}
+
+.sous-titre-ecole-en-tete {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Alerte de succès */
+.alerte-succes {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  z-index: 3000;
+  animation: slideInRight 0.5s ease, fadeOut 0.5s ease 6.5s forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.contenu-alerte-succes {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+}
+
+.icone-alerte {
+  font-size: 1.2rem;
+}
+
+.texte-alerte {
+  flex: 1;
+  font-weight: 500;
+}
+
+.bouton-fermer-alerte {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.bouton-fermer-alerte:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Navigation modal profil */
+.navigation-modal-profil {
+  display: flex;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 0 30px;
+}
+
+.onglet-profil {
+  background: none;
+  border: none;
+  padding: 15px 20px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  position: relative;
+}
+
+.onglet-profil.actif {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+}
+
+.onglet-profil:hover:not(.actif) {
+  color: #374151;
+  background: #f8fafc;
+}
+
+/* Section mot de passe */
+.section-mot-de-passe {
+  padding: 10px 0;
+}
+
+.titre-section-mot-de-passe {
+  font-size: 1.3rem;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.description-section-mot-de-passe {
+  color: #64748b;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.formulaire-mot-de-passe {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Améliorations responsive */
+@media (max-width: 1024px) {
+  .en-tete-ecole {
+    display: none;
+  }
+  
+  .contenu-alerte-succes {
+    min-width: 250px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .en-tete-principal {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .en-tete-ecole {
+    display: flex;
+    order: 1;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  
+  .recherche-globale {
+    order: 2;
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .actions-utilisateur {
+    order: 3;
+  }
+  
+  .alerte-succes {
+    top: 80px;
+    right: 15px;
+    left: 15px;
+  }
+  
+  .contenu-alerte-succes {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .navigation-modal-profil {
+    flex-direction: column;
+    padding: 0 20px;
+  }
+  
+  .onglet-profil {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    text-align: left;
+  }
+  
+  .onglet-profil.actif {
+    border-left-color: #4f46e5;
+    border-bottom-color: transparent;
+  }
+}
+/* Système de mot de passe avec œil */
+.conteneur-input-mot-de-passe {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.champ-mot-de-passe {
+  padding-right: 180px !important;
+}
+
+.bouton-oeil-mot-de-passe {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  color: #64748b;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bouton-oeil-mot-de-passe:hover {
+  background: #f1f5f9;
+  color: #374151;
+}
+
+.bouton-oeil-mot-de-passe:active {
+  transform: scale(0.95);
+}
+
+/* Système de changement de photo de profil */
+.avatar-grand-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar-grand {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+  transition: all 0.3s ease;
+}
+
+.avatar-grand:hover {
+  transform: scale(1.05);
+}
+
+.image-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.initiale-avatar-grand {
+  color: white;
+  z-index: 2;
+}
+
+.overlay-chargement-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 3;
+}
+
+.spinner-avatar {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.actions-avatar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.bouton-changer-avatar {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border: none;
+  color: rgb(15, 14, 14);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bouton-changer-avatar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+}
+
+.bouton-changer-avatar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.bouton-supprimer-avatar {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bouton-supprimer-avatar:hover:not(:disabled) {
+  background: #fee2e2;
+  transform: translateY(-1px);
+}
+
+.bouton-supprimer-avatar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.input-fichier-cache {
+  display: none;
+}
+
+/* Indicateur de force du mot de passe */
+.indicateur-force-mot-de-passe {
+  margin-top: 8px;
+}
+
+.barre-force-mot-de-passe {
+  height: 4px;
+  border-radius: 2px;
+  background: #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.progression-force-mot-de-passe {
+  height: 100%;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.progression-force-mot-de-passe.faible {
+  background: #ef4444;
+  width: 33%;
+}
+
+.progression-force-mot-de-passe.moyen {
+  background: #f59e0b;
+  width: 66%;
+}
+
+.progression-force-mot-de-passe.fort {
+  background: #10b981;
+  width: 100%;
+}
+
+.texte-force-mot-de-passe {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Animation pour le changement d'avatar */
+@keyframes pulse-avatar {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
+.avatar-grand.chargement {
+  animation: pulse-avatar 2s infinite;
+}
+
+/* Tooltip pour les boutons */
+.bouton-changer-avatar,
+.bouton-supprimer-avatar,
+.bouton-oeil-mot-de-passe {
+  position: relative;
+}
+
+.bouton-changer-avatar:hover::after,
+.bouton-supprimer-avatar:hover::after,
+.bouton-oeil-mot-de-passe:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgb(1, 1, 1);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
+  margin-bottom: 5px;
+}
+
+.bouton-changer-avatar:hover::after,
+.bouton-supprimer-avatar:hover::after {
+  content: attr(title);
+}
+
+.bouton-oeil-mot-de-passe:hover::after {
+  content: attr(title);
+}
+
+/* Responsive pour les actions avatar */
+@media (max-width: 480px) {
+  .actions-avatar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .bouton-changer-avatar,
+  .bouton-supprimer-avatar {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+  
+  .avatar-grand {
+    width: 100px;
+    height: 100px;
+    font-size: 2rem;
+  }
+}
+
+/* Amélioration de l'accessibilité */
+.bouton-oeil-mot-de-passe:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+.bouton-changer-avatar:focus,
+.bouton-supprimer-avatar:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* Transition pour les changements d'état */
+.avatar-grand,
+.bouton-changer-avatar,
+.bouton-supprimer-avatar,
+.bouton-oeil-mot-de-passe {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* États de validation pour les mots de passe */
+.champ-mot-de-passe:invalid {
+  border-color: #ef4444;
+}
+
+.champ-mot-de-passe:valid {
+  border-color: #10b981;
+}
+
+/* Style pour les messages d'information */
+.info-upload-photo {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.texte-info-upload {
+  font-size: 0.8rem;
+  color: #0369a1;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.texte-info-upload strong {
+  font-weight: 600;
+}
+
+/* Menu déroulant des notes */
+.menu-deroulant-notes {
+  position: relative;
+}
+
+.menu-deroulant-notes .item-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.fleche-menu {
+  font-size: 10px;
+  transition: transform 0.3s ease;
+  margin-left: auto;
+  padding-left: 10px;
+}
+
+.menu-deroulant-notes .sous-menu-notes {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-top: 5px;
+  padding: 5px 0;
+  z-index: 100;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sous-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4a5568;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.sous-menu-item:hover {
+  background-color: #f7fafc;
+  color: #2d3748;
+}
+
+.icone-sous-menu {
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+/* Correction pour que le bouton Notes ne clique pas sur Collège/Lycée */
+.menu-deroulant-notes > .item-menu {
+  cursor: pointer;
+}
+
+.menu-deroulant-notes > .item-menu:focus {
+  outline: none;
+}
+
+/* Empêcher le clic de se propager aux sous-menus */
+.menu-deroulant-notes > .item-menu > * {
+  pointer-events: none;
+}
+
+/* Sauf pour la flèche */
+.fleche-menu {
+  pointer-events: auto;
+}
+
+/* Empêcher le bouton Notes d'avoir un effet de clic qui ouvre le module */
+.menu-deroulant-notes > .item-menu {
+  position: relative;
+  z-index: 10;
+}
+
+/* S'assurer que le sous-menu apparaît au-dessus des autres éléments */
+.menu-deroulant-notes > .sous-menu-notes {
+  z-index: 1000;
+}
+
+/* Style pour l'état actif du menu notes */
+.menu-deroulant-notes > .item-menu.actif {
+  background-color: #667eea;
+  color: white;
+}
+
+/* Animation pour la flèche */
+.fleche-menu {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-deroulant-notes .item-menu:hover .fleche-menu {
+  transform: scale(1.2);
+}
+
+/* Effet de survol pour le menu déroulant */
+.menu-deroulant-notes:hover .sous-menu-notes {
+  display: block;
+}
+
+/* Version mobile-friendly */
+@media (max-width: 768px) {
+  .menu-deroulant-notes {
+    position: static;
+  }
+  
+  .menu-deroulant-notes .sous-menu-notes {
+    position: static;
+    box-shadow: none;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 0;
+    border-radius: 0;
+    padding-left: 20px;
+    background: rgba(0, 0, 0, 0.02);
+  }
+  
+  .sous-menu-item {
+    padding: 12px 20px;
+  }
+}
+/* ==================== THÈME SOMBRE ==================== */
+.theme-sombre {
+  background: #1a1a1a;
+}
+
+.theme-sombre .conteneur-tableau-de-bord {
+  background: #1a1a1a;
+}
+
+/* Barre latérale en thème sombre */
+.theme-sombre .barre-laterale {
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+  border-right: 1px solid #404040;
+}
+
+.theme-sombre .en-tete-barre {
+  border-bottom-color: #404040;
+}
+
+.theme-sombre .logo-tableau-bord {
+  background: linear-gradient(135deg, #b046e5 0%, #7c3aed 100%);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .titre-application {
+  color: #e0e0e0;
+}
+
+.theme-sombre .sous-titre {
+  color: #a0a0a0;
+}
+
+.theme-sombre .label-groupe {
+  color: #a0a0a0;
+  background: linear-gradient(135deg, #40404021, #3333332d);
+}
+
+.theme-sombre .item-menu {
+  color: #e0e0e0;
+}
+
+.theme-sombre .item-menu:hover {
+  background: linear-gradient(135deg, #b046e580 0%, #7c3aed80 100%);
+}
+
+.theme-sombre .item-menu.actif {
+  background: linear-gradient(135deg, #b046e5 0%, #7c3aed 100%);
+  color: white;
+}
+
+.theme-sombre .pied-barre {
+  border-top-color: #404040;
+}
+
+.theme-sombre .info-systeme {
+  color: #a0a0a0;
+}
+
+/* Contenu principal en thème sombre */
+.theme-sombre .contenu-principal {
+  background: #1a1a1a;
+}
+
+.theme-sombre .en-tete-principal {
+  background: linear-gradient(135deg, #2d2d2d 0%, #333333 100%);
+  border-bottom-color: #404040 !important;
+}
+
+.theme-sombre .nom-ecole-en-tete {
+  color: #e0e0e0 !important;
+  text-shadow: 1px 1px 1px #000000;
+}
+
+.theme-sombre .slogan-ecole-en-tete {
+  color: #a0a0a0;
+  background: linear-gradient(135deg, #40404021, #3333332d);
+}
+
+.theme-sombre .annee-scolaire-mini {
+  color: #a0a0a0;
+}
+
+/* Profil utilisateur en thème sombre */
+.theme-sombre .profil-utilisateur {
+  background: #333333;
+}
+
+.theme-sombre .profil-utilisateur:hover {
+  background: #404040;
+}
+
+.theme-sombre .nom-utilisateur {
+  color: #e0e0e0;
+}
+
+.theme-sombre .role-utilisateur {
+  color: #a0a0a0;
+}
+
+.theme-sombre .menu-deroulant-profil {
+  background: #2d2d2d;
+  border-color: #404040;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .en-tete-menu-profil {
+  border-bottom-color: #404040;
+}
+
+.theme-sombre .nom-menu-profil {
+  color: #e0e0e0;
+}
+
+.theme-sombre .email-menu-profil {
+  color: #a0a0a0;
+}
+
+.theme-sombre .badge-role-profil {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .separateur-menu {
+  background: #404040;
+}
+
+.theme-sombre .item-menu-profil {
+  color: #e0e0e0;
+}
+
+.theme-sombre .item-menu-profil:hover {
+  background: #404040;
+  color: white;
+}
+
+/* Contenu du tableau de bord en thème sombre */
+.theme-sombre .contenu-tableau-bord {
+  background: #1a1a1a;
+}
+
+.theme-sombre .titre-section {
+  color: #e0e0e0;
+}
+
+.theme-sombre .sous-titre-section {
+  color: #a0a0a0;
+}
+
+/* Cartes statistiques en thème sombre */
+.theme-sombre .carte-statistique {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+.theme-sombre .carte-statistique.primaire,
+.theme-sombre .carte-statistique.secondaire,
+.theme-sombre .carte-statistique.success,
+.theme-sombre .carte-statistique.warning {
+  background: linear-gradient(135deg, #2d2d2d 0%, #333333 100%);
+  color: #e0e0e0;
+}
+
+.theme-sombre .titre-carte {
+  color: #e0e0e0;
+}
+
+.theme-sombre .valeur-carte {
+  color: #e0e0e0;
+}
+
+/* Graphiques et activités en thème sombre */
+.theme-sombre .carte-graphique,
+.theme-sombre .carte-activites {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+.theme-sombre .barre-graphique {
+  background: linear-gradient(to top, #b046e5, #7c3aed);
+}
+
+.theme-sombre .item-activite {
+  border-bottom-color: #404040;
+}
+
+.theme-sombre .item-activite:hover {
+  background: #333333;
+}
+
+.theme-sombre .titre-activite {
+  color: #e0e0e0;
+}
+
+.theme-sombre .description-activite {
+  color: #a0a0a0;
+}
+
+.theme-sombre .heure-activite {
+  color: #808080;
+}
+
+/* Icônes d'activité en thème sombre */
+.theme-sombre .icone-activite.nouvelle {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.theme-sombre .icone-activite.note {
+  background: #065f46;
+  color: #a7f3d0;
+}
+
+.theme-sombre .icone-activite.absence {
+  background: #92400e;
+  color: #fde68a;
+}
+
+/* Recherche en thème sombre */
+.theme-sombre .champ-recherche {
+  background: #333333;
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .champ-recherche:focus {
+  border-color: #b046e5;
+  background: #404040;
+}
+
+.theme-sombre .icone-recherche {
+  color: #808080;
+}
+
+/* Notifications en thème sombre */
+.theme-sombre .bouton-notification:hover {
+  background: #404040;
+}
+
+/* Modal de profil en thème sombre */
+.theme-sombre .modal-profil {
+  background: #2d2d2d;
+}
+
+.theme-sombre .en-tete-modal-profil {
+  border-bottom-color: #404040;
+}
+
+.theme-sombre .titre-modal-profil {
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-fermer-modal {
+  color: #a0a0a0;
+}
+
+.theme-sombre .bouton-fermer-modal:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+/* Navigation du modal en thème sombre */
+.theme-sombre .navigation-modal-profil {
+  border-bottom-color: #404040;
+}
+
+.theme-sombre .onglet-profil {
+  color: #a0a0a0;
+}
+
+.theme-sombre .onglet-profil.actif {
+  color: #b046e5;
+  border-bottom-color: #b046e5;
+}
+
+.theme-sombre .onglet-profil:hover:not(.actif) {
+  color: #e0e0e0;
+  background: #404040;
+}
+
+/* Champs du formulaire en thème sombre */
+.theme-sombre .groupe-champ-profil label {
+  color: #a0a0a0;
+}
+
+.theme-sombre .champ-profil {
+  background: #333333;
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .champ-profil:focus {
+  border-color: #b046e5;
+  box-shadow: 0 0 0 3px rgba(176, 70, 229, 0.1);
+}
+
+.theme-sombre .champ-role-profil {
+  background: #404040;
+  border-color: #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .texte-aide-profil {
+  color: #808080;
+}
+
+/* Boutons du modal en thème sombre */
+.theme-sombre .bouton-annuler-profil {
+  background: #404040;
+  border-color: #4a4a4a;
+  color: #a0a0a0;
+}
+
+.theme-sombre .bouton-annuler-profil:hover {
+  background: #4a4a4a;
+  border-color: #555;
+}
+
+.theme-sombre .bouton-sauvegarder-profil {
+  background: linear-gradient(135deg, #b046e5 0%, #7c3aed 100%);
+}
+
+/* Section avatar en thème sombre */
+.theme-sombre .avatar-grand {
+  background: linear-gradient(135deg, #b046e5 0%, #7c3aed 100%);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.theme-sombre .bouton-changer-avatar {
+  background: #404040;
+  border-color: #4a4a4a;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-changer-avatar:hover {
+  background: #4a4a4a;
+  border-color: #555;
+}
+
+.theme-sombre .bouton-supprimer-avatar {
+  background: #3b1818;
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+.theme-sombre .bouton-supprimer-avatar:hover {
+  background: #4f1d1d;
+}
+
+/* Section mot de passe en thème sombre */
+.theme-sombre .titre-section-mot-de-passe {
+  color: #e0e0e0;
+}
+
+.theme-sombre .description-section-mot-de-passe {
+  color: #a0a0a0;
+}
+
+.theme-sombre .conteneur-input-mot-de-passe input {
+  background: #333333;
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+.theme-sombre .bouton-oeil-mot-de-passe {
+  color: #a0a0a0;
+}
+
+.theme-sombre .bouton-oeil-mot-de-passe:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+/* Écran de chargement en thème sombre */
+.theme-sombre .chargement-ecran {
+  background: #1a1a1a;
+  color: #a0a0a0;
+}
+
+.theme-sombre .spinner-grand {
+  border-color: #404040;
+  border-top-color: #b046e5;
+}
+
+/* Overlay en thème sombre */
+.theme-sombre .overlay-profil {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Alerte en thème sombre */
+.theme-sombre .contenu-alerte-succes {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Menu déroulant des notes en thème sombre */
+.theme-sombre .menu-deroulant-notes .sous-menu-notes {
+  background: #2d2d2d;
+  border-color: #404040;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.theme-sombre .sous-menu-item {
+  color: #e0e0e0;
+}
+
+.theme-sombre .sous-menu-item:hover {
+  background: #404040;
+  color: white;
+}
+
+/* Responsive en thème sombre */
+@media (max-width: 768px) {
+  .theme-sombre .menu-deroulant-notes .sous-menu-notes {
+    background: #333333;
+  }
+}

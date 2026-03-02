@@ -1,0 +1,77 @@
+.avatar {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Tailles */
+.avatar.small {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8rem;
+}
+
+.avatar.medium {
+  width: 45px;
+  height: 45px;
+  font-size: 1rem;
+}
+
+.avatar.large {
+  width: 80px;
+  height: 80px;
+  font-size: 1.8rem;
+}
+
+.avatar.xlarge {
+  width: 120px;
+  height: 120px;
+  font-size: 2.5rem;
+}
+
+/* États */
+.avatar-chargement {
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-initiales {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/* Image */
+.image-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Spinner */
+.spinner-avatar {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Initiales */
+.initiales-avatar {
+  color: white;
+  font-weight: 600;
+}

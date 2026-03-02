@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // ou "postgresql" ou "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Modèle Cours
+model Cours {
+  code_cours    String   @id
+  nom_cours     String
+  description   String?
+  professeur_id Int
+  classe_id     Int
+  jour_semaine  String
+  heure_debut   String   // ou DateTime si vous préférez
+  heure_fin     String
+  salle         String?
+  couleur       String?
+  statut        String   @default("actif")
+  
+  professeur    Enseignant @relation(fields: [professeur_id], references: [id])
+  classe        Classe     @relation(fields: [classe_id], references: [id])
+  matiere       Matiere?   @relation(fields: [matiere_id], references: [id])
+  matiere_id    Int?
+}
+
+// Modèle Enseignant (pour la relation)
+model Enseignant {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  prenom      String
+  email       String   @unique
+  telephone   String?
+  specialite  String?
+  statut      String   @default("actif")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // Relations
+  cours       Cours[]
+}
+
+// Modèle Classe (pour la relation)
+model Classe {
+  id              Int      @id @default(autoincrement())
+  nom             String
+  niveau          String
+  annee_scolaire  String
+  capacite_max    Int      @default(30)
+  professeur_id   Int?
+  statut          String   @default("active")
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  // Relations
+  cours           Cours[]
+  professeur      Enseignant? @relation(fields: [professeur_id], references: [id])
+}
+
+// Modèle Note (si vous en avez besoin)
+model Note {
+  id          Int      @id @default(autoincrement())
+  cours_id    Int
+  eleve_id    Int
+  valeur      Float
+  coefficient Int      @default(1)
+  type        String   // 'devoir', 'examen', 'participation'
+  commentaire String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // Relations
+  cours       Cours   @relation(fields: [cours_id], references: [id])
+  
+  @@unique([cours_id, eleve_id, type])
+}
+

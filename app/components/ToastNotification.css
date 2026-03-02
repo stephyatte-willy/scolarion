@@ -1,0 +1,288 @@
+/* Toast Notifications */
+.toasts-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.toast-notification {
+  min-width: 300px;
+  max-width: 400px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.3s ease-out;
+  transition: transform 0.3s ease-out;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toast-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+.toast-notification.success {
+  background-color: #10B981;
+  color: white;
+  border-left: 4px solid #059669;
+}
+
+.toast-notification.error {
+  background-color: #EF4444;
+  color: white;
+  border-left: 4px solid #DC2626;
+}
+
+.toast-notification.warning {
+  background-color: #F59E0B;
+  color: white;
+  border-left: 4px solid #D97706;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.toast-notification.exiting {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Styles pour les sections ajoutées */
+.section-matieres-primaires,
+.section-periodes-primaires {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.liste-matieres,
+.liste-periodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.carte-matiere,
+.carte-periode {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 15px;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+
+.carte-matiere:hover,
+.carte-periode:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.en-tete-matiere,
+.info-periode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.icone-matiere {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+}
+
+.info-matiere h4,
+.info-periode h4 {
+  margin: 0 0 5px 0;
+  color: #2d3748;
+}
+
+.details-matiere,
+.details-periode {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.details-matiere .detail,
+.details-periode .detail {
+  font-size: 12px;
+  color: #718096;
+  background: #edf2f7;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.actions-matiere,
+.actions-periode {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.bouton-modifier, .bouton-supprimer {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.bouton-modifier {
+  background: #4299e1;
+  color: white;
+}
+
+.bouton-modifier:hover {
+  background: #3182ce;
+}
+
+.bouton-supprimer {
+  background: #fc8181;
+  color: white;
+}
+
+.bouton-supprimer:hover {
+  background: #f56565;
+}
+
+.carte-periode.periode-courante {
+  border: 2px solid #f59e0b;
+  background: #fef3c7;
+}
+
+.badge-courante {
+  background: #f59e0b;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Modals de confirmation */
+.modal-confirmation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-confirmation-contenu {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.texte-avertissement {
+  color: #e53e3e;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.actions-confirmation {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.bouton-confirmer {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.bouton-confirmer:hover {
+  background: #c53030;
+}
+
+.aucune-matiere,
+.aucune-periode {
+  text-align: center;
+  padding: 30px;
+  color: #718096;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-top: 10px;
+}
