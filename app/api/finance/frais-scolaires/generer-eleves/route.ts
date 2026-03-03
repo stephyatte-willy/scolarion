@@ -1,6 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour les résultats
+interface FraisScolaire {
+  id: number;
+  montant: number;
+  classe_id: number;
+  classe_nom: string;
+  classe_niveau: string;
+  categorie_nom: string;
+  [key: string]: any;
+}
+
+interface Eleve {
+  id: number;
+  nom: string;
+  prenom: string;
+  matricule: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🔄 API Génération frais élèves - Début');
@@ -24,14 +42,17 @@ export async function POST(request: NextRequest) {
       WHERE fs.id = ?
     `;
     
-    const [frais] = await query(fraisQuery, [frais_scolaire_id]);
-
-    if (!frais) {
+    // ✅ Correction : Récupérer le résultat et vérifier que c'est un tableau
+    const fraisResult = await query(fraisQuery, [frais_scolaire_id]) as FraisScolaire[];
+    
+    if (!Array.isArray(fraisResult) || fraisResult.length === 0) {
       return NextResponse.json(
         { success: false, erreur: 'Frais scolaire non trouvé' },
         { status: 404 }
       );
     }
+    
+    const frais = fraisResult[0];
 
     // Récupérer les élèves actifs de la classe
     const elevesQuery = `
@@ -40,9 +61,12 @@ export async function POST(request: NextRequest) {
       WHERE classe_id = ? AND statut = 'actif'
     `;
     
-    const eleves = await query(elevesQuery, [frais.classe_id]);
+    const elevesResult = await query(elevesQuery, [frais.classe_id]) as Eleve[];
+    
+    // ✅ Vérifier que c'est un tableau
+    const eleves = Array.isArray(elevesResult) ? elevesResult : [];
 
-    if (!eleves || eleves.length === 0) {
+    if (eleves.length === 0) {
       return NextResponse.json(
         { 
           success: false, 
@@ -64,9 +88,10 @@ export async function POST(request: NextRequest) {
           WHERE frais_scolaire_id = ? AND eleve_id = ? AND statut = 'actif'
         `;
         
-        const existe = await query(checkQuery, [frais_scolaire_id, eleve.id]);
+        const existeResult = await query(checkQuery, [frais_scolaire_id, eleve.id]) as any[];
+        const existe = Array.isArray(existeResult) && existeResult.length > 0;
         
-        if (existe && existe.length > 0) {
+        if (existe) {
           console.log(`Frais déjà existant pour l'élève ${eleve.matricule}`);
           continue;
         }
