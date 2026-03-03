@@ -1,13 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour les paramètres
+interface RouteParams {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams  // ✅ Interface avec Promise
 ) {
   try {
-    const { id } = params;
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
     console.log('🔄 API partage relevé ID:', id);
+    
+    // Validation de l'ID
+    const idNum = parseInt(id);
+    if (isNaN(idNum) || idNum <= 0) {
+      console.log('❌ ID invalide:', id);
+      return NextResponse.json({
+        success: false,
+        error: 'ID de relevé invalide'
+      }, { status: 400 });
+    }
     
     // Récupérer les paramètres de l'école
     const ecoleSql = 'SELECT * FROM parametres LIMIT 1';
@@ -47,7 +65,7 @@ export async function GET(
       WHERE r.id = ?
     `;
     
-    const releveResult = await query(releveSql, [parseInt(id)]);
+    const releveResult = await query(releveSql, [idNum]) as any[];
     
     if (!releveResult || releveResult.length === 0) {
       console.log('❌ Relevé non trouvé pour ID:', id);
@@ -112,7 +130,7 @@ export async function GET(
             )
           ORDER BY mp.nom
         `;
-        const notesResult = await query(notesSql, [releve.eleve_id, releve.periode_id]);
+        const notesResult = await query(notesSql, [releve.eleve_id, releve.periode_id]) as any[];
         notesDetaillees = notesResult || [];
         console.log(`📝 ${notesDetaillees.length} notes détaillées trouvées`);
       } catch (error) {
@@ -146,7 +164,7 @@ export async function GET(
       });
       
       // Calculer les moyennes
-      moyennesParsed = Array.from(matiereMap.values()).map((matiere: any) => ({
+      moyennesParsed = Array.from(matieresMap.values()).map((matiere: any) => ({
         ...matiere,
         note: matiere.count > 0 ? (matiere.total / matiere.count) : 0,
         moyenne_matiere: matiere.count > 0 ? (matiere.total / matiere.count) : 0,
