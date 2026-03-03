@@ -2,6 +2,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour typer les résultats
+interface Cours {
+  code_cours: string;
+  classe_id: number;
+  professeur_id: number;
+  jour_semaine: string;
+  heure_debut: string;
+  heure_fin: string;
+  salle?: string;
+  couleur?: string;
+  nom_cours?: string;
+  description?: string;
+  [key: string]: any;
+}
+
+interface EmploiDuTemps {
+  id: number;
+  code_cours: string;
+  classe_id: number;
+  professeur_id: number;
+  jour_semaine: string;
+  heure_debut: string;
+  heure_fin: string;
+  salle?: string;
+  couleur?: string;
+  [key: string]: any;
+}
+
 // POST: Synchroniser un cours vers l'emploi du temps
 export async function POST(request: NextRequest) {
   try {
@@ -20,21 +48,22 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // CORRECTION : Requête avec la bonne jointure pour users
+    // CORRECTION : Typer le résultat comme un tableau
     const coursSql = `
       SELECT c.*, 
-             CONCAT(u.prenom, ' ', u.nom) as professeur_nom, -- CORRECTION ICI
+             CONCAT(u.prenom, ' ', u.nom) as professeur_nom,
              cl.nom as classe_nom
       FROM cours c
       LEFT JOIN enseignants ens ON c.professeur_id = ens.id
-      LEFT JOIN users u ON ens.user_id = u.id -- CORRECTION ICI
+      LEFT JOIN users u ON ens.user_id = u.id
       LEFT JOIN classes cl ON c.classe_id = cl.id
       WHERE c.code_cours = ?
     `;
     
-    const coursData = await query(coursSql, [code_cours]);
+    const coursData = await query(coursSql, [code_cours]) as Cours[];
     
-    if (coursData.length === 0) {
+    // ✅ Vérifier que c'est bien un tableau
+    if (!Array.isArray(coursData) || coursData.length === 0) {
       return NextResponse.json(
         { 
           success: false, 
@@ -61,11 +90,12 @@ export async function POST(request: NextRequest) {
         cours.classe_id,
         cours.professeur_id,
         cours.jour_semaine
-      ]);
+      ]) as EmploiDuTemps[];
       
-      let result;
+      // ✅ Vérifier que c'est un tableau
+      const existing = Array.isArray(existingEmploi) ? existingEmploi : [];
       
-      if (existingEmploi.length > 0) {
+      if (existing.length > 0) {
         // Mettre à jour le créneau existant
         const updateSql = `
           UPDATE emploi_du_temps 
@@ -74,12 +104,12 @@ export async function POST(request: NextRequest) {
           WHERE id = ?
         `;
         
-        result = await query(updateSql, [
+        await query(updateSql, [
           cours.heure_debut,
           cours.heure_fin,
           cours.salle || '',
           cours.couleur || '#3B82F6',
-          existingEmploi[0].id
+          existing[0].id
         ]);
         
         console.log('✅ Créneau emploi du temps mis à jour');
@@ -93,7 +123,7 @@ export async function POST(request: NextRequest) {
           VALUES (?, ?, ?, ?, ?, ?, ?, 'cours', ?, ?)
         `;
         
-        result = await query(insertSql, [
+        await query(insertSql, [
           cours.code_cours,
           cours.classe_id,
           cours.professeur_id,
@@ -108,17 +138,17 @@ export async function POST(request: NextRequest) {
         console.log('✅ Créneau ajouté à l\'emploi du temps');
       }
       
-      // CORRECTION : Récupérer avec les bonnes jointures
+      // Récupérer l'emploi du temps mis à jour
       const getEmploiSql = `
         SELECT e.*, 
                c.nom_cours,
                cl.nom as classe_nom,
-               CONCAT(u.prenom, ' ', u.nom) as professeur_nom -- CORRECTION ICI
+               CONCAT(u.prenom, ' ', u.nom) as professeur_nom
         FROM emploi_du_temps e
         LEFT JOIN cours c ON e.code_cours = c.code_cours
         LEFT JOIN classes cl ON e.classe_id = cl.id
         LEFT JOIN enseignants ens ON e.professeur_id = ens.id
-        LEFT JOIN users u ON ens.user_id = u.id -- CORRECTION ICI
+        LEFT JOIN users u ON ens.user_id = u.id
         WHERE e.code_cours = ?
         AND e.classe_id = ?
         AND e.professeur_id = ?
@@ -128,14 +158,14 @@ export async function POST(request: NextRequest) {
         cours.code_cours,
         cours.classe_id,
         cours.professeur_id
-      ]);
+      ]) as EmploiDuTemps[];
       
       return NextResponse.json({
         success: true,
         message: 'Cours synchronisé avec l\'emploi du temps',
         cours: cours,
-        emploiDuTemps: emploiSync,
-        action: existingEmploi.length > 0 ? 'updated' : 'added'
+        emploiDuTemps: Array.isArray(emploiSync) ? emploiSync : [],
+        action: existing.length > 0 ? 'updated' : 'added'
       });
       
     } else if (action === 'remove') {
@@ -202,9 +232,10 @@ export async function GET(request: NextRequest) {
     
     // Récupérer le cours
     const coursSql = 'SELECT * FROM cours WHERE code_cours = ?';
-    const coursData = await query(coursSql, [codeCours]);
+    const coursData = await query(coursSql, [codeCours]) as Cours[];
     
-    if (coursData.length === 0) {
+    // ✅ Vérifier que c'est bien un tableau
+    if (!Array.isArray(coursData) || coursData.length === 0) {
       return NextResponse.json(
         { 
           success: false, 
@@ -216,17 +247,17 @@ export async function GET(request: NextRequest) {
     
     const cours = coursData[0];
     
-    // CORRECTION : Vérifier dans l'emploi du temps avec bonnes jointures
+    // Vérifier dans l'emploi du temps
     const emploiSql = `
       SELECT e.*, 
              c.nom_cours,
              cl.nom as classe_nom,
-             CONCAT(u.prenom, ' ', u.nom) as professeur_nom -- CORRECTION ICI
+             CONCAT(u.prenom, ' ', u.nom) as professeur_nom
       FROM emploi_du_temps e
       LEFT JOIN cours c ON e.code_cours = c.code_cours
       LEFT JOIN classes cl ON e.classe_id = cl.id
       LEFT JOIN enseignants ens ON e.professeur_id = ens.id
-      LEFT JOIN users u ON ens.user_id = u.id -- CORRECTION ICI
+      LEFT JOIN users u ON ens.user_id = u.id
       WHERE e.code_cours = ?
       AND e.classe_id = ?
       AND e.professeur_id = ?
@@ -236,9 +267,9 @@ export async function GET(request: NextRequest) {
       cours.code_cours,
       cours.classe_id,
       cours.professeur_id
-    ]);
+    ]) as EmploiDuTemps[];
     
-    const isSynced = emploiData.length > 0;
+    const isSynced = Array.isArray(emploiData) && emploiData.length > 0;
     const syncDetails = isSynced ? {
       emploi_id: emploiData[0].id,
       heure_debut_match: emploiData[0].heure_debut === cours.heure_debut,
@@ -252,7 +283,7 @@ export async function GET(request: NextRequest) {
       cours: cours,
       isSynced: isSynced,
       syncDetails: syncDetails,
-      emploiDuTemps: emploiData
+      emploiDuTemps: Array.isArray(emploiData) ? emploiData : []
     });
     
   } catch (error: any) {
