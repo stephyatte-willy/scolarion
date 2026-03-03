@@ -43,20 +43,55 @@ export async function POST(request: NextRequest) {
   try {
     const personnelData = await request.json();
     
-    const resultat = await PersonnelService.creerPersonnel(personnelData);
+    // ✅ Essayer différentes méthodes possibles
+    let resultat;
     
-    if (!resultat.success) {
+    // Liste des noms de méthodes possibles à essayer
+    const methodesPossibles = [
+      'creerPersonnel',
+      'ajouterPersonnel',
+      'creerEmploye',
+      'ajouterEmploye',
+      'savePersonnel',
+      'createPersonnel',
+      'addPersonnel'
+    ];
+    
+    // Chercher la première méthode qui existe
+    const methodeTrouvee = methodesPossibles.find(
+      methode => typeof (PersonnelService as any)[methode] === 'function'
+    );
+    
+    if (methodeTrouvee) {
+      console.log(`✅ Méthode trouvée: PersonnelService.${methodeTrouvee}`);
+      resultat = await (PersonnelService as any)[methodeTrouvee](personnelData);
+    } else {
+      // Si aucune méthode trouvée, afficher les méthodes disponibles
+      const methodesDisponibles = Object.getOwnPropertyNames(PersonnelService)
+        .filter(prop => typeof (PersonnelService as any)[prop] === 'function');
+      
+      console.error('❌ Méthodes disponibles:', methodesDisponibles);
+      
+      throw new Error(
+        `Aucune méthode de création trouvée. Méthodes disponibles: ${methodesDisponibles.join(', ')}`
+      );
+    }
+    
+    if (!resultat || !resultat.success) {
       return NextResponse.json(
-        { success: false, erreur: resultat.erreur },
+        { success: false, erreur: resultat?.erreur || 'Erreur lors de la création' },
         { status: 400 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      personnel: resultat.personnel
+      personnel: resultat.personnel || resultat.employe || resultat.data
     }, { status: 201 });
+    
   } catch (error: any) {
+    console.error('❌ Erreur création personnel:', error);
+    
     return NextResponse.json(
       { 
         success: false, 
