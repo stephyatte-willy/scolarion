@@ -1,22 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FinanceService } from '@/app/services/financeService';
 
+// ✅ Correction: interface avec Promise
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export async function POST(
+  request: NextRequest, 
+  { params }: RouteParams  // ✅ Utilisation de l'interface corrigée
+) {
   try {
-    const id = parseInt(params.id);
-    console.log('💰 API Paiement frais - ID:', id);
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
+    const idNum = parseInt(id);
     
-    if (isNaN(id) || id <= 0) {
+    console.log('💰 API Paiement frais - ID:', idNum);
+    
+    if (isNaN(idNum) || idNum <= 0) {
       return NextResponse.json(
         { 
           success: false, 
-          erreur: `ID invalide: "${params.id}"` 
+          erreur: `ID invalide: "${id}"` 
         },
         { status: 400 }
       );
@@ -25,7 +32,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const paiementData = await request.json();
     console.log('📦 Données paiement reçues:', paiementData);
     
-    const resultat = await FinanceService.enregistrerPaiement(id, paiementData);
+    const resultat = await FinanceService.enregistrerPaiement(idNum, paiementData);
     
     if (!resultat.success) {
       console.error('❌ Erreur enregistrement paiement:', resultat.erreur);
