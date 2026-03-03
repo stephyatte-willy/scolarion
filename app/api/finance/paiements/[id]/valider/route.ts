@@ -3,14 +3,17 @@ import { FinanceService } from '@/app/services/financeService';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // ✅ Correction: Promise
 ) {
   try {
     console.log('✅ API Validation paiement - Début');
-    const paiementId = parseInt(params.id);
+    
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
+    const paiementId = parseInt(id);
     const validationData = await request.json();
 
-    console.log('📦 ID reçu:', params.id, 'ID parsé:', paiementId);
+    console.log('📦 ID reçu:', id, 'ID parsé:', paiementId);
     console.log('📦 Données validation:', validationData);
 
     if (isNaN(paiementId)) {
