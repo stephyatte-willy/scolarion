@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour les résultats de comptage
+interface CountResult {
+  total: number;
+}
+
 export async function GET() {
   try {
-    // Exécuter les requêtes en parallèle
+    // Exécuter les requêtes en parallèle avec typage explicite
     const [
       inscriptionsResult,
       paiementsResult,
@@ -17,7 +22,7 @@ export async function GET() {
         FROM inscriptions 
         WHERE MONTH(date_inscription) = MONTH(CURRENT_DATE)
         AND YEAR(date_inscription) = YEAR(CURRENT_DATE)
-      `),
+      `) as Promise<CountResult[]>,
       
       // Nombre de paiements ce mois
       query(`
@@ -25,15 +30,15 @@ export async function GET() {
         FROM paiements_frais 
         WHERE MONTH(date_paiement) = MONTH(CURRENT_DATE)
         AND YEAR(date_paiement) = YEAR(CURRENT_DATE)
-      `),
+      `) as Promise<CountResult[]>,
       
       // Montant total des recettes ce mois
       query(`
-        SELECT SUM(montant) as total 
+        SELECT COALESCE(SUM(montant), 0) as total 
         FROM paiements_frais 
         WHERE MONTH(date_paiement) = MONTH(CURRENT_DATE)
         AND YEAR(date_paiement) = YEAR(CURRENT_DATE)
-      `),
+      `) as Promise<CountResult[]>,
       
       // Nombre d'absences ce mois
       query(`
@@ -41,7 +46,7 @@ export async function GET() {
         FROM absences 
         WHERE MONTH(date_absence) = MONTH(CURRENT_DATE)
         AND YEAR(date_absence) = YEAR(CURRENT_DATE)
-      `),
+      `) as Promise<CountResult[]>,
       
       // Nombre de notes ajoutées ce mois
       query(`
@@ -49,38 +54,38 @@ export async function GET() {
         FROM notes 
         WHERE MONTH(date_creation) = MONTH(CURRENT_DATE)
         AND YEAR(date_creation) = YEAR(CURRENT_DATE)
-      `)
+      `) as Promise<CountResult[]>
     ]);
 
-    // Extraire les valeurs des résultats (en gérant le cas où les résultats sont des tableaux)
-    const inscriptionsMois = Array.isArray(inscriptionsResult) && inscriptionsResult[0] 
-      ? inscriptionsResult[0].total || 0 
+    // Extraire les valeurs des résultats de manière sécurisée
+    const inscriptionsMois = Array.isArray(inscriptionsResult) && inscriptionsResult.length > 0 
+      ? Number(inscriptionsResult[0].total) || 0 
       : 0;
       
-    const paiementsMois = Array.isArray(paiementsResult) && paiementsResult[0] 
-      ? paiementsResult[0].total || 0 
+    const paiementsMois = Array.isArray(paiementsResult) && paiementsResult.length > 0 
+      ? Number(paiementsResult[0].total) || 0 
       : 0;
       
-    const montantRecettesMois = Array.isArray(recettesResult) && recettesResult[0] 
-      ? recettesResult[0].total || 0 
+    const montantRecettesMois = Array.isArray(recettesResult) && recettesResult.length > 0 
+      ? Number(recettesResult[0].total) || 0 
       : 0;
       
-    const absencesMois = Array.isArray(absencesResult) && absencesResult[0] 
-      ? absencesResult[0].total || 0 
+    const absencesMois = Array.isArray(absencesResult) && absencesResult.length > 0 
+      ? Number(absencesResult[0].total) || 0 
       : 0;
       
-    const notesAjouteesMois = Array.isArray(notesResult) && notesResult[0] 
-      ? notesResult[0].total || 0 
+    const notesAjouteesMois = Array.isArray(notesResult) && notesResult.length > 0 
+      ? Number(notesResult[0].total) || 0 
       : 0;
     
     return NextResponse.json({
       success: true,
       recapitulatif: {
-        inscriptions_mois: Number(inscriptionsMois),
-        paiements_mois: Number(paiementsMois),
-        montant_recettes_mois: Number(montantRecettesMois),
-        absences_mois: Number(absencesMois),
-        notes_ajoutees_mois: Number(notesAjouteesMois)
+        inscriptions_mois: inscriptionsMois,
+        paiements_mois: paiementsMois,
+        montant_recettes_mois: montantRecettesMois,
+        absences_mois: absencesMois,
+        notes_ajoutees_mois: notesAjouteesMois
       }
     });
     
