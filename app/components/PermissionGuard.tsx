@@ -1,7 +1,9 @@
+// app/components/PermissionGuard.tsx
 'use client';
 
 import { ReactNode } from 'react';
 import { usePermissions } from '@/app/hooks/usePermissions';
+import './permission-guard.css'; // Optionnel
 
 interface PermissionGuardProps {
   children: ReactNode;
@@ -10,6 +12,7 @@ interface PermissionGuardProps {
   allPermissions?: string[];
   fallback?: ReactNode;
   userId?: number;
+  showLoading?: boolean;
 }
 
 export default function PermissionGuard({
@@ -18,14 +21,27 @@ export default function PermissionGuard({
   anyPermission,
   allPermissions,
   fallback = null,
-  userId
+  userId,
+  showLoading = true
 }: PermissionGuardProps) {
-  const { can, canAny, canAll, loading } = usePermissions(userId);
+  const { can, canAny, canAll, loading, error } = usePermissions(userId);
 
+  // Gestion du chargement
   if (loading) {
-    return <div className="permission-loading">Chargement...</div>;
+    if (showLoading) {
+      return <div className="permission-loading">Chargement des permissions...</div>;
+    }
+    return null;
   }
 
+  // Gestion des erreurs
+  if (error) {
+    console.error('Erreur permissions:', error);
+    // En cas d'erreur, on refuse l'accès par sécurité
+    return <>{fallback}</>;
+  }
+
+  // Vérification des permissions
   let hasAccess = true;
 
   if (permission) {
@@ -36,9 +52,11 @@ export default function PermissionGuard({
     hasAccess = canAll(allPermissions);
   }
 
+  // Si pas accès, afficher le fallback
   if (!hasAccess) {
     return <>{fallback}</>;
   }
 
+  // Sinon afficher les enfants
   return <>{children}</>;
 }
