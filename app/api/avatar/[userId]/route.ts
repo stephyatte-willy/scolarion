@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// ✅ CORRECTION : Promise ajoutée
 interface RouteParams {
-  params: {
+  params: Promise<{
     userId: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const userId = params.userId;
+    // ✅ Récupération asynchrone avec await
+    const { userId } = await params;
 
     console.log('🔄 Récupération de l\'avatar pour l\'utilisateur:', userId);
 
