@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 import { writeFile, mkdir, unlink } from 'fs/promises';
 import { join } from 'path';
+import * as fs from 'fs'; // Ajout pour stat
 
 function genererIdUnique(): string {
-  return `avatar_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
 
 export async function POST(request: NextRequest) {
@@ -68,8 +69,13 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     await writeFile(filePath, buffer);
 
+    // ✅ CORRECTION : Vérifier que filePath n'est pas null
+    if (!filePath) {
+      throw new Error('Chemin de fichier invalide');
+    }
+
     // Vérifier que le fichier a été correctement écrit
-    const stats = await import('fs').then(fs => fs.promises.stat(filePath));
+    const stats = await fs.promises.stat(filePath); // ✅ Utilisation directe
     if (stats.size === 0) {
       throw new Error('Fichier écrit de taille 0');
     }
