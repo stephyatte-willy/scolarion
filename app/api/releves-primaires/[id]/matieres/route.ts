@@ -1,6 +1,22 @@
-// app/api/releves-primaires/[id]/matieres/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
+
+// Interfaces pour le typage
+interface Releve {
+  eleve_id: number;
+  periode_id: number;
+}
+
+interface Note {
+  matiere_id: number;
+  matiere_nom: string;
+  coefficient: number;
+  note_sur: number;
+  couleur: string;
+  icone: string;
+  note: number;
+  appreciation: string;
+}
 
 export async function GET(
   request: NextRequest,
@@ -12,9 +28,9 @@ export async function GET(
     
     // Récupérer le relevé pour avoir eleve_id et periode_id
     const sqlReleve = 'SELECT eleve_id, periode_id FROM releves_primaire WHERE id = ?';
-    const releveResult: any = await query(sqlReleve, [releveId]);
+    const releveResult = await query(sqlReleve, [releveId]) as Releve[];
     
-    if (!releveResult || releveResult.length === 0) {
+    if (!Array.isArray(releveResult) || releveResult.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Relevé non trouvé' },
         { status: 404 }
@@ -45,18 +61,21 @@ export async function GET(
       ORDER BY mp.ordre_affichage
     `;
     
-    const notes = await query(sqlNotes, [releve.eleve_id, releve.periode_id]);
+    const notes = await query(sqlNotes, [releve.eleve_id, releve.periode_id]) as Note[];
     
-    const matieres = notes.map((note: any) => ({
+    // ✅ Vérifier que notes est bien un tableau
+    const notesArray = Array.isArray(notes) ? notes : [];
+    
+    const matieres = notesArray.map((note: Note) => ({
       matiere_id: note.matiere_id,
       matiere_nom: note.matiere_nom,
-      coefficient: parseFloat(note.coefficient) || 1,
-      note: parseFloat(note.note) || 0,
-      note_sur: parseFloat(note.note_sur) || 20,
+      coefficient: parseFloat(note.coefficient as any) || 1,
+      note: parseFloat(note.note as any) || 0,
+      note_sur: parseFloat(note.note_sur as any) || 20,
       appreciation: note.appreciation || 'Non noté',
       couleur: note.couleur || '#3B82F6',
       icone: note.icone || '📚',
-      note_coefficientee: (parseFloat(note.note) || 0) * (parseFloat(note.coefficient) || 1)
+      note_coefficientee: (parseFloat(note.note as any) || 0) * (parseFloat(note.coefficient as any) || 1)
     }));
     
     return NextResponse.json({
