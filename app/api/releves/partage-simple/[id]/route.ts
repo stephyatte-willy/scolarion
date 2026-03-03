@@ -8,13 +8,54 @@ interface RouteParams {
   }>;
 }
 
+// Interface pour une matière dans les moyennes
+interface MatiereMoyenne {
+  matiere_nom: string;
+  note: number;
+  coefficient: number;
+  appreciation: string;
+}
+
+// Interface pour un relevé
+interface Releve {
+  id: number;
+  eleve_id?: number;
+  matricule?: string;
+  eleve_nom?: string;
+  eleve_prenom?: string;
+  classe_nom?: string;
+  periode_nom?: string;
+  moyennes_par_matiere?: string | any[] | any;
+  moyenne_generale?: number | string;
+  rang?: number | string;
+  mention?: string;
+  appreciation_generale?: string;
+  date_generation?: string;
+  statut?: string;
+}
+
+// Interface pour l'école
+interface Ecole {
+  nom_ecole: string;
+  adresse: string;
+  telephone: string;
+  email: string;
+  slogan: string;
+  couleur_principale?: string;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams  // ✅ Interface avec Promise
+  { params }: RouteParams
 ) {
+  // Déclarer id en dehors du try pour pouvoir l'utiliser dans le catch
+  let id: string | undefined;
+  
   try {
-    // ✅ Récupération asynchrone de l'ID
-    const { id } = await params;
+    // Récupération asynchrone de l'ID
+    const paramsObj = await params;
+    id = paramsObj.id;
+    
     console.log('🔄 API partage simple - ID:', id);
     
     const idNum = parseInt(id);
@@ -26,7 +67,7 @@ export async function GET(
     }
     
     // Récupérer les paramètres de l'école d'abord
-    let ecole;
+    let ecole: Ecole;
     try {
       const ecoleResult = await query('SELECT * FROM parametres LIMIT 1') as any[];
       ecole = ecoleResult[0] || {
@@ -113,14 +154,17 @@ export async function GET(
       
       // Si trouvé avec requête alternative
       const releve = alternativeResult[0];
-      return preparerReponse(releve, ecole);
+      return preparerReponse(releve as Releve, ecole);
     }
     
     const releve = releveResult[0];
-    return preparerReponse(releve, ecole);
+    return preparerReponse(releve as Releve, ecole);
     
   } catch (error: any) {
     console.error('❌ Erreur API partage simple:', error);
+    
+    // Utiliser l'ID déclaré en dehors du try
+    const fallbackId = id ? parseInt(id) : 1;
     
     // Retourner une réponse avec des données de test pour debug
     return NextResponse.json({
@@ -128,16 +172,16 @@ export async function GET(
       debug: true,
       message: 'Mode debug - Données de test',
       releve: {
-        id: parseInt(id) || 1,
+        id: fallbackId,
         eleve_nom: 'Test',
         eleve_prenom: 'Élève',
-        matricule: 'TEST' + id,
+        matricule: 'TEST' + fallbackId,
         classe_nom: 'CM2',
         periode_nom: 'Trimestre 1',
         moyennes_par_matiere: [
           { matiere_nom: 'Mathématiques', note: 16.5, coefficient: 3, appreciation: 'Très Bien' },
           { matiere_nom: 'Français', note: 14.2, coefficient: 3, appreciation: 'Bien' }
-        ],
+        ] as MatiereMoyenne[],
         moyenne_generale: 15.35,
         rang: 5,
         mention: 'Bien',
@@ -156,16 +200,17 @@ export async function GET(
 }
 
 // Fonction utilitaire pour préparer la réponse
-async function preparerReponse(releve: any, ecole: any) {
+async function preparerReponse(releve: Releve, ecole: Ecole) {
   console.log('📦 Préparation réponse pour relevé:', releve.id);
   
   // Parser les moyennes par matière
-  let moyennesParsed = [];
+  let moyennesParsed: MatiereMoyenne[] = []; // ✅ Typage explicite du tableau
+  
   if (releve.moyennes_par_matiere) {
     try {
-      console.log('📝 Données brutes moyennes:', typeof releve.moyennes_par_matiere, releve.moyennes_par_matiere?.substring?.(0, 100));
+      console.log('📝 Données brutes moyennes:', typeof releve.moyennes_par_matiere);
       
-      let parsed;
+      let parsed: any;
       if (typeof releve.moyennes_par_matiere === 'string') {
         // Nettoyer le string
         const cleaned = releve.moyennes_par_matiere
@@ -227,7 +272,7 @@ async function preparerReponse(releve: any, ecole: any) {
   if (moyennesParsed.length === 0) {
     moyennesParsed = [{
       matiere_nom: 'Moyenne Générale',
-      note: releve.moyenne_generale || 0,
+      note: parseFloat(String(releve.moyenne_generale || 0)),
       coefficient: 1,
       appreciation: releve.mention || ''
     }];
@@ -238,8 +283,8 @@ async function preparerReponse(releve: any, ecole: any) {
     releve: {
       ...releve,
       moyennes_par_matiere: moyennesParsed,
-      moyenne_generale: parseFloat(releve.moyenne_generale) || 0,
-      rang: parseInt(releve.rang) || 0
+      moyenne_generale: parseFloat(String(releve.moyenne_generale)) || 0,
+      rang: parseInt(String(releve.rang)) || 0
     },
     ecole
   });
