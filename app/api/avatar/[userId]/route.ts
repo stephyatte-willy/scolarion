@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// ✅ CORRECTION : Promise ajoutée
 interface RouteParams {
   params: Promise<{
     userId: string;
