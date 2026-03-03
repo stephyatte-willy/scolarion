@@ -1,13 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour les paramètres
+interface RouteParams {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams  // ✅ Interface avec Promise
 ) {
   try {
-    const { id } = params;
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
     console.log('🔄 API partage simple - ID:', id);
+    
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) {
+      return NextResponse.json(
+        { success: false, error: 'ID invalide' },
+        { status: 400 }
+      );
+    }
     
     // Récupérer les paramètres de l'école d'abord
     let ecole;
@@ -66,9 +82,9 @@ export async function GET(
     `;
     
     console.log('📝 SQL:', releveSql);
-    console.log('🔧 Paramètre ID:', parseInt(id));
+    console.log('🔧 Paramètre ID:', idNum);
     
-    const releveResult = await query(releveSql, [parseInt(id)]) as any[];
+    const releveResult = await query(releveSql, [idNum]) as any[];
     
     console.log('📊 Résultat query:', {
       existe: !!releveResult,
@@ -81,7 +97,7 @@ export async function GET(
       
       // Essayer avec une requête alternative
       const alternativeSql = 'SELECT * FROM releves_primaire WHERE id = ? LIMIT 1';
-      const alternativeResult = await query(alternativeSql, [parseInt(id)]) as any[];
+      const alternativeResult = await query(alternativeSql, [idNum]) as any[];
       
       if (!alternativeResult || alternativeResult.length === 0) {
         // Essayer de trouver n'importe quel relevé pour debug
@@ -112,16 +128,16 @@ export async function GET(
       debug: true,
       message: 'Mode debug - Données de test',
       releve: {
-        id: parseInt(id),
+        id: parseInt(id) || 1,
         eleve_nom: 'Test',
         eleve_prenom: 'Élève',
         matricule: 'TEST' + id,
         classe_nom: 'CM2',
         periode_nom: 'Trimestre 1',
-        moyennes_par_matiere: JSON.stringify([
+        moyennes_par_matiere: [
           { matiere_nom: 'Mathématiques', note: 16.5, coefficient: 3, appreciation: 'Très Bien' },
           { matiere_nom: 'Français', note: 14.2, coefficient: 3, appreciation: 'Bien' }
-        ]),
+        ],
         moyenne_generale: 15.35,
         rang: 5,
         mention: 'Bien',
