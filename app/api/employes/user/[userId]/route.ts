@@ -1,12 +1,23 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'; // ✅ Changé Request → NextRequest
 import { query } from '@/app/lib/database';
 
+// ✅ Interface avec Promise
+interface RouteParams {
+  params: Promise<{
+    userId: string;
+  }>;
+}
+
 export async function GET(
-  request: Request,
-  { params }: { params: { userId: string } }
+  request: NextRequest, // ✅ NextRequest au lieu de Request
+  { params }: RouteParams
 ) {
   try {
-    const userId = parseInt(params.userId);
+    // ✅ Récupération asynchrone de l'userId
+    const { userId } = await params;
+    const userIdNum = parseInt(userId);
+    
+    console.log('🔍 Récupération employé pour userId:', userIdNum);
     
     const sql = `
       SELECT e.*, u.email, u.role
@@ -15,7 +26,7 @@ export async function GET(
       WHERE e.user_id = ?
     `;
     
-    const employes = await query(sql, [userId]) as any[];
+    const employes = await query(sql, [userIdNum]) as any[];
     
     if (!employes || employes.length === 0) {
       return NextResponse.json({ success: true, employe: null });
@@ -24,7 +35,7 @@ export async function GET(
     return NextResponse.json({ success: true, employe: employes[0] });
     
   } catch (error) {
-    console.error('Erreur GET employe:', error);
+    console.error('❌ Erreur GET employe:', error);
     return NextResponse.json(
       { success: false, erreur: 'Erreur lors de la récupération des données' },
       { status: 500 }

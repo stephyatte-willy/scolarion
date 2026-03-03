@@ -1,57 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'; // ✅ NextRequest au lieu de Request
 import { runTransaction } from '@/app/lib/database';
 
+// ✅ Interface avec Promise
+interface RouteParams {
+  params: Promise<{
+    userId: string;
+  }>;
+}
+
 export async function PUT(
-  request: Request,
-  { params }: { params: { userId: string } }
+  request: NextRequest, // ✅ NextRequest
+  { params }: RouteParams
 ) {
   console.log('🔵 DÉBUT PUT PRIVILÈGES');
-  console.log('📌 params reçus (complets):', JSON.stringify(params));
-  console.log('📌 userId brut:', params?.userId);
-  console.log('📌 Type userId:', typeof params?.userId);
   
   try {
-    // Récupération sécurisée du userId - MÉTHODE ROBUSTE
-    let rawUserId = null;
+    // ✅ Récupération asynchrone de l'userId
+    const { userId } = await params;
     
-    // Essayer différentes méthodes pour obtenir l'ID
-    if (params && params.userId) {
-      rawUserId = params.userId;
-    } else {
-      // Essayer de l'extraire de l'URL
-      const url = new URL(request.url);
-      const pathParts = url.pathname.split('/');
-      const possibleId = pathParts[pathParts.length - 2]; // .../employes/4/privileges
-      if (possibleId && !isNaN(Number(possibleId))) {
-        rawUserId = possibleId;
-        console.log('📌 ID extrait de l\'URL:', rawUserId);
-      }
-    }
-    
-    console.log('📌 rawUserId final:', rawUserId);
-    
-    if (!rawUserId) {
-      console.error('❌ userId manquant dans params');
-      console.error('📌 params reçus:', params);
-      console.error('📌 request.url:', request.url);
-      
-      return NextResponse.json(
-        { success: false, erreur: 'ID utilisateur manquant dans la requête' },
-        { status: 400 }
-      );
-    }
-    
-    // Conversion en nombre
-    const userId = parseInt(rawUserId, 10);
-    console.log('🔢 userId converti:', userId);
-    
-    if (isNaN(userId) || userId <= 0) {
-      console.error('❌ userId invalide après conversion:', rawUserId);
-      return NextResponse.json(
-        { success: false, erreur: 'ID utilisateur invalide' },
-        { status: 400 }
-      );
-    }
+    console.log('📌 userId reçu:', userId);
+    console.log('📌 Type userId:', typeof userId);
     
     // Récupération des données du body
     let body;
@@ -62,6 +30,16 @@ export async function PUT(
       console.error('❌ Erreur parsing JSON:', e);
       return NextResponse.json(
         { success: false, erreur: 'Format de données invalide' },
+        { status: 400 }
+      );
+    }
+    
+    // Validation userId
+    const userIdNum = parseInt(userId);
+    if (isNaN(userIdNum) || userIdNum <= 0) {
+      console.error('❌ userId invalide:', userId);
+      return NextResponse.json(
+        { success: false, erreur: 'ID utilisateur invalide' },
         { status: 400 }
       );
     }
@@ -104,25 +82,24 @@ export async function PUT(
       // Vérifier que l'utilisateur existe
       const [userCheck] = await connection.execute(
         'SELECT id, email, nom, prenom FROM users WHERE id = ?',
-        [userId]
+        [userIdNum]
       ) as any[];
       
       if (!userCheck || userCheck.length === 0) {
-        console.error(`❌ Utilisateur avec ID ${userId} non trouvé dans la table users`);
+        console.error(`❌ Utilisateur avec ID ${userIdNum} non trouvé dans la table users`);
         
         // Vérifier si l'utilisateur existe dans enseignants
         const [enseignantCheck] = await connection.execute(
           'SELECT user_id FROM enseignants WHERE user_id = ?',
-          [userId]
+          [userIdNum]
         ) as any[];
         
         if (enseignantCheck && enseignantCheck.length > 0) {
           console.log(`✅ Utilisateur trouvé dans enseignants mais pas dans users?`);
-          // Créer l'utilisateur s'il n'existe pas ?
-          throw new Error(`Utilisateur ID ${userId} trouvé dans enseignants mais pas dans users`);
+          throw new Error(`Utilisateur ID ${userIdNum} trouvé dans enseignants mais pas dans users`);
         }
         
-        throw new Error(`Utilisateur avec ID ${userId} non trouvé`);
+        throw new Error(`Utilisateur avec ID ${userIdNum} non trouvé`);
       }
       
       console.log('✅ Utilisateur trouvé:', userCheck[0]);
@@ -130,7 +107,7 @@ export async function PUT(
       // Mettre à jour le statut de l'utilisateur
       const [updateResult] = await connection.execute(
         'UPDATE users SET statut = ? WHERE id = ?',
-        [statut, userId]
+        [statut, userIdNum]
       ) as any;
       
       console.log('📊 Résultat mise à jour statut:', updateResult);
@@ -138,7 +115,7 @@ export async function PUT(
       // Supprimer les anciens rôles
       const [deleteResult] = await connection.execute(
         'DELETE FROM users_roles WHERE user_id = ?',
-        [userId]
+        [userIdNum]
       ) as any;
       
       console.log(`🗑️ ${deleteResult.affectedRows} ancien(s) rôle(s) supprimé(s)`);
@@ -161,7 +138,7 @@ export async function PUT(
           
           await connection.execute(
             'INSERT INTO users_roles (user_id, role_id) VALUES (?, ?)',
-            [userId, roleId]
+            [userIdNum, roleId]
           );
         }
         console.log(`✅ ${roles.length} rôle(s) ajouté(s)`);
@@ -169,7 +146,7 @@ export async function PUT(
         console.log('ℹ️ Aucun rôle à ajouter');
       }
       
-      return { success: true, userId };
+      return { success: true, userId: userIdNum };
     });
     
     console.log('🎉 Transaction réussie', result);
@@ -177,7 +154,7 @@ export async function PUT(
     return NextResponse.json({ 
       success: true, 
       message: 'Privilèges mis à jour avec succès',
-      userId: userId
+      userId: userIdNum
     });
     
   } catch (error: any) {
