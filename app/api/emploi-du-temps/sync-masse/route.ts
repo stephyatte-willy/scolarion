@@ -2,6 +2,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interfaces pour le typage
+interface Cours {
+  code_cours: string;
+  classe_id: number;
+  professeur_id: number;
+  jour_semaine: string;
+  heure_debut: string;
+  heure_fin: string;
+  salle?: string;
+  couleur?: string;
+  nom_cours?: string;
+  description?: string;
+  professeur_nom?: string;
+  classe_nom?: string;
+  [key: string]: any;
+}
+
+interface EmploiDuTemps {
+  id: number;
+  code_cours: string;
+  classe_id: number;
+  professeur_id: number;
+  jour_semaine: string;
+  heure_debut: string;
+  heure_fin: string;
+  salle?: string;
+  couleur?: string;
+  [key: string]: any;
+}
+
+interface CountResult {
+  count: number;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
@@ -54,7 +88,9 @@ export async function POST(request: NextRequest) {
     console.log('📝 SQL cours:', sqlCours);
     console.log('🔧 Paramètres:', params);
     
-    const coursList = await query(sqlCours, params);
+    // ✅ Casting explicite en tableau de Cours
+    const coursResult = await query(sqlCours, params) as any[];
+    const coursList = Array.isArray(coursResult) ? coursResult : [];
     console.log(`📚 ${coursList.length} cours trouvés pour synchronisation`);
     
     if (coursList.length === 0) {
@@ -93,11 +129,13 @@ export async function POST(request: NextRequest) {
           AND professeur_id = ?
         `;
         
-        const existing = await query(checkSql, [
+        const existingResult = await query(checkSql, [
           cours.code_cours,
           cours.classe_id,
           cours.professeur_id
-        ]);
+        ]) as EmploiDuTemps[];
+        
+        const existing = Array.isArray(existingResult) ? existingResult : [];
         
         if (existing.length > 0) {
           // Mettre à jour le créneau existant
@@ -151,13 +189,13 @@ export async function POST(request: NextRequest) {
             cours.salle || '',
             cours.description || cours.nom_cours,
             cours.couleur || '#3B82F6'
-          ]);
+          ]) as any;
           
           stats.ajoutes++;
           stats.details.push({
             code_cours: cours.code_cours,
             action: 'added',
-            emploi_id: (result as any).insertId
+            emploi_id: result?.insertId
           });
           
           console.log(`✅ Cours ajouté: ${cours.code_cours}`);
@@ -218,7 +256,8 @@ export async function POST(request: NextRequest) {
         e.heure_debut
     `;
     
-    const emploiMisAJour = await query(emploiSql, emploiParams);
+    const emploiResult = await query(emploiSql, emploiParams) as any[];
+    const emploiMisAJour = Array.isArray(emploiResult) ? emploiResult : [];
     
     console.log('🔄 Synchronisation terminée avec succès');
     
@@ -226,8 +265,8 @@ export async function POST(request: NextRequest) {
       success: true,
       message: `Synchronisation terminée: ${stats.ajoutes} cours ajoutés, ${stats.mis_a_jour} cours mis à jour, ${stats.erreurs} erreurs`,
       stats: stats,
-      emploi_du_temps: emploiMisAJour || [],
-      total: Array.isArray(emploiMisAJour) ? emploiMisAJour.length : 0
+      emploi_du_temps: emploiMisAJour,
+      total: emploiMisAJour.length
     }, {
       status: 200,
       headers: {
@@ -290,8 +329,10 @@ export async function GET(request: NextRequest) {
       ${whereClause}
     `;
     
-    const [result] = await query(sqlCount, params);
-    const count = result?.count || 0;
+    const countResult = await query(sqlCount, params) as CountResult[];
+    const count = Array.isArray(countResult) && countResult.length > 0 
+      ? countResult[0]?.count || 0 
+      : 0;
     
     return NextResponse.json({
       success: true,

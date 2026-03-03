@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour les périodes
+interface Periode {
+  id: number;
+  nom: string;
+  code_periode: string;
+  annee_scolaire: string;
+  date_debut: string;
+  date_fin: string;
+  type_periode: string;
+  numero: number;
+  est_periode_courante: number | boolean;
+  statut: string;
+  [key: string]: any;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -29,11 +44,11 @@ export async function GET(request: NextRequest) {
     sql += ' ORDER BY date_debut DESC, numero ASC';
 
     console.log('📝 SQL périodes primaires:', sql);
-    const periodes = await query(sql, params);
+    const periodes = await query(sql, params) as Periode[];
 
     return NextResponse.json({
       success: true,
-      periodes: periodes || []
+      periodes: Array.isArray(periodes) ? periodes : []
     });
   } catch (error: any) {
     console.error('❌ Erreur GET périodes primaires:', error);
@@ -90,16 +105,16 @@ export async function POST(request: NextRequest) {
     // Générer le code période si non fourni
     let codePeriode = data.code_periode;
     if (!codePeriode) {
-      const typeAbrev = data.type_periode.substring(0, 1).toUpperCase();
-      const annee = data.annee_scolaire.split('-')[0];
+      const typeAbrev = data.type_periode ? data.type_periode.substring(0, 1).toUpperCase() : 'T';
+      const annee = data.annee_scolaire ? data.annee_scolaire.split('-')[0] : new Date().getFullYear().toString();
       codePeriode = `PRIM-${typeAbrev}${data.numero || 1}-${annee}`;
     }
 
     // Vérifier si le code existe déjà
     const checkSql = 'SELECT id FROM periodes_primaire WHERE code_periode = ?';
-    const existing = await query(checkSql, [codePeriode]);
+    const existing = await query(checkSql, [codePeriode]) as Periode[];
     
-    if (existing.length > 0) {
+    if (Array.isArray(existing) && existing.length > 0) {
       return NextResponse.json(
         { 
           success: false, 
@@ -133,7 +148,8 @@ export async function POST(request: NextRequest) {
 
     // Récupérer la période créée
     const getSql = 'SELECT * FROM periodes_primaire WHERE id = ?';
-    const [periode] = await query(getSql, [result.insertId]);
+    const getResult = await query(getSql, [result.insertId]) as Periode[];
+    const periode = Array.isArray(getResult) && getResult.length > 0 ? getResult[0] : null;
 
     return NextResponse.json({
       success: true,
@@ -168,9 +184,9 @@ export async function PUT(request: NextRequest) {
 
     // Vérifier si la période existe
     const checkSql = 'SELECT * FROM periodes_primaire WHERE id = ?';
-    const existing = await query(checkSql, [data.id]);
+    const existing = await query(checkSql, [data.id]) as Periode[];
     
-    if (existing.length === 0) {
+    if (!Array.isArray(existing) || existing.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Période non trouvée' },
         { status: 404 }
@@ -248,7 +264,9 @@ export async function PUT(request: NextRequest) {
     await query(updateSql, updateParams);
 
     // Récupérer la période mise à jour
-    const [periode] = await query(getSql, [data.id]);
+    const getSql = 'SELECT * FROM periodes_primaire WHERE id = ?';
+    const getResult = await query(getSql, [data.id]) as Periode[];
+    const periode = Array.isArray(getResult) && getResult.length > 0 ? getResult[0] : null;
 
     return NextResponse.json({
       success: true,

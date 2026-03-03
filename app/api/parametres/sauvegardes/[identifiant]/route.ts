@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
@@ -14,12 +14,20 @@ if (!fs.existsSync(BACKUP_DIR)) {
   }
 }
 
+// Interface pour les paramètres
+interface RouteParams {
+  params: Promise<{
+    identifiant: string;
+  }>;
+}
+
 export async function GET(
-  request: Request,
-  { params }: { params: { identifiant: string } }
+  request: NextRequest,  // ✅ Utilisation de NextRequest
+  { params }: RouteParams  // ✅ Utilisation de l'interface avec Promise
 ) {
   try {
-    const identifiant = params.identifiant;
+    // ✅ Récupération asynchrone de l'identifiant
+    const { identifiant } = await params;
     console.log('📥 API GET - Téléchargement sauvegarde:', identifiant);
     console.log('📂 Dossier backups:', BACKUP_DIR);
     
@@ -136,11 +144,12 @@ export async function GET(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { identifiant: string } }
+  request: NextRequest,  // ✅ Utilisation de NextRequest
+  { params }: RouteParams  // ✅ Réutilisation de l'interface
 ) {
   try {
-    const identifiant = params.identifiant;
+    // ✅ Récupération asynchrone de l'identifiant
+    const { identifiant } = await params;
     console.log('🔴 API DELETE sauvegarde:', identifiant);
     
     // Vérifier si c'est un ID numérique

@@ -1,16 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour les paramètres
+interface RouteParams {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+// Interface pour une matière dans les moyennes
+interface MatiereMoyenne {
+  matiere_nom: string;
+  note: number;
+  coefficient: number;
+  appreciation: string;
+}
+
+// Interface pour un relevé
+interface Releve {
+  id: number;
+  eleve_id?: number;
+  matricule?: string;
+  eleve_nom?: string;
+  eleve_prenom?: string;
+  classe_nom?: string;
+  periode_nom?: string;
+  moyennes_par_matiere?: string | any[] | any;
+  moyenne_generale?: number | string;
+  rang?: number | string;
+  mention?: string;
+  appreciation_generale?: string;
+  date_generation?: string;
+  statut?: string;
+}
+
+// Interface pour l'école
+interface Ecole {
+  nom_ecole: string;
+  adresse: string;
+  telephone: string;
+  email: string;
+  slogan: string;
+  couleur_principale?: string;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
+  // Déclarer id en dehors du try pour pouvoir l'utiliser dans le catch
+  let id: string | undefined;
+  
   try {
-    const { id } = params;
+    // Récupération asynchrone de l'ID
+    const paramsObj = await params;
+    id = paramsObj.id;
+    
     console.log('🔄 API partage simple - ID:', id);
     
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) {
+      return NextResponse.json(
+        { success: false, error: 'ID invalide' },
+        { status: 400 }
+      );
+    }
+    
     // Récupérer les paramètres de l'école d'abord
-    let ecole;
+    let ecole: Ecole;
     try {
       const ecoleResult = await query('SELECT * FROM parametres LIMIT 1') as any[];
       ecole = ecoleResult[0] || {
@@ -66,9 +123,9 @@ export async function GET(
     `;
     
     console.log('📝 SQL:', releveSql);
-    console.log('🔧 Paramètre ID:', parseInt(id));
+    console.log('🔧 Paramètre ID:', idNum);
     
-    const releveResult = await query(releveSql, [parseInt(id)]) as any[];
+    const releveResult = await query(releveSql, [idNum]) as any[];
     
     console.log('📊 Résultat query:', {
       existe: !!releveResult,
@@ -81,7 +138,7 @@ export async function GET(
       
       // Essayer avec une requête alternative
       const alternativeSql = 'SELECT * FROM releves_primaire WHERE id = ? LIMIT 1';
-      const alternativeResult = await query(alternativeSql, [parseInt(id)]) as any[];
+      const alternativeResult = await query(alternativeSql, [idNum]) as any[];
       
       if (!alternativeResult || alternativeResult.length === 0) {
         // Essayer de trouver n'importe quel relevé pour debug
@@ -97,14 +154,17 @@ export async function GET(
       
       // Si trouvé avec requête alternative
       const releve = alternativeResult[0];
-      return preparerReponse(releve, ecole);
+      return preparerReponse(releve as Releve, ecole);
     }
     
     const releve = releveResult[0];
-    return preparerReponse(releve, ecole);
+    return preparerReponse(releve as Releve, ecole);
     
   } catch (error: any) {
     console.error('❌ Erreur API partage simple:', error);
+    
+    // Utiliser l'ID déclaré en dehors du try
+    const fallbackId = id ? parseInt(id) : 1;
     
     // Retourner une réponse avec des données de test pour debug
     return NextResponse.json({
@@ -112,16 +172,16 @@ export async function GET(
       debug: true,
       message: 'Mode debug - Données de test',
       releve: {
-        id: parseInt(id),
+        id: fallbackId,
         eleve_nom: 'Test',
         eleve_prenom: 'Élève',
-        matricule: 'TEST' + id,
+        matricule: 'TEST' + fallbackId,
         classe_nom: 'CM2',
         periode_nom: 'Trimestre 1',
-        moyennes_par_matiere: JSON.stringify([
+        moyennes_par_matiere: [
           { matiere_nom: 'Mathématiques', note: 16.5, coefficient: 3, appreciation: 'Très Bien' },
           { matiere_nom: 'Français', note: 14.2, coefficient: 3, appreciation: 'Bien' }
-        ]),
+        ] as MatiereMoyenne[],
         moyenne_generale: 15.35,
         rang: 5,
         mention: 'Bien',
@@ -140,16 +200,17 @@ export async function GET(
 }
 
 // Fonction utilitaire pour préparer la réponse
-async function preparerReponse(releve: any, ecole: any) {
+async function preparerReponse(releve: Releve, ecole: Ecole) {
   console.log('📦 Préparation réponse pour relevé:', releve.id);
   
   // Parser les moyennes par matière
-  let moyennesParsed = [];
+  let moyennesParsed: MatiereMoyenne[] = []; // ✅ Typage explicite du tableau
+  
   if (releve.moyennes_par_matiere) {
     try {
-      console.log('📝 Données brutes moyennes:', typeof releve.moyennes_par_matiere, releve.moyennes_par_matiere?.substring?.(0, 100));
+      console.log('📝 Données brutes moyennes:', typeof releve.moyennes_par_matiere);
       
-      let parsed;
+      let parsed: any;
       if (typeof releve.moyennes_par_matiere === 'string') {
         // Nettoyer le string
         const cleaned = releve.moyennes_par_matiere
@@ -211,7 +272,7 @@ async function preparerReponse(releve: any, ecole: any) {
   if (moyennesParsed.length === 0) {
     moyennesParsed = [{
       matiere_nom: 'Moyenne Générale',
-      note: releve.moyenne_generale || 0,
+      note: parseFloat(String(releve.moyenne_generale || 0)),
       coefficient: 1,
       appreciation: releve.mention || ''
     }];
@@ -222,8 +283,8 @@ async function preparerReponse(releve: any, ecole: any) {
     releve: {
       ...releve,
       moyennes_par_matiere: moyennesParsed,
-      moyenne_generale: parseFloat(releve.moyenne_generale) || 0,
-      rang: parseInt(releve.rang) || 0
+      moyenne_generale: parseFloat(String(releve.moyenne_generale)) || 0,
+      rang: parseInt(String(releve.rang)) || 0
     },
     ecole
   });

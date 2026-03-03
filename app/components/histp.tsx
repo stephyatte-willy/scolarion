@@ -3,7 +3,61 @@
 import { useState, useEffect, useRef } from 'react';
 import './GestionFinance.css';
 
-// ... interfaces existantes ...
+// ✅ AJOUTER L'INTERFACE MANQUANTE ICI
+interface ModalHistoriquePaiementsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  eleveId: number;
+  eleveNom: string;
+  elevePrenom: string;
+}
+
+// Interface pour les paramètres de l'école
+interface ParametresEcole {
+  nom_ecole: string;
+  telephone?: string;
+  email?: string;
+  adresse?: string;
+  logo?: string;
+  [key: string]: any;
+}
+
+// Interface pour les données de relance
+interface RelanceData {
+  eleveNom: string;
+  elevePrenom: string;
+  classe: string;
+  telephoneParent?: string;
+  emailParent?: string;
+  fraisRestants: Array<{
+    categorie: string;
+    montantRestant: number;
+    periodicite?: string;
+  }>;
+  montantTotalRestant: number;
+  anneeScolaire: string;
+}
+
+// Fonction utilitaire pour formater les montants
+const formaterMontantFCFA = (montant: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XOF',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(montant).replace('XOF', 'FCFA');
+};
+
+// Fonction pour obtenir le libellé de périodicité
+const getPeriodiciteLibelle = (periodicite: string): string => {
+  const periodes: { [key: string]: string } = {
+    mensuel: 'Mensuel',
+    trimestriel: 'Trimestriel',
+    semestriel: 'Semestriel',
+    annuel: 'Annuel'
+  };
+  return periodes[periodicite] || periodicite;
+};
 
 export default function ModalHistoriquePaiements({
   isOpen,
@@ -12,17 +66,51 @@ export default function ModalHistoriquePaiements({
   eleveNom,
   elevePrenom
 }: ModalHistoriquePaiementsProps) {
-  // ... états existants ...
+  // États existants
+  const [showModalRelance, setShowModalRelance] = useState(false);
+  const [relanceData, setRelanceData] = useState<RelanceData | null>(null);
+  const [messageRelance, setMessageRelance] = useState('');
+  const [parametresEcole, setParametresEcole] = useState<ParametresEcole | null>(null);
+  
+  // Charger les paramètres de l'école au montage
+  useEffect(() => {
+    const chargerParametresEcole = async () => {
+      try {
+        const response = await fetch('/api/parametres/ecole');
+        const data = await response.json();
+        if (data.success) {
+          setParametresEcole(data.parametres);
+        }
+      } catch (error) {
+        console.error('Erreur chargement paramètres école:', error);
+      }
+    };
+    
+    chargerParametresEcole();
+  }, []);
+
+  // Charger les données de relance quand on ouvre la modale
+  useEffect(() => {
+    if (showModalRelance && eleveId) {
+      chargerDonneesRelance();
+    }
+  }, [showModalRelance, eleveId]);
+
+  const chargerDonneesRelance = async () => {
+    try {
+      const response = await fetch(`/api/finance/relances/generate?eleve_id=${eleveId}`);
+      const data = await response.json();
+      if (data.success) {
+        setRelanceData(data.data);
+        setMessageRelance(genererMessageRelance(data.data));
+      }
+    } catch (error) {
+      console.error('Erreur chargement données relance:', error);
+    }
+  };
 
   // Fonction améliorée pour générer le message de relance
-  const genererMessageRelance = (data: {
-    eleveNom: string;
-    elevePrenom: string;
-    classe: string;
-    fraisRestants: Array<{categorie: string, montantRestant: number, periodicite?: string}>;
-    montantTotalRestant: number;
-    anneeScolaire: string;
-  }) => {
+  const genererMessageRelance = (data: RelanceData) => {
     const aujourdhui = new Date();
     const moisSuivant = aujourdhui.getMonth() + 2 > 12 ? 1 : aujourdhui.getMonth() + 2;
     const anneeMoisSuivant = moisSuivant === 1 ? aujourdhui.getFullYear() + 1 : aujourdhui.getFullYear();
@@ -109,6 +197,46 @@ ${parametresEcole?.nom_ecole || 'Établissement Scolaire'}`;
     stockerRelance('whatsapp');
   };
 
+  // Fonction pour envoyer par email (à implémenter)
+  const envoyerRelanceEmail = () => {
+    alert('Fonction d\'envoi par email à implémenter');
+  };
+
+  // Fonction pour imprimer
+  const imprimerRelance = () => {
+    if (!relanceData) return;
+    
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Relance de paiement - ${relanceData.elevePrenom} ${relanceData.eleveNom}</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 2rem; }
+              .header { text-align: center; margin-bottom: 2rem; }
+              .content { white-space: pre-wrap; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>${parametresEcole?.nom_ecole || 'Établissement Scolaire'}</h1>
+              <p>Relance de paiement</p>
+            </div>
+            <div class="content">${messageRelance.replace(/\n/g, '<br>')}</div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  // Fonction pour envoyer par SMS (à implémenter)
+  const envoyerRelanceSMS = () => {
+    alert('Fonction d\'envoi par SMS à implémenter');
+  };
+
   // Fonction pour stocker la relance
   const stockerRelance = async (methode: string) => {
     try {
@@ -138,9 +266,21 @@ ${parametresEcole?.nom_ecole || 'Établissement Scolaire'}`;
     }
   };
 
-  // Modifier le JSX pour la modale de relance
+  // Si la modale n'est pas ouverte, ne rien afficher
+  if (!isOpen) return null;
+
   return (
     <>
+      {/* Votre JSX existant pour la modale d'historique */}
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <h2>Historique des paiements - {elevePrenom} {eleveNom}</h2>
+          {/* Contenu de votre modale d'historique */}
+          <button onClick={() => setShowModalRelance(true)}>Envoyer une relance</button>
+          <button onClick={onClose}>Fermer</button>
+        </div>
+      </div>
+
       {/* Modale de relance améliorée */}
       {showModalRelance && relanceData && (
         <div className="overlay-modal-premium" onClick={() => setShowModalRelance(false)}>
@@ -167,7 +307,7 @@ ${parametresEcole?.nom_ecole || 'Établissement Scolaire'}`;
 
             {/* Contenu principal avec onglets */}
             <div className="relance-tabs">
-              <button className={`relance-tab ${true ? 'active' : ''}`}>
+              <button className="relance-tab active">
                 <span className="tab-icon">✉️</span>
                 <span className="tab-label">Message</span>
               </button>

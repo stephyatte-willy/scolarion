@@ -3,10 +3,12 @@ import { query } from '@/app/lib/database';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // ✅ Correction: Promise
 ) {
   try {
-    const budgetId = parseInt(params.id);
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
+    const budgetId = parseInt(id);
     
     if (!budgetId || isNaN(budgetId)) {
       return NextResponse.json(
@@ -29,7 +31,7 @@ export async function GET(
     const depenses = await query(sql, [budgetId]) as any[];
     
     // Formater les données pour correspondre à l'interface
-    const depensesFormatees = depenses.map(depense => ({
+    const depensesFormatees = depenses.map((depense: any) => ({
       ...depense,
       type_depense: depense.type_depense || 'divers',
       sous_categorie: depense.sous_categorie || null,

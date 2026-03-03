@@ -1,19 +1,30 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { runTransaction, query } from '@/app/lib/database';
 import bcrypt from 'bcryptjs';
 
+// Interface pour les paramètres
+interface RouteParams {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,  // ✅ Utilisation de NextRequest
+  { params }: RouteParams  // ✅ Interface avec Promise
 ) {
   try {
     const data = await request.json();
-    const userId = parseInt(params.id);
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
+    const userId = parseInt(id);
+    
+    console.log('📝 PUT utilisateur ID:', userId, 'Données:', data);
     
     await runTransaction(async (connection) => {
       // Vérifier si l'email existe déjà pour un autre utilisateur
       if (data.email) {
-        const existingUsers = await connection.execute(
+        const [existingUsers] = await connection.execute(
           'SELECT id FROM users WHERE email = ? AND id != ?',
           [data.email, userId]
         ) as any[];
@@ -67,11 +78,15 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,  // ✅ Utilisation de NextRequest
+  { params }: RouteParams  // ✅ Réutilisation de l'interface
 ) {
   try {
-    const userId = parseInt(params.id);
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
+    const userId = parseInt(id);
+    
+    console.log('🗑️ DELETE utilisateur ID:', userId);
     
     // Vérifier si c'est le dernier admin
     const admins = await query(

@@ -1,61 +1,101 @@
-// Créez le fichier : /pages/api/periodes-primaires/[id]/check-delete.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+// app/api/periodes-primaires/[id]/check-delete/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/app/lib/database';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Méthode non autorisée' });
-  }
-
-  const { id } = req.query;
-
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    // Vérifier si la période existe
-    const { data: periode, error: periodeError } = await supabase
-      .from('periodes_primaire')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (periodeError || !periode) {
-      return res.status(404).json({ error: 'Période non trouvée' });
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
+    const periodeId = parseInt(id);
+    
+    console.log('🔍 Vérification suppression période ID:', periodeId);
+    
+    if (isNaN(periodeId) || periodeId <= 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'ID de période invalide'
+      }, { status: 400 });
     }
 
-    // Vérifier si c'est la période courante
-    if (periode.est_periode_courante) {
-      return res.status(200).json({
+    // 1. Vérifier si la période existe
+    const periodeSql = 'SELECT * FROM periodes_primaire WHERE id = ? AND est_supprime = FALSE';
+    const periodeResult = await query(periodeSql, [periodeId]) as any[];
+    
+    if (!Array.isArray(periodeResult) || periodeResult.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'Période non trouvée'
+      }, { status: 404 });
+    }
+
+    const periode = periodeResult[0];
+    console.log('📋 Période trouvée:', periode);
+
+    // 2. Vérifier si c'est la période courante
+    if (periode.est_courante === 1 || periode.est_courante === true) {
+      return NextResponse.json({
         success: true,
         can_be_deleted: false,
         error: 'Impossible de supprimer la période courante'
       });
     }
 
-    // Vérifier si la période est utilisée dans des compositions
-    const { data: compositions, error: compError } = await supabase
-      .from('compositions_primaire')
-      .select('id')
-      .eq('periode_id', id)
-      .limit(1);
+    // 3. Vérifier si la période est utilisée dans des compositions
+    const compositionsSql = 'SELECT COUNT(*) as count FROM compositions_primaire WHERE periode_id = ?';
+    const compositionsResult = await query(compositionsSql, [periodeId]) as any[];
+    const compositionsCount = Array.isArray(compositionsResult) && compositionsResult[0] 
+      ? parseInt(compositionsResult[0].count) || 0 
+      : 0;
 
-    if (compError) {
-      console.error('Erreur vérification compositions:', compError);
+    console.log('📊 Compositions trouvées:', compositionsCount);
+
+    // 4. Vérifier si la période est utilisée dans des notes (via les compositions)
+    let notesCount = 0;
+    if (compositionsCount > 0) {
+      // Récupérer les IDs des compositions de cette période
+      const compIdsSql = 'SELECT id FROM compositions_primaire WHERE periode_id = ?';
+      const compIdsResult = await query(compIdsSql, [periodeId]) as any[];
+      
+      if (Array.isArray(compIdsResult) && compIdsResult.length > 0) {
+        const compIds = compIdsResult.map((c: any) => c.id);
+        
+        // Vérifier les notes pour ces compositions
+        if (compIds.length > 0) {
+          const notesSql = `
+            SELECT COUNT(*) as count 
+            FROM notes_primaire 
+            WHERE composition_id IN (${compIds.map(() => '?').join(',')})
+          `;
+          const notesResult = await query(notesSql, compIds) as any[];
+          notesCount = Array.isArray(notesResult) && notesResult[0] 
+            ? parseInt(notesResult[0].count) || 0 
+            : 0;
+        }
+      }
     }
 
-    // Vérifier si la période est utilisée dans des notes via les compositions
-    const canBeDeleted = !compositions || compositions.length === 0;
+    // 5. Déterminer si la période peut être supprimée
+    const canBeDeleted = compositionsCount === 0 && notesCount === 0;
     
-    return res.status(200).json({
+    return NextResponse.json({
       success: true,
       can_be_deleted: canBeDeleted,
-      compositions_count: compositions?.length || 0,
-      error: !canBeDeleted ? 'Cette période ne peut pas être supprimée car elle est utilisée dans des compositions' : null
+      compositions_count: compositionsCount,
+      notes_count: notesCount,
+      is_current_period: periode.est_courante === 1 || periode.est_courante === true,
+      error: !canBeDeleted 
+        ? `Cette période ne peut pas être supprimée car elle est utilisée dans ${compositionsCount} composition(s) et ${notesCount} note(s)` 
+        : null
     });
 
-  } catch (error) {
-    console.error('Erreur vérification période:', error);
-    return res.status(500).json({ 
+  } catch (error: any) {
+    console.error('❌ Erreur vérification période:', error);
+    return NextResponse.json({ 
       success: false, 
-      error: 'Erreur lors de la vérification' 
-    });
+      error: `Erreur lors de la vérification: ${error.message || 'Erreur inconnue'}`
+    }, { status: 500 });
   }
 }

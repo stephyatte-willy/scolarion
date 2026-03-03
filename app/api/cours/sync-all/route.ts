@@ -2,6 +2,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour le type Cours
+interface Cours {
+  id: number;
+  code_cours: string;
+  nom_cours: string;
+  classe_id: number;
+  professeur_id: number;
+  professeur_nom: string;
+  classe_nom: string;
+  jour_semaine: string;
+  heure_debut: string;
+  heure_fin: string;
+  salle: string;
+  description: string;
+  couleur: string;
+  statut: string;
+  [key: string]: any;
+}
+
 // POST: Synchroniser tous les cours actifs vers l'emploi du temps
 export async function POST(request: NextRequest) {
   try {
@@ -35,7 +54,11 @@ export async function POST(request: NextRequest) {
     
     coursSql += ' ORDER BY c.code_cours';
     
-    const coursList = await query(coursSql, params);
+    // ✅ Solution 1: Typer le résultat comme un tableau de Cours
+    const coursResult = await query(coursSql, params) as any[];
+    
+    // ✅ Vérifier que c'est bien un tableau
+    const coursList = Array.isArray(coursResult) ? coursResult : [];
     
     console.log(`📚 Cours trouvés: ${coursList.length}`);
     
@@ -44,7 +67,7 @@ export async function POST(request: NextRequest) {
       updated: 0,
       removed: 0,
       skipped: 0,
-      errors: []
+      errors: [] as { code_cours: string; error: string }[]
     };
     
     if (action === 'sync' || action === 'add') {
@@ -59,11 +82,13 @@ export async function POST(request: NextRequest) {
             AND professeur_id = ?
           `;
           
-          const existing = await query(checkSql, [
+          const existingResult = await query(checkSql, [
             cours.code_cours,
             cours.classe_id,
             cours.professeur_id
-          ]);
+          ]) as any[];
+          
+          const existing = Array.isArray(existingResult) ? existingResult : [];
           
           if (existing.length > 0) {
             // Mettre à jour

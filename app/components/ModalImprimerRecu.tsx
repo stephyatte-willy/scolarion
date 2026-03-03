@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Paiement } from './GestionPaiements';
+import { Paiement } from '@/app/types/finance';
 
 interface ParametresEcole {
   nom_ecole: string;

@@ -1,43 +1,23 @@
 // app/api/parametres/roles/[id]/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'; // ✅ Changé Request → NextRequest
 import { runTransaction, query } from '@/app/lib/database';
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest, // ✅ Changé Request → NextRequest pour cohérence
+  { params }: { params: Promise<{ id: string }> } // ✅ Correction: Promise
 ) {
   console.log('🔵 DELETE rôle - Début');
-  console.log('📌 params reçus:', params);
-  console.log('📌 id brut:', params?.id);
-  console.log('📌 URL complète:', request.url);
   
   try {
-    // Récupération robuste de l'ID
-    let roleId: number | null = null;
+    // ✅ Récupération asynchrone de l'ID (maintenant simple et propre)
+    const { id } = await params;
+    console.log('📌 ID reçu:', id);
     
-    // Méthode 1: via params
-    if (params && params.id) {
-      roleId = parseInt(params.id, 10);
-      console.log('📌 ID depuis params:', roleId);
-    }
-    
-    // Méthode 2: via l'URL (fallback)
-    if (!roleId || isNaN(roleId)) {
-      const url = new URL(request.url);
-      const pathParts = url.pathname.split('/');
-      // /api/parametres/roles/1 → l'ID est à l'avant-dernière position
-      const possibleId = pathParts[pathParts.length - 1];
-      console.log('📌 ID depuis URL path:', possibleId);
-      
-      if (possibleId && !isNaN(Number(possibleId))) {
-        roleId = parseInt(possibleId, 10);
-      }
-    }
-    
-    console.log('📌 ID final après extraction:', roleId);
+    const roleId = parseInt(id, 10);
+    console.log('📌 ID parsé:', roleId);
     
     if (!roleId || isNaN(roleId) || roleId <= 0) {
-      console.error('❌ ID de rôle invalide après toutes les tentatives');
+      console.error('❌ ID de rôle invalide');
       return NextResponse.json(
         { success: false, erreur: 'ID de rôle invalide' },
         { status: 400 }
