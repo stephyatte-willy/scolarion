@@ -1,13 +1,16 @@
-// /api/absences/[id]/justifier/route.ts - VERSION AVEC LOGS DÉTAILLÉS
-import { NextResponse } from 'next/server';
+// /api/absences/[id]/justifier/route.ts - VERSION CORRIGÉE
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }  // ✅ Correction : Promise
 ) {
   try {
-    const id = parseInt(params.id);
+    // ✅ Récupération asynchrone de l'ID
+    const { id: idStr } = await params;
+    const id = parseInt(idStr);
+    
     const body = await request.json();
     
     // Log détaillé de ce qui est reçu
@@ -20,9 +23,9 @@ export async function PUT(
     // CORRECTION ROBUSTE: Convertir en nombre de façon explicite
     let justifieeValue: number;
     
-    if (body.justifiee === true || body.justifiee === 1 || body.justifiee === '1' || body.justifiee === 1) {
+    if (body.justifiee === true || body.justifiee === 1 || body.justifiee === '1') {
       justifieeValue = 1;
-    } else if (body.justifiee === false || body.justifiee === 0 || body.justifiee === '0' || body.justifiee === 0) {
+    } else if (body.justifiee === false || body.justifiee === 0 || body.justifiee === '0') {
       justifieeValue = 0;
     } else {
       // Par défaut, si c'est undefined ou autre, on met 0

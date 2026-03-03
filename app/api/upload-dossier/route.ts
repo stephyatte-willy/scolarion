@@ -2,17 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(request: NextRequest) {
   console.log('📤 API Upload Dossier - Début');
   
   try {
-    // Obtenir FormData
+    // ✅ Dans l'App Router, FormData est automatiquement disponible
+    // Pas besoin de bodyParser: false, c'est géré nativement
     const formData = await request.formData();
     console.log('📤 FormData reçu, clés:', Array.from(formData.keys()));
     
