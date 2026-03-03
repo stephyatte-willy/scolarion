@@ -1,6 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour une matière
+interface Matiere {
+  id: number;
+  nom: string;
+  code_matiere?: string;
+  niveau?: string;
+  description?: string;
+  couleur?: string;
+  icone?: string;
+  coefficient: number | string;
+  note_sur: number | string;
+  ordre_affichage?: number | string;
+  statut?: string;
+  est_supprime?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: any;
+}
+
 interface RouteContext {
   params: Promise<{
     id: string;
@@ -20,9 +39,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     const sql = 'SELECT * FROM matieres_primaire WHERE id = ?';
-    const result = await query(sql, [idNum]);
+    const result = await query(sql, [idNum]) as Matiere[];
     
-    if (!result || result.length === 0) {
+    // ✅ Vérification avec Array.isArray
+    if (!Array.isArray(result) || result.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Matière non trouvée' },
         { status: 404 }
@@ -32,9 +52,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const matiere = result[0];
     const matiereFormatee = {
       ...matiere,
-      coefficient: parseFloat(matiere.coefficient) || 1.0,
-      note_sur: parseFloat(matiere.note_sur) || 20.0,
-      ordre_affichage: parseInt(matiere.ordre_affichage) || 0
+      coefficient: parseFloat(matiere.coefficient as string) || 1.0,
+      note_sur: parseFloat(matiere.note_sur as string) || 20.0,
+      ordre_affichage: parseInt(matiere.ordre_affichage as string) || 0
     };
 
     return NextResponse.json({
@@ -95,9 +115,10 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     // Vérifier si la matière existe
     const checkSql = 'SELECT id FROM matieres_primaire WHERE id = ?';
-    const existing = await query(checkSql, [idNum]);
+    const existing = await query(checkSql, [idNum]) as Matiere[];
     
-    if (existing.length === 0) {
+    // ✅ Vérification avec Array.isArray
+    if (!Array.isArray(existing) || existing.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Matière non trouvée' },
         { status: 404 }
@@ -176,14 +197,15 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     await query(updateSql, updateParams);
 
     // Récupérer la matière mise à jour
-    const [matiere] = await query(checkSql, [idNum]);
+    const updatedMatiere = await query(checkSql, [idNum]) as Matiere[];
+    const matiere = Array.isArray(updatedMatiere) && updatedMatiere.length > 0 ? updatedMatiere[0] : null;
 
-    const matiereFormatee = {
+    const matiereFormatee = matiere ? {
       ...matiere,
-      coefficient: parseFloat(matiere.coefficient) || 1.0,
-      note_sur: parseFloat(matiere.note_sur) || 20.0,
-      ordre_affichage: parseInt(matiere.ordre_affichage) || 0
-    };
+      coefficient: parseFloat(matiere.coefficient as string) || 1.0,
+      note_sur: parseFloat(matiere.note_sur as string) || 20.0,
+      ordre_affichage: parseInt(matiere.ordre_affichage as string) || 0
+    } : null;
 
     return NextResponse.json({
       success: true,
@@ -217,9 +239,10 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     // Vérifier si la matière existe
     const checkSql = 'SELECT id, nom FROM matieres_primaire WHERE id = ?';
-    const existing = await query(checkSql, [idNum]);
+    const existing = await query(checkSql, [idNum]) as Matiere[];
     
-    if (existing.length === 0) {
+    // ✅ Vérification avec Array.isArray
+    if (!Array.isArray(existing) || existing.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Matière non trouvée' },
         { status: 404 }
@@ -228,9 +251,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     // Vérifier si la matière est utilisée dans des notes
     const checkUsageSql = 'SELECT id FROM notes_primaire WHERE matiere_id = ? LIMIT 1';
-    const usage = await query(checkUsageSql, [idNum]);
+    const usage = await query(checkUsageSql, [idNum]) as any[];
     
-    if (usage.length > 0) {
+    if (Array.isArray(usage) && usage.length > 0) {
       return NextResponse.json(
         { 
           success: false, 
