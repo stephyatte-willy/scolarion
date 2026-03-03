@@ -2,19 +2,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Définir le type du contexte (optionnel mais recommandé)
+interface RouteContext {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   try {
-    const fraisEleveId = parseInt(params.id);
+    // Récupérer l'ID de manière asynchrone depuis les paramètres
+    const { id } = await context.params;
     
-    if (!fraisEleveId) {
+    // Convertir en nombre
+    const fraisEleveId = parseInt(id);
+    
+    // Valider l'ID
+    if (isNaN(fraisEleveId) || fraisEleveId <= 0) {
       return NextResponse.json({
         success: false,
-        erreur: 'ID du frais élève requis'
+        erreur: 'ID du frais élève invalide ou manquant'
       }, { status: 400 });
     }
+    
+    console.log('🔍 Récupération frais élève ID:', fraisEleveId);
     
     const sql = `
       SELECT 
@@ -53,7 +67,7 @@ export async function GET(
     });
     
   } catch (error: any) {
-    console.error('Erreur récupération frais élève:', error);
+    console.error('❌ Erreur récupération frais élève:', error);
     return NextResponse.json(
       { 
         success: false, 

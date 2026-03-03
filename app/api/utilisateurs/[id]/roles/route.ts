@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/app/lib/database'; // Correction du chemin
+import { query } from '@/app/lib/database';
 
+// ✅ BON - avec typage correct
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // Promise explicite
 ) {
   try {
-    // Dans Next.js 13+, params peut être une Promise, on doit l'attendre
+    // Récupérer l'ID de manière asynchrone
     const { id } = await params;
     
     console.log('🔍 Récupération des rôles pour user ID:', id);
@@ -30,7 +31,7 @@ export async function GET(
       }, { status: 400 });
     }
     
-    // Récupérer les rôles de l'utilisateur - CORRECTION: on enlève ur.id qui n'existe pas
+    // Récupérer les rôles de l'utilisateur
     const rows = await query(`
       SELECT 
         ur.user_id,
@@ -41,7 +42,7 @@ export async function GET(
       FROM users_roles ur
       JOIN roles r ON ur.role_id = r.id
       WHERE ur.user_id = ?
-    `, [userId]);
+    `, [userId]) as any[];
     
     console.log('✅ Rôles récupérés:', rows);
     

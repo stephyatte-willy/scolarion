@@ -1,44 +1,14 @@
-// app/api/absences/[id]/route.ts - Version avec extraction manuelle de l'URL
 import { NextResponse } from 'next/server';
 import { query, runTransaction } from '@/app/lib/database';
 
-// Fonction utilitaire pour extraire l'ID de l'URL
-function extractIdFromUrl(url: string): number | null {
-  try {
-    const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split('/');
-    const idFromUrl = pathParts[pathParts.length - 1];
-    
-    console.log('🔍 Extraction ID - URL:', url);
-    console.log('🔍 Extraction ID - Pathname:', urlObj.pathname);
-    console.log('🔍 Extraction ID - Parts:', pathParts);
-    console.log('🔍 Extraction ID - ID brut:', idFromUrl);
-    
-    if (!idFromUrl || idFromUrl === 'undefined' || idFromUrl === 'null') {
-      return null;
-    }
-    
-    const id = parseInt(idFromUrl, 10);
-    return isNaN(id) ? null : id;
-    
-  } catch (error) {
-    console.error('❌ Erreur extraction ID:', error);
-    return null;
-  }
-}
-
 // GET /api/absences/[id] - Récupérer une absence spécifique
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    // Extraire l'ID de l'URL
-    const id = extractIdFromUrl(request.url);
-    
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID invalide ou manquant' },
-        { status: 400 }
-      );
-    }
+    // Récupérer l'ID depuis les paramètres (asynchrone)
+    const { id } = await params;
     
     console.log('🔍 Récupération absence ID:', id);
     
@@ -77,17 +47,13 @@ export async function GET(request: Request) {
 }
 
 // PUT /api/absences/[id] - Modifier une absence
-export async function PUT(request: Request) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    // Extraire l'ID de l'URL
-    const id = extractIdFromUrl(request.url);
-    
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID invalide ou manquant' },
-        { status: 400 }
-      );
-    }
+    // Récupérer l'ID depuis les paramètres
+    const { id } = await params;
     
     const data = await request.json();
     console.log('📝 Modification absence ID:', id, 'Données:', data);
@@ -147,17 +113,13 @@ export async function PUT(request: Request) {
 }
 
 // PATCH /api/absences/[id] - Justifier une absence
-export async function PATCH(request: Request) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    // Extraire l'ID de l'URL
-    const id = extractIdFromUrl(request.url);
-    
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID invalide ou manquant' },
-        { status: 400 }
-      );
-    }
+    // Récupérer l'ID depuis les paramètres
+    const { id } = await params;
     
     const body = await request.json();
     console.log('🔧 Justification absence ID:', id, 'Données:', body);
@@ -215,17 +177,13 @@ export async function PATCH(request: Request) {
 }
 
 // DELETE /api/absences/[id] - Supprimer une absence
-export async function DELETE(request: Request) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    // Extraire l'ID de l'URL
-    const id = extractIdFromUrl(request.url);
-    
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID invalide ou manquant' },
-        { status: 400 }
-      );
-    }
+    // Récupérer l'ID depuis les paramètres
+    const { id } = await params;
     
     console.log('🗑️ Suppression absence ID:', id);
     

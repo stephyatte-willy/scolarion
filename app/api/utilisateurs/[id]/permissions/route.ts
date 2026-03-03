@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Définir une interface pour le contexte (optionnel mais recommandé)
+interface RouteContext {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext  // ou directement: { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    // ⚠️ IMPORTANT: Il faut await ici !
+    const { id } = await context.params;
     
     console.log('🔍 Récupération des permissions pour user ID:', id);
     
