@@ -1,6 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour les résultats
+interface Evaluation {
+  id: number;
+  code_evaluation: string;
+  titre: string;
+  description?: string;
+  matiere_id?: number;
+  classe_id?: number;
+  enseignant_id?: number;
+  type_evaluation: string;
+  date_evaluation: string;
+  coefficient: number;
+  note_maximale: number;
+  bareme: string;
+  periode_id?: number;
+  statut: string;
+  annee_scolaire?: string;
+  [key: string]: any;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -48,11 +68,11 @@ export async function GET(request: NextRequest) {
     sql += ' ORDER BY e.date_evaluation DESC';
 
     console.log('📝 SQL évaluations:', sql);
-    const evaluations = await query(sql, params);
+    const evaluations = await query(sql, params) as Evaluation[];
 
     return NextResponse.json({
       success: true,
-      evaluations: evaluations || []
+      evaluations: Array.isArray(evaluations) ? evaluations : []
     });
   } catch (error: any) {
     console.error('❌ Erreur GET évaluations:', error);
@@ -90,9 +110,12 @@ export async function POST(request: NextRequest) {
 
     // Vérifier si le code existe déjà
     const checkSql = 'SELECT id FROM evaluations WHERE code_evaluation = ?';
-    const existing = await query(checkSql, [data.code_evaluation]);
+    const existing = await query(checkSql, [data.code_evaluation]) as any[];
     
-    if (existing.length > 0) {
+    // ✅ Vérifier que c'est un tableau avant d'utiliser .length
+    const existingArray = Array.isArray(existing) ? existing : [];
+    
+    if (existingArray.length > 0) {
       return NextResponse.json(
         { success: false, error: 'Ce code existe déjà' },
         { status: 400 }
@@ -100,14 +123,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier si l'enseignant existe
-    const checkEnseignantSql = 'SELECT id FROM enseignants WHERE id = ?';
-    const enseignantExists = await query(checkEnseignantSql, [data.enseignant_id]);
-    
-    if (enseignantExists.length === 0 && data.enseignant_id) {
-      return NextResponse.json(
-        { success: false, error: 'Enseignant non trouvé' },
-        { status: 400 }
-      );
+    if (data.enseignant_id) {
+      const checkEnseignantSql = 'SELECT id FROM enseignants WHERE id = ?';
+      const enseignantExists = await query(checkEnseignantSql, [data.enseignant_id]) as any[];
+      const enseignantArray = Array.isArray(enseignantExists) ? enseignantExists : [];
+      
+      if (enseignantArray.length === 0) {
+        return NextResponse.json(
+          { success: false, error: 'Enseignant non trouvé' },
+          { status: 400 }
+        );
+      }
     }
 
     const sql = `
@@ -139,7 +165,7 @@ export async function POST(request: NextRequest) {
     console.log('📝 SQL création évaluation:', sql);
     console.log('📋 Paramètres:', params);
     
-    const result = await query(sql, params);
+    const result = await query(sql, params) as any;
 
     // Récupérer l'évaluation créée avec les jointures
     const getSql = `
@@ -156,7 +182,8 @@ export async function POST(request: NextRequest) {
       WHERE e.id = ?
     `;
     
-    const [evaluation] = await query(getSql, [result.insertId]);
+    const evaluationResult = await query(getSql, [result.insertId]) as any[];
+    const evaluation = Array.isArray(evaluationResult) && evaluationResult.length > 0 ? evaluationResult[0] : null;
 
     console.log('✅ Évaluation créée avec succès:', evaluation);
 
@@ -193,9 +220,10 @@ export async function PUT(request: NextRequest) {
 
     // Vérifier si l'évaluation existe
     const checkSql = 'SELECT * FROM evaluations WHERE id = ?';
-    const existing = await query(checkSql, [data.id]);
+    const existing = await query(checkSql, [data.id]) as any[];
+    const existingArray = Array.isArray(existing) ? existing : [];
     
-    if (existing.length === 0) {
+    if (existingArray.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Évaluation non trouvée' },
         { status: 404 }
@@ -205,9 +233,10 @@ export async function PUT(request: NextRequest) {
     // Vérifier si l'enseignant existe
     if (data.enseignant_id) {
       const checkEnseignantSql = 'SELECT id FROM enseignants WHERE id = ?';
-      const enseignantExists = await query(checkEnseignantSql, [data.enseignant_id]);
+      const enseignantExists = await query(checkEnseignantSql, [data.enseignant_id]) as any[];
+      const enseignantArray = Array.isArray(enseignantExists) ? enseignantExists : [];
       
-      if (enseignantExists.length === 0) {
+      if (enseignantArray.length === 0) {
         return NextResponse.json(
           { success: false, error: 'Enseignant non trouvé' },
           { status: 400 }
@@ -316,7 +345,8 @@ export async function PUT(request: NextRequest) {
       WHERE e.id = ?
     `;
     
-    const [evaluation] = await query(getSql, [data.id]);
+    const evaluationResult = await query(getSql, [data.id]) as any[];
+    const evaluation = Array.isArray(evaluationResult) && evaluationResult.length > 0 ? evaluationResult[0] : null;
 
     return NextResponse.json({
       success: true,
