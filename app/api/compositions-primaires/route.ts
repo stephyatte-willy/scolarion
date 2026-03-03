@@ -1,6 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour le type de retour
+interface Composition {
+  id: number;
+  code_composition: string;
+  titre: string;
+  classe_id: number;
+  classe_nom: string;
+  instituteur_id: number;
+  instituteur_nom: string;
+  date_composition: string;
+  periode_id: number;
+  periode_nom: string;
+  annee_scolaire: string;
+  statut: string;
+  notes_saisies: number | boolean;
+  releves_generes: number | boolean;
+  est_supprime: number | boolean;
+  [key: string]: any;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -40,7 +60,11 @@ export async function GET(request: NextRequest) {
 
     sql += ' ORDER BY c.date_composition DESC, c.created_at DESC';
 
-    const compositions = await query(sql, params);
+    // ✅ Solution 1: Typer le résultat comme un tableau de Composition
+    const result = await query(sql, params) as any[];
+    
+    // ✅ Vérifier que c'est bien un tableau avant d'utiliser map
+    const compositions = Array.isArray(result) ? result : [];
     
     // Convertir les valeurs booléennes
     const compositionsFormatees = compositions.map((comp: any) => ({
@@ -97,18 +121,20 @@ export async function POST(request: NextRequest) {
 
     // Générer un code unique
     const codeComposition = data.code_composition || 
-      `COMP-PRIM-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+      `COMP-PRIM-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
     // Vérifier si une composition existe déjà pour cette classe et période
     const checkSql = `
       SELECT id FROM compositions_primaire 
       WHERE classe_id = ? AND periode_id = ? AND titre LIKE ? AND est_supprime = FALSE
     `;
-    const existing = await query(checkSql, [
+    const existingResult = await query(checkSql, [
       data.classe_id, 
       data.periode_id || 0,
       `%${data.titre}%`
-    ]);
+    ]) as any[];
+    
+    const existing = Array.isArray(existingResult) ? existingResult : [];
     
     if (existing.length > 0) {
       return NextResponse.json(
@@ -145,7 +171,8 @@ export async function POST(request: NextRequest) {
 
     // Récupérer la composition créée
     const getSql = 'SELECT * FROM compositions_primaire WHERE id = ?';
-    const [composition] = await query(getSql, [result.insertId]);
+    const getResult = await query(getSql, [result.insertId]) as any[];
+    const composition = Array.isArray(getResult) && getResult.length > 0 ? getResult[0] : null;
 
     return NextResponse.json({
       success: true,
