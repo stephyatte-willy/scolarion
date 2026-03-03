@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       { 
         success: false, 
         erreur: `Erreur serveur: ${error.message}`,
-        frais: [] // Retourner un tableau vide en cas d'erreur
+        frais: []
       },
       { status: 500 }
     );
@@ -39,7 +39,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const fraisData = await request.json();
-    const resultat = await FinanceService.creerFraisClasse(fraisData);
+    
+    // ✅ Utilisation de la méthode suggérée
+    const resultat = await FinanceService.creerFraisScolaire({
+      ...fraisData,
+      type: 'classe' // Spécifier que c'est pour une classe
+    });
     
     if (!resultat.success) {
       return NextResponse.json(
