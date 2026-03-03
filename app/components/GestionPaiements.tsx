@@ -7,6 +7,7 @@ import ModalSupprimerPaiement from './ModalSupprimerPaiement';
 import ModalModifierPaiement from './ModalModifierPaiement';
 import ModalHistoriquePaiements from './ModalHistoriquePaiements';
 import * as XLSX from 'xlsx';
+import { Paiement } from '@/app/types/finance';
 
 // Interfaces pour les paramètres
 interface ParametresEcole {
@@ -142,35 +143,6 @@ interface VersementScolarite {
   statut: 'en_attente' | 'partiel' | 'paye' | 'en_retard';
   date_paiement?: string;
   reste_apres_paiement?: number;
-}
-
-interface Paiement {
-  id: number;
-  frais_eleve_id: number;
-  eleve_id: number;
-  montant: number;
-  date_paiement: string;
-  mode_paiement: string;
-  reference_paiement: string;
-  numero_versement?: number;
-  numero_recu?: number;
-  notes: string;
-  statut_paiement?: string;
-  statut: string;
-  created_by: number;
-  created_at: string;
-  updated_at: string;
-  eleve_nom?: string;
-  eleve_prenom?: string;
-  eleve_matricule?: string;
-  classe_nom?: string;
-  classe_niveau?: string;
-  categorie_nom?: string;
-  montant_total?: number;
-  montant_paye?: number;
-  statut_frais?: string;
-  annee_scolaire?: string;
-  reste_a_payer?: number;
 }
 
 interface PaiementFormData {
