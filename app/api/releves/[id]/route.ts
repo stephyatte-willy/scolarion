@@ -8,12 +8,50 @@ interface RouteParams {
   }>;
 }
 
+// Interface pour les notes
+interface Note {
+  matiere_id: number;
+  matiere_nom: string;
+  coefficient: number;
+  note: number;
+  note_sur: number;
+  appreciation: string;
+}
+
+// Interface pour le relevé
+interface Releve {
+  id: number;
+  eleve_id: number;
+  matricule: string;
+  eleve_nom: string;
+  eleve_prenom: string;
+  classe_id: number;
+  classe_nom: string;
+  periode_id: number;
+  periode_nom: string;
+  moyennes_par_matiere: Note[];
+  moyenne_generale: number;
+  rang: number;
+  mention: string;
+  appreciation_generale: string;
+  date_generation: string;
+  statut: string;
+  eleve: {
+    date_naissance?: string;
+    lieu_naissance?: string;
+    telephone_parent?: string;
+    email_parents?: string;
+    genre?: string;
+    nationalite?: string;
+  };
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams  // ✅ Utilisation de l'interface avec Promise
+  { params }: RouteParams
 ) {
   try {
-    // ✅ Récupération asynchrone de l'ID
+    // Récupération asynchrone de l'ID
     const { id } = await params;
     console.log('🔍 GET /api/releves/[id] appelé avec ID:', id);
     
@@ -45,7 +83,7 @@ export async function GET(
     
     console.log('📝 SQL:', sql, [idNum]);
     
-    const result: any = await query(sql, [idNum]);
+    const result = await query(sql, [idNum]) as any[];
     
     if (!result || result.length === 0) {
       console.log('❌ Relevé non trouvé');
@@ -57,8 +95,10 @@ export async function GET(
 
     const data = result[0];
     
+    // ✅ Typage explicite du tableau de notes
+    let notes: Note[] = [];
+    
     // Essayer de récupérer les notes pour ce relevé
-    let notes = [];
     try {
       const notesSql = `
         SELECT n.*, mp.nom as matiere_nom, mp.coefficient, mp.note_sur
@@ -68,10 +108,10 @@ export async function GET(
         ORDER BY mp.ordre_affichage ASC, mp.nom ASC
       `;
       
-      const notesResult = await query(notesSql, [data.eleve_id, data.periode_id]);
+      const notesResult = await query(notesSql, [data.eleve_id, data.periode_id]) as any[];
       
-      if (notesResult && (notesResult as any[]).length > 0) {
-        notes = (notesResult as any[]).map((note: any) => ({
+      if (notesResult && notesResult.length > 0) {
+        notes = notesResult.map((note: any) => ({
           matiere_id: note.matiere_id,
           matiere_nom: note.matiere_nom || 'Matière',
           coefficient: note.coefficient || 1,
@@ -84,8 +124,8 @@ export async function GET(
       console.warn('⚠️ Notes non récupérées:', notesError);
     }
 
-    // Formater le relevé
-    const releveFormate = {
+    // Formater le relevé avec le type explicite
+    const releveFormate: Releve = {
       id: data.id,
       eleve_id: data.eleve_id,
       matricule: data.matricule,
@@ -95,7 +135,7 @@ export async function GET(
       classe_nom: data.classe_nom,
       periode_id: data.periode_id,
       periode_nom: data.periode_nom,
-      moyennes_par_matiere: notes, // Utiliser les notes réelles
+      moyennes_par_matiere: notes,
       moyenne_generale: parseFloat(data.moyenne_generale) || 0,
       rang: parseInt(data.rang) || 0,
       mention: data.mention || 'Non spécifié',
