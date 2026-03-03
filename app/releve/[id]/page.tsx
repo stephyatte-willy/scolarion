@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import '@/app/Components/GestionNotesPrimaire.css';
+import '@/app/components/GestionNotesPrimaire.css';
 import { Printer, Download, Home, ChevronLeft, Loader2, Calculator, BookOpen } from 'lucide-react';
 
 interface MatiereNote {
