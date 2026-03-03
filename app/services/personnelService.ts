@@ -1,5 +1,42 @@
 import { query } from '@/app/lib/database';
 
+// Définir une interface pour le type de retour
+interface PersonnelRow {
+  id: number;
+  user_id: number | null;
+  matricule: string;
+  nom: string | null;
+  prenom: string | null;
+  email: string | null;
+  date_naissance: string | null;
+  lieu_naissance: string | null;
+  genre: string | null;
+  adresse: string | null;
+  telephone: string | null;
+  specialite: string | null;
+  diplome: string | null;
+  type_personnel: string | null;
+  matieres_enseignees: string | null;
+  fonction: string | null;
+  departement: string | null;
+  date_embauche: string | null;
+  statut: string | null;
+  type_contrat: string | null;
+  avatar_url: string | null;
+  salaire: number | null;
+  created_at: string | null;
+  nombre_classes: number;
+  classes_principales: string | null;
+}
+
+interface FonctionRow {
+  fonction: string;
+}
+
+interface DepartementRow {
+  departement: string;
+}
+
 export class PersonnelService {
   static async obtenirPersonnel(filtres: any) {
     try {
@@ -72,8 +109,8 @@ export class PersonnelService {
 
       sql += ` GROUP BY e.id ORDER BY u.nom, u.prenom`;
 
-      // Utiliser la fonction query au lieu de pool.query
-      const rows = await query(sql, params);
+      // Typer le résultat comme un tableau de PersonnelRow
+      const rows = await query(sql, params) as PersonnelRow[];
       
       return {
         success: true,
@@ -95,9 +132,9 @@ export class PersonnelService {
         FROM enseignants 
         WHERE fonction IS NOT NULL AND fonction != ''
         ORDER BY fonction
-      `);
+      `) as FonctionRow[];
       
-      return rows.map((row: any) => row.fonction);
+      return rows.map((row) => row.fonction);
     } catch (error) {
       console.error('Erreur lors de la récupération des fonctions:', error);
       return [];
@@ -111,9 +148,9 @@ export class PersonnelService {
         FROM enseignants 
         WHERE departement IS NOT NULL AND departement != ''
         ORDER BY departement
-      `);
+      `) as DepartementRow[];
       
-      return rows.map((row: any) => row.departement);
+      return rows.map((row) => row.departement);
     } catch (error) {
       console.error('Erreur lors de la récupération des départements:', error);
       return [];

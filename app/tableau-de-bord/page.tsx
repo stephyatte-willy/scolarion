@@ -10,7 +10,6 @@ import GestionFinance from '../components/GestionFinance';
 import './tableau-de-bord.css';
 import GestionCours from '../components/GestionCours';
 import GestionEmploiDuTemps from '../components/GestionEmploiDuTemps';
-import GestionNotes from '../components/GestionNotes'; 
 import GestionNotesPrimaire from '../components/GestionNotesPrimaire'; 
 import GestionAbsences from '../components/GestionAbsences';
 import DashboardIntelligentAcc from '../components/DashboardIntelligentAcc';
@@ -1291,8 +1290,8 @@ const appliquerTheme = (theme: string) => {
             <GestionCours onRetourTableauDeBord={retourTableauDeBord} />
           ) : afficherGestionEmploiDuTemps ? (
             <GestionEmploiDuTemps onRetourTableauDeBord={retourTableauDeBord} />
-          ) : afficherGestionNotes ? (
-            <GestionNotes onRetourTableauDeBord={retourTableauDeBord} />
+          ) : afficherGestionNotesPrimaire ? (
+            <GestionNotesPrimaire onRetourTableauDeBord={retourTableauDeBord} />
           ) : afficherGestionNotesPrimaire ? (
             <GestionNotesPrimaire onRetourTableauDeBord={retourTableauDeBord} />
           ) : afficherGestionAbsences ? (

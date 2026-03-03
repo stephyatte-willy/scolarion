@@ -1,4 +1,3 @@
-// app/api/emploi-du-temps/route.ts (CORRIGÉ)
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
@@ -12,7 +11,6 @@ export async function GET(request: NextRequest) {
     const professeurId = searchParams.get('professeur_id');
     const includeCours = searchParams.get('include_cours') === 'true';
 
-    // CORRECTION : Utiliser la table users pour récupérer nom et prénom
     let sql = `
       SELECT 
         e.*,
@@ -21,13 +19,13 @@ export async function GET(request: NextRequest) {
         c.statut as cours_statut,
         cl.nom as classe_nom,
         cl.niveau,
-        CONCAT(u.prenom, ' ', u.nom) as professeur_nom, -- CORRECTION ICI
+        CONCAT(u.prenom, ' ', u.nom) as professeur_nom,
         u.email as professeur_email
       FROM emploi_du_temps e
       LEFT JOIN cours c ON e.code_cours = c.code_cours
       LEFT JOIN classes cl ON e.classe_id = cl.id
       LEFT JOIN enseignants ens ON e.professeur_id = ens.id
-      LEFT JOIN users u ON ens.user_id = u.id -- CORRECTION ICI : Joindre users via enseignants
+      LEFT JOIN users u ON ens.user_id = u.id
       WHERE 1=1
     `;
     
@@ -116,16 +114,17 @@ export async function POST(request: NextRequest) {
       SELECT e.*, 
              c.nom_cours,
              cl.nom as classe_nom,
-             CONCAT(u.prenom, ' ', u.nom) as professeur_nom -- CORRECTION ICI
+             CONCAT(u.prenom, ' ', u.nom) as professeur_nom
       FROM emploi_du_temps e
       LEFT JOIN cours c ON e.code_cours = c.code_cours
       LEFT JOIN classes cl ON e.classe_id = cl.id
       LEFT JOIN enseignants ens ON e.professeur_id = ens.id
-      LEFT JOIN users u ON ens.user_id = u.id -- CORRECTION ICI
+      LEFT JOIN users u ON ens.user_id = u.id
       WHERE e.id = ?
     `;
     
-    const [nouveauCreneau] = await query(getSql, [id]);
+    const resultGet = await query(getSql, [id]) as any[];
+    const nouveauCreneau = resultGet[0]; // CORRECTION ICI : récupérer le premier élément
 
     return NextResponse.json({
       success: true,
@@ -195,16 +194,17 @@ export async function PUT(request: NextRequest) {
       SELECT e.*, 
              c.nom_cours,
              cl.nom as classe_nom,
-             CONCAT(u.prenom, ' ', u.nom) as professeur_nom -- CORRECTION ICI
+             CONCAT(u.prenom, ' ', u.nom) as professeur_nom
       FROM emploi_du_temps e
       LEFT JOIN cours c ON e.code_cours = c.code_cours
       LEFT JOIN classes cl ON e.classe_id = cl.id
       LEFT JOIN enseignants ens ON e.professeur_id = ens.id
-      LEFT JOIN users u ON ens.user_id = u.id -- CORRECTION ICI
+      LEFT JOIN users u ON ens.user_id = u.id
       WHERE e.id = ?
     `;
     
-    const [creneauMisAJour] = await query(getSql, [id]);
+    const resultGet = await query(getSql, [id]) as any[];
+    const creneauMisAJour = resultGet[0]; // CORRECTION ICI : récupérer le premier élément
 
     return NextResponse.json({
       success: true,
@@ -237,7 +237,9 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const [creneau] = await query('SELECT * FROM emploi_du_temps WHERE id = ?', [id]);
+    const resultGet = await query('SELECT * FROM emploi_du_temps WHERE id = ?', [id]) as any[];
+    const creneau = resultGet[0]; // CORRECTION ICI : récupérer le premier élément
+    
     await query('DELETE FROM emploi_du_temps WHERE id = ?', [id]);
 
     return NextResponse.json({
