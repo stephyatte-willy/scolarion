@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+// GET - Vérifier l'état d'impression
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> } // ✅ Correction: Promise
+) {
   try {
-    const paiementId = parseInt(params.id);
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
+    const paiementId = parseInt(id);
     
-    if (isNaN(paiementId)) {
+    if (isNaN(paiementId) || paiementId <= 0) {
       return NextResponse.json(
         { success: false, erreur: 'ID invalide' },
         { status: 400 }
@@ -54,11 +60,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+// POST - Enregistrer une impression
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> } // ✅ Correction: Promise
+) {
   try {
-    const paiementId = parseInt(params.id);
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
+    const paiementId = parseInt(id);
     
-    if (isNaN(paiementId)) {
+    if (isNaN(paiementId) || paiementId <= 0) {
       return NextResponse.json(
         { success: false, erreur: 'ID invalide' },
         { status: 400 }
