@@ -1,17 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
+// Interface pour les paramètres
+interface RouteParams {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams  // ✅ Utilisation de l'interface avec Promise
 ) {
   try {
-    const id = params.id;
+    // ✅ Récupération asynchrone de l'ID
+    const { id } = await params;
     console.log('🔍 GET /api/releves/[id] appelé avec ID:', id);
     
     if (!id) {
       return NextResponse.json(
         { success: false, error: 'ID requis' },
+        { status: 400 }
+      );
+    }
+
+    const idNum = parseInt(id);
+    if (isNaN(idNum) || idNum <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'ID invalide' },
         { status: 400 }
       );
     }
@@ -27,9 +43,9 @@ export async function GET(
       WHERE r.id = ?
     `;
     
-    console.log('📝 SQL:', sql, [id]);
+    console.log('📝 SQL:', sql, [idNum]);
     
-    const result: any = await query(sql, [parseInt(id)]);
+    const result: any = await query(sql, [idNum]);
     
     if (!result || result.length === 0) {
       console.log('❌ Relevé non trouvé');
@@ -54,8 +70,8 @@ export async function GET(
       
       const notesResult = await query(notesSql, [data.eleve_id, data.periode_id]);
       
-      if (notesResult && notesResult.length > 0) {
-        notes = notesResult.map((note: any) => ({
+      if (notesResult && (notesResult as any[]).length > 0) {
+        notes = (notesResult as any[]).map((note: any) => ({
           matiere_id: note.matiere_id,
           matiere_nom: note.matiere_nom || 'Matière',
           coefficient: note.coefficient || 1,
