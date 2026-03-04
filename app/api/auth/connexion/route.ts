@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Rechercher l'utilisateur dans la base de données
-    const sql = 'SELECT * FROM users WHERE email = ? AND statut = "actif"';
-    const utilisateurs = await query(sql, [email]) as any[];
+    const sql = 'SELECT * FROM users WHERE email = ? AND statut = ?';
+const utilisateurs = await query(sql, [email, 'actif']) as any[];
 
     console.log('📊 Utilisateurs trouvés:', utilisateurs.length);
 
