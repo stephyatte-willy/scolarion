@@ -95,15 +95,16 @@ export class ClassesService {
   }
 
   static async obtenirProfesseurs(): Promise<{success: boolean, professeurs?: any[], erreur?: string}> {
-    try {
-      const sql = 'SELECT id, nom, prenom, email FROM users WHERE role = "enseignant" AND statut = "actif" ORDER BY nom, prenom';
-      const professeurs = await query(sql) as any[];
-      return { success: true, professeurs };
-    } catch (error) {
-      console.error('Erreur lors de la récupération des professeurs:', error);
-      return { success: false, erreur: 'Erreur lors de la récupération des professeurs' };
-    }
+  try {
+    // ✅ CORRECTION : Utiliser des guillemets simples ou des paramètres
+    const sql = 'SELECT id, nom, prenom, email FROM users WHERE role = ? AND statut = ? ORDER BY nom, prenom';
+    const professeurs = await query(sql, ['enseignant', 'actif']) as any[];
+    return { success: true, professeurs };
+  } catch (error) {
+    console.error('Erreur lors de la récupération des professeurs:', error);
+    return { success: false, erreur: 'Erreur lors de la récupération des professeurs' };
   }
+}
 
   static async obtenirNiveaux(): Promise<{success: boolean, niveaux?: string[], erreur?: string}> {
     try {
