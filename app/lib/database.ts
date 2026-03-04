@@ -1,11 +1,11 @@
 import mysql from 'mysql2/promise';
 
 const dbConfig = {
-  host: process.env.DB_HOST || '127.0.0.1',  // ou localhost
-  user: process.env.DB_USER || 'westc2710564_1wzu2u', 
-  password: process.env.DB_PASSWORD || '6fxm3jycls',
-  database: process.env.DB_NAME || 'westc2710564_1wzu2u',
-  port: 3306,  // Port MySQL par défaut
+  host: process.env.DB_HOST || 'mysql-af6df01-scolarion.d.aivencloud.com',  // ou localhost
+  user: process.env.DB_USER || 'avnadmin', 
+  password: process.env.DB_PASSWORD || 'AVNS_HK0OfgFA7axftHzKGxH',
+  database: process.env.DB_NAME || 'defaultdb',
+  port: 23990,  // Port MySQL par défaut
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
