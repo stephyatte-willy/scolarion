@@ -228,7 +228,7 @@ export async function GET() {
     }
 
     // 7. STATISTIQUES BUDGÉTAIRES - CORRIGÉ AVEC VOS TABLES
-    let budgetData = {
+  let budgetData = {
       previsions_recettes: 0,
       total_depenses_reelles: 0,
       reste_budget: 0,
@@ -246,7 +246,6 @@ export async function GET() {
       const budgetsAlloues = await query(budgetsAllouesSql, [anneeScolaire]) as any[];
       
       // Récupérer le total des dépenses pour l'année scolaire en cours
-      // On utilise la table depenses_budget avec jointure sur budgets pour l'année scolaire
       const depensesReellesSql = `
         SELECT COALESCE(SUM(d.montant), 0) as total_depenses
         FROM depenses_budget d
@@ -271,20 +270,38 @@ export async function GET() {
       
       const depensesParCategorie = await query(depensesParCategorieSql, [anneeScolaire]) as any[];
       
-      // Récupérer les dépenses par mois
+      // ✅ CORRECTION ICI : Requête des dépenses par mois avec agrégation correcte
       const depensesParMoisSql = `
         SELECT 
-          DATE_FORMAT(d.date_depense, '%b %Y') as mois,
+          DATE_FORMAT(MIN(d.date_depense), '%b %Y') as mois,
+          DATE_FORMAT(d.date_depense, '%Y-%m') as mois_cle,
           SUM(d.montant) as montant
         FROM depenses_budget d
         INNER JOIN budgets b ON d.budget_id = b.id
         WHERE b.annee_scolaire = ?
           AND d.statut IN ('valide')
         GROUP BY DATE_FORMAT(d.date_depense, '%Y-%m')
-        ORDER BY MIN(d.date_depense)
+        ORDER BY mois_cle
       `;
       
       const depensesParMois = await query(depensesParMoisSql, [anneeScolaire]) as any[];
+      
+      // ✅ CORRECTION ICI : Requête alternative sans MIN si besoin
+      const depensesParMoisAltSql = `
+        SELECT 
+          DATE_FORMAT(d.date_depense, '%b %Y') as mois,
+          DATE_FORMAT(d.date_depense, '%Y-%m') as mois_cle,
+          SUM(d.montant) as montant
+        FROM depenses_budget d
+        INNER JOIN budgets b ON d.budget_id = b.id
+        WHERE b.annee_scolaire = ?
+          AND d.statut IN ('valide')
+        GROUP BY DATE_FORMAT(d.date_depense, '%Y-%m'), DATE_FORMAT(d.date_depense, '%b %Y')
+        ORDER BY mois_cle
+      `;
+      
+      // Utilisez l'une ou l'autre des requêtes ci-dessus
+      const depensesParMoisAlt = await query(depensesParMoisAltSql, [anneeScolaire]) as any[];
       
       const previsionsRecettes = Number(budgetsAlloues[0]?.total_budget) || 0;
       const totalDepensesReelles = Number(depensesReelles[0]?.total_depenses) || 0;

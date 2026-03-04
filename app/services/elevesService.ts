@@ -392,63 +392,60 @@ export class ElevesService {
     }
   }
 
-  static async obtenirStatistiques(): Promise<{success: boolean, statistiques?: any, erreur?: string}> {
-    try {
-      // Total élèves
-      const sqlTotal = 'SELECT COUNT(*) as total FROM eleves WHERE statut = "actif"';
-      
-      // Par genre
-      const sqlParGenre = `
-        SELECT genre, COUNT(*) as count 
-        FROM eleves 
-        WHERE statut = "actif"
-        GROUP BY genre
-      `;
-      
-      // Par classe avec détail genre
-      const sqlParClasse = `
-        SELECT 
-          c.id,
-          c.nom, 
-          c.niveau, 
-          COUNT(e.id) as total_eleves,
-          SUM(CASE WHEN e.genre = "F" THEN 1 ELSE 0 END) as filles,
-          SUM(CASE WHEN e.genre = "M" THEN 1 ELSE 0 END) as garcons
-        FROM classes c 
-        LEFT JOIN eleves e ON c.id = e.classe_id AND e.statut = "actif"
-        GROUP BY c.id, c.nom, c.niveau
-        ORDER BY c.niveau, c.nom
-      `;
-      
-      // Total par statut
-      const sqlParStatut = 'SELECT statut, COUNT(*) as count FROM eleves GROUP BY statut';
+static async obtenirStatistiques(): Promise<{success: boolean, statistiques?: any, erreur?: string}> {
+  try {
+    // ✅ CORRECTION : Utiliser des paramètres préparés au lieu de valeurs en dur
+    const sqlTotal = 'SELECT COUNT(*) as total FROM eleves WHERE statut = ?';
+    const totalResult = await query(sqlTotal, ['actif']) as any[];
+    
+    // Par genre
+    const sqlParGenre = `
+      SELECT genre, COUNT(*) as count 
+      FROM eleves 
+      WHERE statut = ?
+      GROUP BY genre
+    `;
+    const parGenre = await query(sqlParGenre, ['actif']) as any[];
+    
+    // Par classe avec détail genre
+    const sqlParClasse = `
+      SELECT 
+        c.id,
+        c.nom, 
+        c.niveau, 
+        COUNT(e.id) as total_eleves,
+        SUM(CASE WHEN e.genre = 'F' THEN 1 ELSE 0 END) as filles,
+        SUM(CASE WHEN e.genre = 'M' THEN 1 ELSE 0 END) as garcons
+      FROM classes c 
+      LEFT JOIN eleves e ON c.id = e.classe_id AND e.statut = ?
+      GROUP BY c.id, c.nom, c.niveau
+      ORDER BY c.niveau, c.nom
+    `;
+    const parClasse = await query(sqlParClasse, ['actif']) as any[];
+    
+    // Total par statut
+    const sqlParStatut = 'SELECT statut, COUNT(*) as count FROM eleves GROUP BY statut';
+    const parStatut = await query(sqlParStatut) as any[];
 
-      const [total, parGenre, parClasse, parStatut] = await Promise.all([
-        query(sqlTotal),
-        query(sqlParGenre),
-        query(sqlParClasse),
-        query(sqlParStatut)
-      ]);
+    const totalEleves = totalResult[0]?.total || 0;
+    const garcons = parGenre.find((g: any) => g.genre === 'M')?.count || 0;
+    const filles = parGenre.find((g: any) => g.genre === 'F')?.count || 0;
 
-      const totalEleves = (total as any[])[0].total;
-      const garcons = (parGenre as any[]).find((g: any) => g.genre === 'M')?.count || 0;
-      const filles = (parGenre as any[]).find((g: any) => g.genre === 'F')?.count || 0;
-
-      return {
-        success: true,
-        statistiques: {
-          total: totalEleves,
-          garcons: garcons,
-          filles: filles,
-          parClasse: parClasse as any[],
-          parStatut: parStatut as any[]
-        }
-      };
-    } catch (error) {
-      console.error('Erreur lors de la récupération des statistiques:', error);
-      return { success: false, erreur: 'Erreur lors de la récupération des statistiques' };
-    }
+    return {
+      success: true,
+      statistiques: {
+        total: totalEleves,
+        garcons: garcons,
+        filles: filles,
+        parClasse: parClasse,
+        parStatut: parStatut
+      }
+    };
+  } catch (error) {
+    console.error('Erreur lors de la récupération des statistiques:', error);
+    return { success: false, erreur: 'Erreur lors de la récupération des statistiques' };
   }
+}
 
   static async obtenirRepartitionParClasse(): Promise<{success: boolean, repartition?: any[], erreur?: string}> {
     try {

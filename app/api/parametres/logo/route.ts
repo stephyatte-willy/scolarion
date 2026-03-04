@@ -1,9 +1,7 @@
 // app/api/parametres/logo/route.ts
 import { NextResponse } from 'next/server';
-import { writeFile, unlink, mkdir } from 'fs/promises';
-import path from 'path';
+import { put, del } from '@vercel/blob';
 import { query } from '@/app/lib/database';
-import { existsSync } from 'fs';
 
 export async function POST(request: Request) {
   try {
@@ -34,59 +32,47 @@ export async function POST(request: Request) {
       );
     }
 
-    // Créer le dossier uploads/logos s'il n'existe pas
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'logos');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
     // Générer un nom de fichier unique
-    const extension = file.type.split('/')[1];
-    const fileName = `logo_${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
-    const filePath = path.join(uploadDir, fileName);
-    
-    // Convertir le fichier en buffer et l'enregistrer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    const extension = file.name.split('.').pop() || file.type.split('/')[1];
+    const fileName = `logos/logo_${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
 
-    // URL publique du logo
-    const logoUrl = `/uploads/logos/${fileName}`;
+    // Upload vers Vercel Blob
+    const blob = await put(fileName, file, {
+      access: 'public',
+      addRandomSuffix: false,
+    });
 
     // Mettre à jour la base de données
-    const existing = await query('SELECT id FROM parametres LIMIT 1') as any[];
+    const existing = await query('SELECT id, logo_url FROM parametres LIMIT 1') as any[];
     
     if (existing && existing.length > 0) {
-      // Récupérer l'ancien logo pour le supprimer
-      const oldLogo = await query('SELECT logo_url FROM parametres WHERE id = 1') as any[];
-      if (oldLogo && oldLogo.length > 0 && oldLogo[0].logo_url) {
-        const oldFilePath = path.join(process.cwd(), 'public', oldLogo[0].logo_url);
+      // Supprimer l'ancien logo du Blob s'il existe
+      const oldLogoUrl = existing[0].logo_url;
+      if (oldLogoUrl && oldLogoUrl.includes('blob.vercel-storage.com')) {
         try {
-          if (existsSync(oldFilePath)) {
-            await unlink(oldFilePath);
-          }
+          await del(oldLogoUrl);
         } catch (error) {
-          console.error('Erreur suppression ancien logo:', error);
+          console.error('Erreur suppression ancien logo du Blob:', error);
         }
       }
 
       // Mettre à jour avec le nouveau logo
       await query(
         'UPDATE parametres SET logo_url = ?, updated_at = NOW() WHERE id = 1',
-        [logoUrl]
+        [blob.url]
       );
     } else {
       // Insérer si la table est vide
       await query(
         `INSERT INTO parametres (nom_ecole, logo_url, annee_scolaire, created_at, updated_at) 
          VALUES ('École', ?, '2024-2025', NOW(), NOW())`,
-        [logoUrl]
+        [blob.url]
       );
     }
 
     return NextResponse.json({ 
       success: true, 
-      logo_url: logoUrl,
+      logo_url: blob.url,
       message: 'Logo téléchargé avec succès' 
     });
 
@@ -106,15 +92,14 @@ export async function DELETE() {
     
     if (result && result.length > 0 && result[0].logo_url) {
       const logoUrl = result[0].logo_url;
-      const filePath = path.join(process.cwd(), 'public', logoUrl);
       
-      // Supprimer le fichier physique
-      try {
-        if (existsSync(filePath)) {
-          await unlink(filePath);
+      // Supprimer du Blob si c'est une URL Vercel Blob
+      if (logoUrl.includes('blob.vercel-storage.com')) {
+        try {
+          await del(logoUrl);
+        } catch (error) {
+          console.error('Erreur suppression du Blob:', error);
         }
-      } catch (error) {
-        console.error('Erreur suppression fichier logo:', error);
       }
 
       // Mettre à jour la base de données

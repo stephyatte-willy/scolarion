@@ -3,10 +3,11 @@ import { query } from '@/app/lib/database';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
+  console.log('🚀 API /api/auth/connexion appelée');
   try {
+    console.log('📦 Tentative de parsing du JSON...');
     const { email, password } = await request.json();
-
-    console.log('🔐 Tentative de connexion:', { email });
+    console.log('✅ JSON parsé avec succès', { email: email ? 'fourni' : 'manquant' });
 
     // Valider les données d'entrée
     if (!email || !password) {
@@ -17,8 +18,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Rechercher l'utilisateur dans la base de données
-    const sql = 'SELECT * FROM users WHERE email = ? AND statut = "actif"';
-    const utilisateurs = await query(sql, [email]) as any[];
+    const sql = 'SELECT * FROM users WHERE email = ? AND statut = ?';
+const utilisateurs = await query(sql, [email, 'actif']) as any[];
 
     console.log('📊 Utilisateurs trouvés:', utilisateurs.length);
 
@@ -86,8 +87,12 @@ export async function POST(request: NextRequest) {
       utilisateur: utilisateurSansMotDePasse
     });
 
-  } catch (error: any) {
-    console.error('❌ Erreur lors de l\'authentification:', error);
+    } catch (error: any) {
+    console.error('❌ Erreur CATCH globale:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     return NextResponse.json(
       { success: false, erreur: 'Erreur serveur lors de l\'authentification' },
       { status: 500 }
