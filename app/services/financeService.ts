@@ -1121,102 +1121,165 @@ static async obtenirPaiements(filtres: any = {}): Promise<{success: boolean, pai
   }
 
   static async obtenirStatistiquesPaiements(filtres: any = {}): Promise<{success: boolean, statistiques?: StatistiquesPaiements, erreur?: string}> {
-    try {
-      // Base query pour les filtres
-      let whereClause = 'WHERE 1=1';
-      const params: any[] = [];
+  try {
+    console.log('📊 Début obtenirStatistiquesPaiements avec filtres:', filtres);
+    
+    // Base query pour les filtres
+    let whereClause = 'WHERE 1=1';
+    const params: any[] = [];
 
-      if (filtres.date_debut) {
-        whereClause += ' AND p.date_paiement >= ?';
-        params.push(filtres.date_debut);
-      }
-
-      if (filtres.date_fin) {
-        whereClause += ' AND p.date_paiement <= ?';
-        params.push(filtres.date_fin);
-      }
-
-      // Requêtes pour les statistiques
-      const sqlTotalJour = `
-        SELECT COALESCE(SUM(montant), 0) as total 
-        FROM paiements_frais p 
-        WHERE DATE(p.date_paiement) = CURDATE()
-      `;
-
-      const sqlTotalMois = `
-        SELECT COALESCE(SUM(montant), 0) as total 
-        FROM paiements_frais p 
-        WHERE MONTH(p.date_paiement) = MONTH(CURDATE()) AND YEAR(p.date_paiement) = YEAR(CURDATE())
-      `;
-
-      const sqlTotalAnnee = `
-        SELECT COALESCE(SUM(montant), 0) as total 
-        FROM paiements_frais p 
-        WHERE YEAR(p.date_paiement) = YEAR(CURDATE())
-      `;
-
-      const sqlTotalPeriode = `
-        SELECT COALESCE(SUM(montant), 0) as total 
-        FROM paiements_frais p 
-        ${whereClause}
-      `;
-
-      const sqlRepartition = `
-        SELECT 
-          cf.nom as categorie,
-          SUM(p.montant) as montant
-        FROM paiements_frais p
-        INNER JOIN frais_scolaires fs ON p.frais_scolaire_id = fs.id
-        INNER JOIN categories_frais cf ON fs.categorie_frais_id = cf.id
-        ${whereClause}
-        GROUP BY cf.id, cf.nom
-        ORDER BY montant DESC
-      `;
-
-      const sqlEvolution = `
-        SELECT 
-          DATE(p.date_paiement) as date,
-          SUM(p.montant) as montant
-        FROM paiements_frais p
-        ${whereClause.replace('1=1', 'p.date_paiement >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)')}
-        GROUP BY DATE(p.date_paiement)
-        ORDER BY date ASC
-      `;
-
-      // Exécution des requêtes
-      const [totalJourResult, totalMoisResult, totalAnneeResult, totalPeriodeResult, repartitionResult, evolutionResult] = await Promise.all([
-        query(sqlTotalJour),
-        query(sqlTotalMois),
-        query(sqlTotalAnnee),
-        query(sqlTotalPeriode, params),
-        query(sqlRepartition, params),
-        query(sqlEvolution, params)
-      ]);
-
-      const statistiques: StatistiquesPaiements = {
-        total_jour: (totalJourResult as any[])[0]?.total || 0,
-        total_mois: (totalMoisResult as any[])[0]?.total || 0,
-        total_annee: (totalAnneeResult as any[])[0]?.total || 0,
-        total_periode: (totalPeriodeResult as any[])[0]?.total || 0,
-        nombre_paiements_jour: 0, // À calculer
-        nombre_paiements_mois: 0, // À calculer
-        moyenne_paiement: 0, // À calculer
-        repartition_categories: (repartitionResult as any[]).map(r => ({
-          categorie: r.categorie,
-          montant: parseFloat(r.montant) || 0
-        })),
-        evolution_paiements: (evolutionResult as any[]).map(e => ({
-          date: e.date,
-          montant: parseFloat(e.montant) || 0
-        }))
-      };
-
-      return { success: true, statistiques };
-    } catch (error: any) {
-      console.error('Erreur récupération statistiques paiements:', error);
-      return { success: false, erreur: 'Erreur lors de la récupération des statistiques' };
+    if (filtres.date_debut) {
+      whereClause += ' AND p.date_paiement >= ?';
+      params.push(filtres.date_debut);
     }
+
+    if (filtres.date_fin) {
+      whereClause += ' AND p.date_paiement <= ?';
+      params.push(filtres.date_fin);
+    }
+
+    // Requêtes pour les statistiques
+    const sqlTotalJour = `
+      SELECT COALESCE(SUM(montant), 0) as total 
+      FROM paiements_frais p 
+      WHERE DATE(p.date_paiement) = CURDATE()
+    `;
+
+    const sqlTotalMois = `
+      SELECT COALESCE(SUM(montant), 0) as total 
+      FROM paiements_frais p 
+      WHERE MONTH(p.date_paiement) = MONTH(CURDATE()) AND YEAR(p.date_paiement) = YEAR(CURDATE())
+    `;
+
+    const sqlTotalAnnee = `
+      SELECT COALESCE(SUM(montant), 0) as total 
+      FROM paiements_frais p 
+      WHERE YEAR(p.date_paiement) = YEAR(CURDATE())
+    `;
+
+    const sqlTotalPeriode = `
+      SELECT COALESCE(SUM(montant), 0) as total 
+      FROM paiements_frais p 
+      ${whereClause}
+    `;
+
+    // ✅ REQUÊTE CORRIGÉE - Jointure via frais_eleves
+    const sqlRepartition = `
+      SELECT 
+        cf.nom as categorie,
+        SUM(p.montant) as montant
+      FROM paiements_frais p
+      INNER JOIN frais_eleves fe ON p.frais_eleve_id = fe.id
+      INNER JOIN frais_scolaires fs ON fe.frais_scolaire_id = fs.id
+      INNER JOIN categories_frais cf ON fs.categorie_frais_id = cf.id
+      ${whereClause}
+      GROUP BY cf.id, cf.nom
+      ORDER BY montant DESC
+    `;
+
+    // Requête pour le nombre de paiements
+    const sqlNombrePaiementsJour = `
+      SELECT COUNT(*) as count 
+      FROM paiements_frais p 
+      WHERE DATE(p.date_paiement) = CURDATE()
+    `;
+
+    const sqlNombrePaiementsMois = `
+      SELECT COUNT(*) as count 
+      FROM paiements_frais p 
+      WHERE MONTH(p.date_paiement) = MONTH(CURDATE()) AND YEAR(p.date_paiement) = YEAR(CURDATE())
+    `;
+
+    const sqlMoyennePaiement = `
+      SELECT COALESCE(AVG(montant), 0) as moyenne 
+      FROM paiements_frais p 
+      ${whereClause}
+    `;
+
+    const sqlEvolution = `
+      SELECT 
+        DATE(p.date_paiement) as date,
+        SUM(p.montant) as montant
+      FROM paiements_frais p
+      ${whereClause.replace('1=1', 'p.date_paiement >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)')}
+      GROUP BY DATE(p.date_paiement)
+      ORDER BY date ASC
+    `;
+
+    console.log('📝 Exécution des requêtes statistiques...');
+
+    // Exécution des requêtes
+    const [
+      totalJourResult, 
+      totalMoisResult, 
+      totalAnneeResult, 
+      totalPeriodeResult, 
+      repartitionResult,
+      nombreJourResult,
+      nombreMoisResult,
+      moyenneResult,
+      evolutionResult
+    ] = await Promise.all([
+      query(sqlTotalJour),
+      query(sqlTotalMois),
+      query(sqlTotalAnnee),
+      query(sqlTotalPeriode, params),
+      query(sqlRepartition, params),
+      query(sqlNombrePaiementsJour),
+      query(sqlNombrePaiementsMois),
+      query(sqlMoyennePaiement, params),
+      query(sqlEvolution, params)
+    ]);
+
+    console.log('✅ Toutes les requêtes exécutées avec succès');
+
+    // Traitement sécurisé des résultats
+    const totalJour = (totalJourResult as any[])[0]?.total || 0;
+    const totalMois = (totalMoisResult as any[])[0]?.total || 0;
+    const totalAnnee = (totalAnneeResult as any[])[0]?.total || 0;
+    const totalPeriode = (totalPeriodeResult as any[])[0]?.total || 0;
+    const nombreJour = (nombreJourResult as any[])[0]?.count || 0;
+    const nombreMois = (nombreMoisResult as any[])[0]?.count || 0;
+    const moyenne = (moyenneResult as any[])[0]?.moyenne || 0;
+
+    const repartition = (repartitionResult as any[]).map(r => ({
+      categorie: r.categorie,
+      montant: parseFloat(r.montant) || 0
+    }));
+
+    const evolution = (evolutionResult as any[]).map(e => ({
+      date: e.date,
+      montant: parseFloat(e.montant) || 0
+    }));
+
+    const statistiques: StatistiquesPaiements = {
+      total_jour: totalJour,
+      total_mois: totalMois,
+      total_annee: totalAnnee,
+      total_periode: totalPeriode,
+      nombre_paiements_jour: nombreJour,
+      nombre_paiements_mois: nombreMois,
+      moyenne_paiement: moyenne,
+      repartition_categories: repartition,
+      evolution_paiements: evolution
+    };
+
+    console.log('📊 Statistiques calculées:', {
+      total_jour: statistiques.total_jour,
+      total_mois: statistiques.total_mois,
+      nombre_paiements_mois: statistiques.nombre_paiements_mois,
+      nb_categories: statistiques.repartition_categories.length
+    });
+
+    return { success: true, statistiques };
+  } catch (error: any) {
+    console.error('❌ Erreur récupération statistiques paiements:', error);
+    return { 
+      success: false, 
+      erreur: `Erreur lors de la récupération des statistiques: ${error.message}` 
+    };
   }
+}
 
   // Générer automatiquement l'année scolaire
   static genererAnneeScolaire(): string {
