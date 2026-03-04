@@ -1,8 +1,7 @@
 import mysql from 'mysql2/promise';
 
 const dbConfig = {
-  host: process.env.DB_HOST || '91.216.107.196',  // ou localhost
-  user: process.env.DB_USER || 'westc2710564_1wzu2u', 
+  host: process.env.DB_HOST || '91.216.107.196',  
   password: process.env.DB_PASSWORD || '6fxm3jycls',
   database: process.env.DB_NAME || 'westc2710564_1wzu2u',
   port: 3306,  // Port MySQL par défaut
