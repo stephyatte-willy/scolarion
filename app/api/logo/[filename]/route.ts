@@ -10,13 +10,12 @@ export async function GET(
   try {
     const { filename } = await params;
     
-    // Sécuriser le nom du fichier (empêcher les attaques de type path traversal)
-    const safeFilename = path.basename(filename);
-    const filePath = path.join('/tmp/uploads/logos', safeFilename);
+    // Sécurité : éviter les injections de chemin
+    const cleanFilename = path.basename(filename);
+    const filePath = path.join('/tmp/uploads/logos', cleanFilename);
     
     console.log('🔍 Recherche du logo:', filePath);
     
-    // Vérifier si le fichier existe
     if (!existsSync(filePath)) {
       console.log('❌ Fichier non trouvé:', filePath);
       return NextResponse.json(
@@ -24,12 +23,11 @@ export async function GET(
         { status: 404 }
       );
     }
-    
-    // Lire le fichier
-    const fileBuffer = await readFile(filePath);
+
+    const file = await readFile(filePath);
     
     // Déterminer le type MIME
-    const ext = safeFilename.split('.').pop()?.toLowerCase() || 'jpg';
+    const extension = cleanFilename.split('.').pop()?.toLowerCase();
     const mimeTypes: Record<string, string> = {
       'jpg': 'image/jpeg',
       'jpeg': 'image/jpeg',
@@ -37,18 +35,16 @@ export async function GET(
       'gif': 'image/gif',
       'webp': 'image/webp'
     };
-    const contentType = mimeTypes[ext] || 'image/jpeg';
     
-    console.log('✅ Logo trouvé, taille:', fileBuffer.length, 'type:', contentType);
-    
-    // Retourner l'image
-    return new NextResponse(fileBuffer, {
+    const contentType = mimeTypes[extension || ''] || 'application/octet-stream';
+
+    return new NextResponse(file, {
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=86400', // Cache 24h
-      },
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      }
     });
-    
+
   } catch (error) {
     console.error('❌ Erreur lecture logo:', error);
     return NextResponse.json(

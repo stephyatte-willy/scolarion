@@ -150,7 +150,7 @@ useEffect(() => {
     alt="Logo école" 
     className="logo-ecole-image"
     onError={(e) => {
-      console.error('❌ Erreur chargement logo:', e);
+      console.error('❌ Erreur chargement logo:', e.currentTarget.src);
       e.currentTarget.style.display = 'none';
     }}
     onLoad={() => console.log('✅ Logo chargé avec succès')}
@@ -1232,21 +1232,15 @@ const supprimerPhoto = async () => {
       }}
     />
   ) : utilisateur?.avatar_url ? (
-    <img 
-      src={`${utilisateur.avatar_url}?t=${Date.now()}`}
-      className="avatar-menu"
-      alt="Avatar"
-      onError={(e) => {
-        e.currentTarget.style.display = 'none';
-        const parent = e.currentTarget.parentElement;
-        if (parent) {
-          const initiales = document.createElement('span');
-          initiales.className = 'initiale-avatar';
-          initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-          parent.appendChild(initiales);
-        }
-      }}
-    />
+   <img 
+  src={`${utilisateur?.avatar_url}?t=${Date.now()}`}
+  className="avatar-menu"
+  alt="Avatar"
+  onError={(e) => {
+    e.currentTarget.style.display = 'none';
+    // Afficher les initiales
+  }}
+/>
   ) : (
     <span className="initiale-avatar">
       {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
@@ -1291,20 +1285,14 @@ const supprimerPhoto = async () => {
     />
   ) : utilisateur?.avatar_url ? (
     <img 
-      src={`${utilisateur.avatar_url}?t=${Date.now()}`}
-      className="avatar-menu"
-      alt="Avatar"
-      onError={(e) => {
-        e.currentTarget.style.display = 'none';
-        const parent = e.currentTarget.parentElement;
-        if (parent) {
-          const initiales = document.createElement('span');
-          initiales.className = 'initiale-avatar-menu';
-          initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-          parent.appendChild(initiales);
-        }
-      }}
-    />
+  src={`${utilisateur?.avatar_url}?t=${Date.now()}`}
+  className="avatar-menu"
+  alt="Avatar"
+  onError={(e) => {
+    e.currentTarget.style.display = 'none';
+    // Afficher les initiales
+  }}
+/>
   ) : (
     <span className="initiale-avatar-menu">
       {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
