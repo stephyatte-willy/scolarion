@@ -656,190 +656,252 @@ const reinitialiserFiltres = () => {
   };
   
   const soumettreFormulaire = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
+  
+  if (soumissionEnCours) return;
+  
+  const matriculeValide = formData.matricule.trim();
+  const nomValide = formData.nom.trim();
+  const prenomValide = formData.prenom.trim();
+  
+  if (!matriculeValide || !nomValide || !prenomValide || !formData.date_naissance) {
+    setErreurFormulaire('Les champs matricule, nom, prénom et date de naissance sont requis');
+    showError('Les champs matricule, nom, prénom et date de naissance sont requis');
+    return;
+  }
+  
+  if (!/^[A-Z0-9]{5,20}$/.test(matriculeValide)) {
+    setErreurFormulaire('Le matricule doit contenir uniquement des lettres majuscules et chiffres (5-20 caractères)');
+    showError('Le matricule doit contenir uniquement des lettres majuscules et chiffres (5-20 caractères)');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/eleves?recherche=${encodeURIComponent(matriculeValide)}`);
+    const data = await response.json();
     
-    if (soumissionEnCours) return;
-    
-    const matriculeValide = formData.matricule.trim();
-    const nomValide = formData.nom.trim();
-    const prenomValide = formData.prenom.trim();
-    
-    if (!matriculeValide || !nomValide || !prenomValide || !formData.date_naissance) {
-      setErreurFormulaire('Les champs matricule, nom, prénom et date de naissance sont requis');
-      showError('Les champs matricule, nom, prénom et date de naissance sont requis');
-      return;
-    }
-    
-    if (!/^[A-Z0-9]{5,20}$/.test(matriculeValide)) {
-      setErreurFormulaire('Le matricule doit contenir uniquement des lettres majuscules et chiffres (5-20 caractères)');
-      showError('Le matricule doit contenir uniquement des lettres majuscules et chiffres (5-20 caractères)');
-      return;
-    }
-    
-    try {
-      const response = await fetch(`/api/eleves?recherche=${encodeURIComponent(matriculeValide)}`);
-      const data = await response.json();
-      
-      if (data.success && data.eleves) {
-        if (eleveSelectionne) {
-          const autreEleveAvecMemeMatricule = data.eleves.find(
-            (e: Eleve) => e.matricule === matriculeValide && e.id !== eleveSelectionne.id
-          );
-          
-          if (autreEleveAvecMemeMatricule) {
-            const message = `Ce matricule est déjà utilisé par l'élève: ${autreEleveAvecMemeMatricule.nom} ${autreEleveAvecMemeMatricule.prenom}`;
-            setErreurFormulaire(message);
-            showError(message);
-            return;
-          }
-        } else {
-          if (data.eleves.some((e: Eleve) => e.matricule === matriculeValide)) {
-            const message = 'Ce matricule est déjà utilisé par un autre élève';
-            setErreurFormulaire(message);
-            showError(message);
-            return;
-          }
+    if (data.success && data.eleves) {
+      if (eleveSelectionne) {
+        const autreEleveAvecMemeMatricule = data.eleves.find(
+          (e: Eleve) => e.matricule === matriculeValide && e.id !== eleveSelectionne.id
+        );
+        
+        if (autreEleveAvecMemeMatricule) {
+          const message = `Ce matricule est déjà utilisé par l'élève: ${autreEleveAvecMemeMatricule.nom} ${autreEleveAvecMemeMatricule.prenom}`;
+          setErreurFormulaire(message);
+          showError(message);
+          return;
+        }
+      } else {
+        if (data.eleves.some((e: Eleve) => e.matricule === matriculeValide)) {
+          const message = 'Ce matricule est déjà utilisé par un autre élève';
+          setErreurFormulaire(message);
+          showError(message);
+          return;
         }
       }
-    } catch (error) {
-      console.error('Erreur vérification matricule:', error);
+    }
+  } catch (error) {
+    console.error('Erreur vérification matricule:', error);
+  }
+
+  setSoumissionEnCours(true);
+  
+  try {
+    const dataAEnvoyer: any = {
+      matricule: matriculeValide,
+      nom: nomValide,
+      prenom: prenomValide,
+      date_naissance: formData.date_naissance,
+      lieu_naissance: formData.lieu_naissance.trim() || null,
+      genre: formData.genre,
+      adresse: formData.adresse.trim() || null,
+      email: formData.email.trim() || null,
+      nom_pere: formData.nom_pere.trim() || null,
+      nom_mere: formData.nom_mere.trim() || null,
+      telephone_parent: formData.telephone_parent.trim() || null,
+      statut: formData.statut
+    };
+
+    // Gestion de la photo
+    if (uploadPhoto.fichier) {
+      dataAEnvoyer.photo_url = await uploaderPhoto();
+    } else if (uploadPhoto.apercu === null && eleveSelectionne?.photo_url) {
+      dataAEnvoyer.photo_url = null;
+    } else if (uploadPhoto.apercu === eleveSelectionne?.photo_url) {
+      dataAEnvoyer.photo_url = eleveSelectionne.photo_url;
     }
 
-    setSoumissionEnCours(true);
+    let dossiersPhysiquesData: any[] = [];
+    if (fichiersDossiers.length > 0) {
+      try {
+        console.log('📤 Tentative upload de', fichiersDossiers.length, 'dossiers...');
+        const resultatsUpload = await uploaderDossiersPhysiques();
+        dossiersPhysiquesData = resultatsUpload;
+        console.log('✅ Dossiers uploadés:', dossiersPhysiquesData);
+      } catch (error) {
+        console.error('❌ Erreur upload des dossiers:', error);
+        showWarning('Élève créé/modifié, mais certains dossiers n\'ont pas pu être sauvegardés.');
+      }
+    } else if (eleveSelectionne?.dossiers_physiques) {
+      dossiersPhysiquesData = eleveSelectionne.dossiers_physiques;
+    }
+
+    if (dossiersPhysiquesData.length > 0) {
+      dataAEnvoyer.dossiers_physiques = JSON.stringify(dossiersPhysiquesData);
+    } else {
+      dataAEnvoyer.dossiers_physiques = null;
+    }
+
+    if (formData.classe_id && formData.classe_id.trim() !== '') {
+      const classeId = parseInt(formData.classe_id);
+      const classeExistante = classes.find(c => c.id === classeId);
+      if (classeExistante) {
+        dataAEnvoyer.classe_id = classeId;
+      } else {
+        const message = 'La classe sélectionnée n\'existe pas';
+        setErreurFormulaire(message);
+        showError(message);
+        setSoumissionEnCours(false);
+        return;
+      }
+    } else {
+      dataAEnvoyer.classe_id = null;
+    }
+
+    console.log('📤 Données à envoyer:', dataAEnvoyer);
+
+    let response;
+    let url;
     
-    try {
-      const dataAEnvoyer: any = {
-        matricule: matriculeValide,
-        nom: nomValide,
-        prenom: prenomValide,
+    if (eleveSelectionne) {
+      if (!eleveSelectionne.id || isNaN(eleveSelectionne.id) || eleveSelectionne.id <= 0) {
+        console.error('❌ ID invalide dans élève sélectionné:', eleveSelectionne.id);
+        const message = 'ID d\'élève invalide pour la modification';
+        setErreurFormulaire(message);
+        showError(message);
+        return;
+      }
+
+      url = `/api/eleves/${eleveSelectionne.id}`;
+      response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataAEnvoyer)
+      });
+    } else {
+      url = '/api/eleves';
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataAEnvoyer)
+      });
+    }
+
+    const resultat = await response.json();
+
+    if (resultat.success) {
+      if (!eleveSelectionne) {
+        setAjoutMultiple(true);
+        
+        const message = `Élève créé avec succès! ${fichiersDossiers.length > 0 ? 'Dossiers téléchargés.' : ''}`;
+        showSuccess(message);
+        
+        reinitialiserFormulaire();
+        
+        await chargerDonnees();
+        await chargerStatistiques();
+      } else {
+        // ✅ MISE À JOUR DE L'AFFICHAGE IMMÉDIATE
+        
+        // Récupérer la nouvelle photo
+        let nouvellePhotoUrl = eleveSelectionne.photo_url;
+        if (uploadPhoto.fichier && resultat.enseignant?.photo_url) {
+          nouvellePhotoUrl = resultat.enseignant.photo_url;
+        } else if (uploadPhoto.fichier && dataAEnvoyer.photo_url) {
+          nouvellePhotoUrl = dataAEnvoyer.photo_url;
+        }
+
+        // Mettre à jour la liste des élèves
+        setEleves(prevEleves => 
+  prevEleves.map(eleve => {
+    if (eleve.id === eleveSelectionne.id) {
+      return {
+        ...eleve,
+        matricule: formData.matricule,
+        nom: formData.nom,
+        prenom: formData.prenom,
         date_naissance: formData.date_naissance,
-        lieu_naissance: formData.lieu_naissance.trim() || null,
+        lieu_naissance: formData.lieu_naissance,
         genre: formData.genre,
-        adresse: formData.adresse.trim() || null,
-        email: formData.email.trim() || null,
-        nom_pere: formData.nom_pere.trim() || null,
-        nom_mere: formData.nom_mere.trim() || null,
-        telephone_parent: formData.telephone_parent.trim() || null,
-        statut: formData.statut
+        adresse: formData.adresse,
+        email: formData.email,
+        nom_pere: formData.nom_pere,
+        nom_mere: formData.nom_mere,
+        telephone_parent: formData.telephone_parent,
+        classe_id: formData.classe_id ? parseInt(formData.classe_id) : undefined,
+        statut: formData.statut,
+        photo_url: nouvellePhotoUrl,
+        dossiers_physiques: dossiersPhysiquesData.length > 0 ? dossiersPhysiquesData : eleve.dossiers_physiques
       };
-
-      if (uploadPhoto.fichier) {
-       dataAEnvoyer.photo_url = await uploaderPhoto(); 
-      } else if (uploadPhoto.apercu === null && eleveSelectionne?.photo_url) {
-        // Supprimer la photo
-        dataAEnvoyer.photo_url = null;
-      } else if (uploadPhoto.apercu === eleveSelectionne?.photo_url) {
-        // Garder la photo existante
-        dataAEnvoyer.photo_url = eleveSelectionne.photo_url;
-      }
-
-      let dossiersPhysiquesData: any[] = [];
-      if (fichiersDossiers.length > 0) {
-        try {
-          console.log('📤 Tentative upload de', fichiersDossiers.length, 'dossiers...');
-          const resultatsUpload = await uploaderDossiersPhysiques();
-          dossiersPhysiquesData = resultatsUpload;
-          console.log('✅ Dossiers uploadés:', dossiersPhysiquesData);
-        } catch (error) {
-          console.error('❌ Erreur upload des dossiers:', error);
-          showWarning('Élève créé/modifié, mais certains dossiers n\'ont pas pu être sauvegardés.');
-        }
-      } else if (eleveSelectionne?.dossiers_physiques) {
-        dossiersPhysiquesData = eleveSelectionne.dossiers_physiques;
-      }
-
-      if (dossiersPhysiquesData.length > 0) {
-        dataAEnvoyer.dossiers_physiques = JSON.stringify(dossiersPhysiquesData);
-      } else {
-        dataAEnvoyer.dossiers_physiques = null;
-      }
-
-      if (formData.classe_id && formData.classe_id.trim() !== '') {
-        const classeId = parseInt(formData.classe_id);
-        const classeExistante = classes.find(c => c.id === classeId);
-        if (classeExistante) {
-          dataAEnvoyer.classe_id = classeId;
-        } else {
-          const message = 'La classe sélectionnée n\'existe pas';
-          setErreurFormulaire(message);
-          showError(message);
-          setSoumissionEnCours(false);
-          return;
-        }
-      } else {
-        dataAEnvoyer.classe_id = null;
-      }
-
-      console.log('📤 Données à envoyer:', dataAEnvoyer);
-
-      let response;
-      let url;
-      
-      if (eleveSelectionne) {
-        if (!eleveSelectionne.id || isNaN(eleveSelectionne.id) || eleveSelectionne.id <= 0) {
-          console.error('❌ ID invalide dans élève sélectionné:', eleveSelectionne.id);
-          const message = 'ID d\'élève invalide pour la modification';
-          setErreurFormulaire(message);
-          showError(message);
-          return;
-        }
-
-        url = `/api/eleves/${eleveSelectionne.id}`;
-        response = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dataAEnvoyer)
-        });
-      } else {
-        url = '/api/eleves';
-        response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dataAEnvoyer)
-        });
-      }
-
-      const resultat = await response.json();
-
-      if (resultat.success) {
-        if (!eleveSelectionne) {
-          setAjoutMultiple(true);
-          
-          const message = `Élève créé avec succès! ${fichiersDossiers.length > 0 ? 'Dossiers téléchargés.' : ''}`;
-          showSuccess(message);
-          
-          reinitialiserFormulaire();
-          
-          chargerDonnees();
-          chargerStatistiques();
-        } else {
-          fermerModal();
-          chargerDonnees();
-          chargerStatistiques();
-          showSuccess('Élève mis à jour avec succès!');
-        }
-      } else {
-        const messageErreur = resultat.erreur || 'Erreur lors de l\'opération';
-        setErreurFormulaire(messageErreur);
-        showError(messageErreur);
-      }
-    } catch (error) {
-      console.error('❌ Erreur réseau ou serveur:', error);
-      const message = 'Erreur de connexion au serveur';
-      setErreurFormulaire(message);
-      showError(message);
-    } finally {
-      setSoumissionEnCours(false);
-      if (eleveSelectionne) {
-        reinitialiserUpload();
-        setFichiersDossiers([]);
-      }
     }
-  };
+    return eleve;
+  })
+);
+
+        // Mettre à jour l'élève sélectionné pour les modales
+         if (eleveSelectionne) {
+      setEleveSelectionne({
+        ...eleveSelectionne,
+        matricule: formData.matricule,
+        nom: formData.nom,
+        prenom: formData.prenom,
+        date_naissance: formData.date_naissance,
+        lieu_naissance: formData.lieu_naissance,
+        genre: formData.genre,
+        adresse: formData.adresse,
+        email: formData.email,
+        nom_pere: formData.nom_pere,
+        nom_mere: formData.nom_mere,
+        telephone_parent: formData.telephone_parent,
+        classe_id: formData.classe_id ? parseInt(formData.classe_id) : undefined,
+        statut: formData.statut,
+        photo_url: nouvellePhotoUrl,
+        dossiers_physiques: dossiersPhysiquesData.length > 0 ? dossiersPhysiquesData : eleveSelectionne.dossiers_physiques
+      });
+    }
+
+    fermerModal();
+    
+    setTimeout(() => {
+      chargerDonnees();
+      chargerStatistiques();
+    }, 500);
+
+    showSuccess('Élève mis à jour avec succès!');
+  }
+} else {
+      const messageErreur = resultat.erreur || 'Erreur lors de l\'opération';
+      setErreurFormulaire(messageErreur);
+      showError(messageErreur);
+    }
+  } catch (error) {
+    console.error('❌ Erreur réseau ou serveur:', error);
+    const message = 'Erreur de connexion au serveur';
+    setErreurFormulaire(message);
+    showError(message);
+  } finally {
+    setSoumissionEnCours(false);
+    if (eleveSelectionne) {
+      reinitialiserUpload();
+      setFichiersDossiers([]);
+    }
+  }
+};
 
   const gererSelectionDossiers = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fichiers = e.target.files;
