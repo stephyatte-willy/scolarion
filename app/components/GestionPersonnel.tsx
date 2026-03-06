@@ -1740,9 +1740,18 @@ export default function GestionPersonnel({ onRetourTableauDeBord }: Props) {
       const response = await fetch(url);
       const data = await response.json();
 
+      console.log('📊 Réponse API brute:', data);
+      console.log('📊 data.success:', data.success);
+      console.log('📊 data.enseignants:', data.enseignants);
+      console.log('📊 Type de data.enseignants:', Array.isArray(data.enseignants) ? 'tableau' : typeof data.enseignants);
+      console.log('📊 Longueur:', data.enseignants?.length);
+
       if (data.success) {
+              if (data.enseignants && data.enseignants.length > 0) {
+            console.log('📊 Premier élément:', data.enseignants[0]);
+          }
         const personnelTransforme = data.enseignants.map((ens: any) => {
-          const estAdministratif = ens.fonction?.includes('ADMIN') || 
+        const estAdministratif = ens.fonction?.includes('ADMIN') || 
                                    ens.type_enseignant === 'administratif' || 
                                    (ens.type_enseignant === 'professeur' && ens.fonction);
           
@@ -3778,29 +3787,7 @@ export default function GestionPersonnel({ onRetourTableauDeBord }: Props) {
                     <div className="matricule-personnel">
                     </div>
                   </td>
-                  
-                  <td>
-                    <div className="classes-personnel">
-                      {membre.type_personnel !== 'administratif' ? (
-                        <>
-                          <div className="style-4">
-                            {membre.nombre_classes || 0} classe{membre.nombre_classes !== 1 ? 's' : ''}
-                          </div>
-                          {membre.classes_principales && (
-                            <div className="liste-classes">
-                              {membre.classes_principales}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="info-administrative">
-                          <div className="departement-info-adm">
-                            {membre.departement || 'Service général'}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </td>
+                
                   
                    <td style={{ padding: '2px 1px' }}>
               <div className="actions-ligne" style={{ 

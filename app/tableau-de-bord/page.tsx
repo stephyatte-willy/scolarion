@@ -129,6 +129,35 @@ export default function TableauDeBord() {
   const [permissions, setPermissions] = useState<string[]>([]);
 
   // Dans tableau-de-bord.tsx, ajouter dans le useEffect après les autres useEffect
+useEffect(() => {
+  const handleLogoUpdate = (event: CustomEvent) => {
+    console.log('🔄 Logo mis à jour:', event.detail);
+    // Forcer le rechargement des paramètres
+    chargerParametresEcole();
+  };
+
+  window.addEventListener('logo-updated', handleLogoUpdate as EventListener);
+  
+  return () => {
+    window.removeEventListener('logo-updated', handleLogoUpdate as EventListener);
+  };
+}, []);
+
+// Dans la partie JSX, pour l'affichage du logo en-tête :
+{parametresEcole?.logo_url ? (
+  <img 
+    src={`${parametresEcole.logo_url}?t=${new Date().getTime()}`} 
+    alt="Logo école" 
+    className="logo-ecole-image"
+    onError={(e) => {
+      console.error('❌ Erreur chargement logo:', e);
+      e.currentTarget.style.display = 'none';
+    }}
+    onLoad={() => console.log('✅ Logo chargé avec succès')}
+  />
+) : (
+  <div className="logo-ecole-placeholder"></div>
+)}
 
 useEffect(() => {
   // Écouter les changements de thème
@@ -685,11 +714,21 @@ const appliquerTheme = (theme: string) => {
   };
 
   const deconnexion = async () => {
-    await AuthService.deconnexion();
-    localStorage.removeItem('estConnecte');
-    localStorage.removeItem('utilisateur');
-    router.push('/connexion');
-  };
+  await AuthService.deconnexion();
+  localStorage.removeItem('estConnecte');
+  localStorage.removeItem('utilisateur');
+  
+  // Nettoyage des styles avant la redirection
+  document.querySelectorAll('.input-champ, .conteneur-input, .groupe-champ').forEach(el => {
+    el.removeAttribute('style');
+  });
+  
+  // Supprime les classes qui pourraient interférer
+  document.body.classList.remove('theme-sombre', 'theme-clair');
+  
+  // Force un rechargement propre de la page de connexion
+  window.location.href = '/connexion'; // Utilisez ceci au lieu de router.push
+};
 
   const ouvrirProfil = () => {
     setProfilOuvert(true);

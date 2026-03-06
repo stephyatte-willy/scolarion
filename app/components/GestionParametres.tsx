@@ -377,71 +377,83 @@ const ouvrirSelecteurFichier = () => {
   };
 
   // Fonction pour gérer le changement de logo
-  const gererChangementLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+const gererChangementLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  
+  // Validation du type de fichier
+  const typesValides = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  if (!typesValides.includes(file.type)) {
+    showError('Format de fichier non supporté. Utilisez JPEG, PNG, GIF ou WebP');
+    return;
+  }
+  
+  // Validation de la taille (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    showError('L\'image ne doit pas dépasser 5MB');
+    return;
+  }
+  
+  setUploadChargement(true);
+  
+  try {
+    // Afficher la prévisualisation
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewLogo(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
     
-    // Validation du type de fichier
-    const typesValides = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!typesValides.includes(file.type)) {
-      showError('Format de fichier non supporté. Utilisez JPEG, PNG, GIF ou WebP');
-      return;
-    }
+    // Préparer le FormData pour l'upload
+    const formData = new FormData();
+    formData.append('logo', file);
     
-    // Validation de la taille (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      showError('L\'image ne doit pas dépasser 5MB');
-      return;
-    }
+    // Envoyer au serveur
+    const response = await fetch('/api/parametres/logo', {
+      method: 'POST',
+      body: formData
+    });
     
-    setUploadChargement(true);
+    const data = await response.json();
     
-    try {
-      // Afficher la prévisualisation
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewLogo(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (data.success) {
+      // ✅ CORRECTION : Mettre à jour avec la nouvelle URL et forcer un re-rendu
+      const nouvelleUrl = data.logo_url;
       
-      // Préparer le FormData pour l'upload
-      const formData = new FormData();
-      formData.append('logo', file);
-      
-      // Envoyer au serveur
-      const response = await fetch('/api/parametres/logo', {
-        method: 'POST',
-        body: formData
+      setParametresEcole(prev => {
+        console.log('🔄 Mise à jour du logo:', nouvelleUrl);
+        return {
+          ...prev,
+          logo_url: nouvelleUrl
+        };
       });
       
-      const data = await response.json();
-      
-      if (data.success) {
-        showSuccess('Logo téléchargé avec succès !');
-        // Mettre à jour les paramètres avec le nouveau logo
-        setParametresEcole(prev => ({
-          ...prev,
-          logo_url: data.logo_url
-        }));
-        setPreviewLogo(null); // Réinitialiser la prévisualisation
-      } else {
-        showError(data.erreur || 'Erreur lors du téléchargement du logo');
-        setPreviewLogo(null);
-      }
-    } catch (error) {
-      console.error('Erreur upload:', error);
-      showError('Erreur de connexion lors du téléchargement');
       setPreviewLogo(null);
-    } finally {
-      setUploadChargement(false);
-      // Réinitialiser l'input file
-      if (inputFileRef.current) {
-        inputFileRef.current.value = '';
-      }
+      showSuccess('Logo téléchargé avec succès !');
+      
+      // ✅ FORCER le rechargement de la page de connexion si elle est ouverte
+      // En émettant un événement personnalisé
+      window.dispatchEvent(new CustomEvent('logo-updated', { 
+        detail: { logo_url: nouvelleUrl } 
+      }));
+      
+    } else {
+      showError(data.erreur || 'Erreur lors du téléchargement du logo');
+      setPreviewLogo(null);
     }
-  };
+  } catch (error) {
+    console.error('Erreur upload:', error);
+    showError('Erreur de connexion lors du téléchargement');
+    setPreviewLogo(null);
+  } finally {
+    setUploadChargement(false);
+    if (inputFileRef.current) {
+      inputFileRef.current.value = '';
+    }
+  }
+};
 
-// Fonction pour supprimer le logo
+// Ajoutez aussi cette version améliorée de la suppression
 const supprimerLogo = async () => {
   if (!parametresEcole.logo_url && !previewLogo) return;
   
@@ -459,12 +471,18 @@ const supprimerLogo = async () => {
     const data = await response.json();
     
     if (data.success) {
-      showSuccess('Logo supprimé avec succès !');
       setParametresEcole(prev => ({
         ...prev,
         logo_url: null
       }));
       setPreviewLogo(null);
+      showSuccess('Logo supprimé avec succès !');
+      
+      // Émettre l'événement de mise à jour
+      window.dispatchEvent(new CustomEvent('logo-updated', { 
+        detail: { logo_url: null } 
+      }));
+      
     } else {
       showError(data.erreur || 'Erreur lors de la suppression du logo');
     }

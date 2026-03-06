@@ -15,13 +15,48 @@ export default function PageConnexion() {
   const [utilisateurTrouve, setUtilisateurTrouve] = useState<{nom: string, prenom: string, role: string} | null>(null);
   const [rechercheEnCours, setRechercheEnCours] = useState(false);
   const [erreurLogo, setErreurLogo] = useState(false);
+  const [cleComposant, setCleComposant] = useState(Date.now());
   const router = useRouter();
+
+  // NOUVEAU : Nettoyage des styles au chargement
+  useEffect(() => {
+    // Nettoie les styles persistants
+    const nettoyerStyles = () => {
+      document.querySelectorAll('.input-champ, .conteneur-input, .groupe-champ').forEach(el => {
+        el.removeAttribute('style');
+      });
+      
+      document.body.classList.remove('theme-sombre', 'theme-clair');
+    };
+
+    nettoyerStyles();
+    setCleComposant(Date.now()); // Force le rechargement
+
+    // Écoute le retour sur la page
+    const handlePageShow = () => {
+      nettoyerStyles();
+      setCleComposant(Date.now());
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+    
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, []);
+
+  // ... (le reste de vos useEffect et fonctions reste identique)
+
+  useEffect(() => {
+    if (parametresEcole?.logo_url) {
+      setErreurLogo(false);
+    }
+  }, [parametresEcole?.logo_url]);
 
   useEffect(() => {
     chargerParametresEcole();
   }, []);
 
-  // Fonction pour rechercher l'utilisateur quand l'email change
   useEffect(() => {
     const rechercherUtilisateur = async () => {
       if (email && email.includes('@')) {
@@ -46,7 +81,7 @@ export default function PageConnexion() {
   const chargerParametresEcole = async () => {
     try {
       setChargementParametres(true);
-      setErreurLogo(false); // Reset l'erreur de logo
+      setErreurLogo(false);
       
       const resultat = await AuthService.obtenirParametresEcole();
       
@@ -55,7 +90,6 @@ export default function PageConnexion() {
         setParametresEcole(resultat.parametres);
       } else {
         console.error('Erreur chargement paramètres:', resultat.erreur);
-        // Valeurs par défaut sans logo
         setParametresEcole({
           nom_ecole: "Établissement Scolaire",
           adresse: "Adresse non définie",
@@ -133,20 +167,15 @@ export default function PageConnexion() {
     setErreurLogo(true);
   };
 
-  // Construire l'URL complète du logo
   const getLogoUrl = () => {
     if (parametresEcole?.logo_url) {
-      // Si l'URL commence par /, c'est un chemin relatif
-      if (parametresEcole.logo_url.startsWith('/')) {
-        return parametresEcole.logo_url;
-      }
-      return `/${parametresEcole.logo_url}`;
+      return parametresEcole.logo_url;
     }
     return null;
   };
 
   return (
-    <div className="conteneur-connexion">
+    <div key={cleComposant} className="conteneur-connexion">
       <div className="carte-connexion">
         {/* Section gauche - Informations école */}
         <div className="section-gauche">
@@ -233,16 +262,10 @@ export default function PageConnexion() {
             <div className="en-tete-connexion">
               <div className="logo-application">
                 <div className="cercle-app">
-                  {!erreurLogo ? (
                     <img 
-                      src="/logo_scolarion.png" 
-                      alt="Logo Scolarion"
-                      onError={gererErreurImage}
-                      onLoad={() => console.log('✅ Logo app chargé avec succès')}
-                    />
-                  ) : (
-                    <span className="icone-app">📚</span>
-                  )}
+                        src="/logo_scolarion.png" 
+                        alt="Logo Scolarion"
+                      />
                 </div>
               </div>
               <span className="titre-application-connexion">Scolarion</span>

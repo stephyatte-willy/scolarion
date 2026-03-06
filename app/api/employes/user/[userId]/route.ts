@@ -1,72 +1,87 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 
-interface RouteParams {
-  params: Promise<{
-    userId: string;
-  }>;
-}
-
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    // Récupération asynchrone de l'userId
     const { userId } = await params;
     const userIdNum = parseInt(userId);
     
     console.log('🔍 Récupération employé pour userId:', userIdNum);
     
-    if (isNaN(userIdNum) || userIdNum <= 0) {
-      console.log('❌ userId invalide:', userId);
-      return NextResponse.json({ 
-        success: false, 
-        erreur: 'ID utilisateur invalide' 
-      }, { status: 400 });
+    if (isNaN(userIdNum)) {
+      return NextResponse.json({ success: true, employe: null });
     }
     
     const sql = `
-      SELECT e.*, u.email, u.role
+      SELECT 
+        e.id,
+        e.user_id,
+        e.matricule,
+        u.nom,
+        u.prenom,
+        u.email,
+        e.fonction,
+        e.departement,
+        e.type_enseignant,
+        e.statut as employe_statut,
+        u.statut as user_statut,
+        COALESCE(e.avatar_url, u.avatar_url) as avatar_url,
+        e.telephone,
+        e.specialite,
+        GROUP_CONCAT(DISTINCT r.nom) as role_names
       FROM enseignants e
       INNER JOIN users u ON e.user_id = u.id
+      LEFT JOIN users_roles ur ON u.id = ur.user_id
+      LEFT JOIN roles r ON ur.role_id = r.id
       WHERE e.user_id = ?
+      GROUP BY e.id
     `;
     
     const result = await query(sql, [userIdNum]);
     
-    // ✅ Vérification robuste : s'assurer que c'est un tableau
-    const employes = Array.isArray(result) ? result : [];
-    
-    console.log(`📊 Résultat: ${employes.length} employé(s) trouvé(s)`);
-    
-    if (employes.length === 0) {
-      // ✅ Retourner null mais avec succès (pas d'erreur, juste pas de données)
-      return NextResponse.json({ 
-        success: true, 
-        employe: null,
-        message: 'Aucun employé trouvé pour cet utilisateur'
-      });
+    // ✅ Vérification que result est un tableau et non vide
+    if (!result || !Array.isArray(result) || result.length === 0) {
+      return NextResponse.json({ success: true, employe: null });
     }
+    
+    // ✅ Type assertion pour dire à TypeScript que c'est un objet avec nos champs
+    const emp = result[0] as any;
+    
+    // ✅ Construction de l'objet employé avec toutes les propriétés
+    const employe = {
+      id: emp.id || 0,
+      user_id: Number(emp.user_id) || 0,
+      matricule: emp.matricule || '',
+      nom: emp.nom || '',
+      prenom: emp.prenom || '',
+      email: emp.email || '',
+      fonction: emp.fonction || emp.type_enseignant || '',
+      departement: emp.departement || '',
+      type_enseignant: emp.type_enseignant || 'professeur',
+      employe_statut: emp.employe_statut || 'actif',
+      user_statut: emp.user_statut || 'actif',
+      avatar_url: emp.avatar_url || null,
+      telephone: emp.telephone || '',
+      specialite: emp.specialite || '',
+      roles: emp.role_names ? emp.role_names.split(',').map((n: string) => n.trim()) : []
+    };
+    
+    console.log('✅ Employé trouvé:', employe.nom, employe.prenom);
     
     return NextResponse.json({ 
       success: true, 
-      employe: employes[0] 
+      employe 
     });
     
   } catch (error: any) {
-    console.error('❌ Erreur GET employe:', error);
-    
-    // ✅ Message d'erreur plus détaillé pour le debugging
-    const errorMessage = error?.message || 'Erreur inconnue';
-    
-    return NextResponse.json(
-      { 
-        success: false, 
-        erreur: 'Erreur lors de la récupération des données',
-        details: errorMessage 
-      },
-      { status: 500 }
-    );
+    console.error('❌ Erreur dans GET employe:', error);
+    return NextResponse.json({ 
+      success: false, 
+      employe: null,
+      erreur: error?.message || 'Erreur inconnue'
+    });
   }
 }

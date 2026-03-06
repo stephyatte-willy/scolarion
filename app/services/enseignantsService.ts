@@ -61,109 +61,111 @@ export interface Classe {
 export class EnseignantsService {
   
   // MÉTHODE : Obtenir tous les enseignants avec filtres
-  static async obtenirEnseignants(filtres: FiltresEnseignants = {}): Promise<{success: boolean, enseignants?: Enseignant[], erreur?: string}> {
-    try {
-      console.log('🔍 Début récupération personnel avec filtres:', filtres);
-      
-      let sql = `
-        SELECT 
-          e.id,
-          e.user_id,
-          e.matricule,
-          e.date_naissance,
-          e.lieu_naissance,
-          e.genre,
-          e.adresse,
-          e.telephone,
-          e.specialite,
-          e.diplome,
-          e.date_embauche,
-          e.statut,
-          e.type_contrat,
-          e.type_enseignant,
-          e.matieres_enseignees,
-          e.salaire,
-          e.created_at,
-          e.avatar_url,
-          e.fonction,
-          e.departement,
-          u.nom,
-          u.prenom,
-          u.email,
-          COUNT(DISTINCT c.id) as nombre_classes,
-          GROUP_CONCAT(DISTINCT CONCAT(c.niveau, ' ', c.nom) SEPARATOR ', ') as classes_principales
-        FROM enseignants e
-        INNER JOIN users u ON e.user_id = u.id
-        LEFT JOIN classes c ON e.user_id = c.professeur_principal_id
-        WHERE u.role = 'enseignant'
-      `;
-      
-      const params: any[] = [];
-      const conditions: string[] = [];
+// MÉTHODE : Obtenir tous les enseignants avec filtres (VERSION SANS ERREUR TYPESCRIPT)
+static async obtenirEnseignants(filtres: FiltresEnseignants = {}): Promise<{success: boolean, enseignants?: any[], erreur?: string}> {
+  try {
+    console.log('🔍 Début récupération personnel avec filtres:', filtres);
+    
+    let sql = `
+      SELECT 
+        e.id,
+        e.user_id,
+        e.matricule,
+        e.date_naissance,
+        e.lieu_naissance,
+        e.genre,
+        e.adresse,
+        e.telephone,
+        e.specialite,
+        e.diplome,
+        e.date_embauche,
+        e.statut,
+        e.type_contrat,
+        e.type_enseignant,
+        e.matieres_enseignees,
+        e.salaire,
+        e.created_at,
+        e.avatar_url,
+        e.fonction,
+        e.departement,
+        u.nom,
+        u.prenom,
+        u.email,
+        (SELECT COUNT(*) FROM classes WHERE professeur_principal_id = e.user_id) as nombre_classes,
+        (SELECT GROUP_CONCAT(CONCAT(nom, ' (', niveau, ')') SEPARATOR ', ') 
+         FROM classes 
+         WHERE professeur_principal_id = e.user_id) as classes_principales
+      FROM enseignants e
+      INNER JOIN users u ON e.user_id = u.id
+      WHERE u.role = 'enseignant'
+    `;
+    
+    const params: any[] = [];
 
-      if (filtres.recherche) {
-        conditions.push(`(u.nom LIKE ? OR u.prenom LIKE ? OR e.matricule LIKE ? OR e.specialite LIKE ? OR e.matieres_enseignees LIKE ? OR e.fonction LIKE ?)`);
-        params.push(`%${filtres.recherche}%`, `%${filtres.recherche}%`, `%${filtres.recherche}%`, `%${filtres.recherche}%`, `%${filtres.recherche}%`, `%${filtres.recherche}%`);
-      }
-
-      if (filtres.specialite) {
-        conditions.push(`e.specialite = ?`);
-        params.push(filtres.specialite);
-      }
-
-      if (filtres.statut) {
-        conditions.push(`e.statut = ?`);
-        params.push(filtres.statut);
-      }
-
-      if (filtres.type_contrat) {
-        conditions.push(`e.type_contrat = ?`);
-        params.push(filtres.type_contrat);
-      }
-
-      if (filtres.type_enseignant) {
-        conditions.push(`e.type_enseignant = ?`);
-        params.push(filtres.type_enseignant);
-      }
-
-      if (filtres.genre) {
-        conditions.push(`e.genre = ?`);
-        params.push(filtres.genre);
-      }
-
-      if (filtres.fonction) {
-        conditions.push(`e.fonction = ?`);
-        params.push(filtres.fonction);
-      }
-
-      if (filtres.departement) {
-        conditions.push(`e.departement = ?`);
-        params.push(filtres.departement);
-      }
-
-      if (conditions.length > 0) {
-        sql += ` AND ${conditions.join(' AND ')}`;
-      }
-
-      sql += ` GROUP BY e.id`;
-      sql += ` ORDER BY e.type_enseignant, u.nom, u.prenom`;
-
-      console.log('📝 SQL personnel:', sql);
-      const result = await query(sql, params);
-      const enseignants = result as Enseignant[];
-      
-      console.log('✅ Personnel récupéré:', enseignants.length);
-      return { success: true, enseignants };
-    } catch (error: any) {
-      console.error('❌ Erreur récupération personnel:', error);
-      return { 
-        success: false, 
-        erreur: `Erreur base de données: ${error.message}` 
-      };
+    // TOUS VOS FILTRES
+    if (filtres.recherche) {
+      sql += ` AND (u.nom LIKE ? OR u.prenom LIKE ? OR e.matricule LIKE ? OR e.specialite LIKE ? OR e.matieres_enseignees LIKE ? OR e.fonction LIKE ?)`;
+      params.push(`%${filtres.recherche}%`, `%${filtres.recherche}%`, `%${filtres.recherche}%`, `%${filtres.recherche}%`, `%${filtres.recherche}%`, `%${filtres.recherche}%`);
     }
-  }
 
-  // MÉTHODE : Obtenir toutes les classes disponibles
+    if (filtres.specialite) {
+      sql += ` AND e.specialite = ?`;
+      params.push(filtres.specialite);
+    }
+
+    if (filtres.statut) {
+      sql += ` AND e.statut = ?`;
+      params.push(filtres.statut);
+    }
+
+    if (filtres.type_contrat) {
+      sql += ` AND e.type_contrat = ?`;
+      params.push(filtres.type_contrat);
+    }
+
+    if (filtres.type_enseignant) {
+      sql += ` AND e.type_enseignant = ?`;
+      params.push(filtres.type_enseignant);
+    }
+
+    if (filtres.genre) {
+      sql += ` AND e.genre = ?`;
+      params.push(filtres.genre);
+    }
+
+    if (filtres.fonction) {
+      sql += ` AND e.fonction = ?`;
+      params.push(filtres.fonction);
+    }
+
+    if (filtres.departement) {
+      sql += ` AND e.departement = ?`;
+      params.push(filtres.departement);
+    }
+
+    sql += ` ORDER BY e.type_enseignant, u.nom, u.prenom`;
+
+    console.log('📝 SQL:', sql);
+    
+    const result = await query(sql, params);
+    
+    // ✅ Solution simple pour éviter l'erreur TypeScript
+    const enseignants: any[] = Array.isArray(result) ? result : [];
+    
+    console.log('✅ Personnel récupéré:', enseignants.length);
+    
+    return { success: true, enseignants };
+    
+  } catch (error: any) {
+    console.error('❌ Erreur:', error);
+    return { 
+      success: false, 
+      enseignants: [],
+      erreur: `Erreur: ${error.message}` 
+    };
+  }
+}
+
   // MÉTHODE : Obtenir toutes les classes disponibles
 static async obtenirClassesDisponibles(): Promise<{success: boolean, classes?: Classe[], erreur?: string}> {
   try {
@@ -474,68 +476,72 @@ static async obtenirClassesDisponibles(): Promise<{success: boolean, classes?: C
   }
 
   // MÉTHODE : Obtenir les spécialités
-  static async obtenirSpecialites(): Promise<{success: boolean, specialites?: string[], erreur?: string}> {
-    try {
-      // Essayer de récupérer depuis la base de données
-      const sql = 'SELECT DISTINCT specialite FROM enseignants WHERE specialite IS NOT NULL AND specialite != "" ORDER BY specialite';
-      const result = await query(sql) as any[];
-      const specialitesBDD = result.map(row => row.specialite).filter(Boolean);
+static async obtenirSpecialites(): Promise<{success: boolean, specialites?: string[], erreur?: string}> {
+  try {
+    // ✅ CORRECTION : Utiliser une condition SQL valide
+    const sql = 'SELECT DISTINCT specialite FROM enseignants WHERE specialite IS NOT NULL AND specialite != \'\' ORDER BY specialite';
+    const result = await query(sql) as any[];
+    
+    // Récupérer les spécialités de la base de données
+    const specialitesBDD = result
+      .map(row => row.specialite)
+      .filter(spec => spec && spec.trim() !== '');
 
-      // Liste de spécialités par défaut organisée
-      const specialitesParDefaut = [
-        'Français',
-        'Mathématiques',
-        'Histoire-Géographie',
-        'Anglais',
-        'Espagnol',
-        'Allemand',
-        'SVT',
-        'Physique-Chimie',
-        'SES',
-        'SNT',
-        'EPS',
-        'ECM',
-        'Philosophie',
-        'Sciences de l\'Ingénieur',
-        'Littérature',
-        'Éducation Civique, Juridique et Sociale',
-        'Travaux Personnels Encadrés',
-        'Latin',
-        'Grec Ancien',
-        'Arts Plastiques',
-        'Musique',
-        'Théâtre',
-        'Cinéma',
-        'Informatique',
-        'Management et Gestion'
-      ];
+    // Liste de spécialités par défaut organisée
+    const specialitesParDefaut = [
+      'Français',
+      'Mathématiques',
+      'Histoire-Géographie',
+      'Anglais',
+      'Espagnol',
+      'Allemand',
+      'SVT',
+      'Physique-Chimie',
+      'SES',
+      'SNT',
+      'EPS',
+      'ECM',
+      'Philosophie',
+      'Sciences de l\'Ingénieur',
+      'Littérature',
+      'Éducation Civique, Juridique et Sociale',
+      'Travaux Personnels Encadrés',
+      'Latin',
+      'Grec Ancien',
+      'Arts Plastiques',
+      'Musique',
+      'Théâtre',
+      'Cinéma',
+      'Informatique',
+      'Management et Gestion'
+    ];
 
-      // Fusionner et supprimer les doublons
-      const toutesSpecialites = [...new Set([...specialitesBDD, ...specialitesParDefaut])];
-      
-      // Trier par ordre alphabétique
-      const specialitesTriees = toutesSpecialites.sort((a, b) => a.localeCompare(b));
+    // Fusionner et supprimer les doublons
+    const toutesSpecialites = [...new Set([...specialitesBDD, ...specialitesParDefaut])];
+    
+    // Trier par ordre alphabétique
+    const specialitesTriees = toutesSpecialites.sort((a, b) => a.localeCompare(b));
 
-      return { success: true, specialites: specialitesTriees };
-    } catch (error) {
-      console.error('Erreur lors de la récupération des spécialités:', error);
-      
-      // Retourner la liste organisée par défaut en cas d'erreur
-      const specialitesSecours = [
-        'Français',
-        'Mathématiques',
-        'Histoire-Géographie',
-        'Langue Vivante 1 (Anglais)',
-        'Sciences de la Vie et de la Terre (SVT)',
-        'Physique-Chimie',
-        'Éducation Physique et Sportive (EPS)',
-        'Sciences Économiques et Sociales (SES)',
-        'Philosophie'
-      ].sort((a, b) => a.localeCompare(b));
-      
-      return { success: true, specialites: specialitesSecours };
-    }
+    return { success: true, specialites: specialitesTriees };
+  } catch (error) {
+    console.error('Erreur lors de la récupération des spécialités:', error);
+    
+    // Retourner la liste par défaut en cas d'erreur
+    const specialitesSecours = [
+      'Français',
+      'Mathématiques',
+      'Histoire-Géographie',
+      'Anglais',
+      'SVT',
+      'Physique-Chimie',
+      'EPS',
+      'SES',
+      'Philosophie'
+    ].sort((a, b) => a.localeCompare(b));
+    
+    return { success: true, specialites: specialitesSecours };
   }
+}
 
   // MÉTHODE : Obtenir les matières
   static async obtenirMatieres(): Promise<{success: boolean, matieres?: Matiere[], erreur?: string}> {

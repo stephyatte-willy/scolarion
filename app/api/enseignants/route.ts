@@ -1,77 +1,218 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { EnseignantsService } from '@/app/services/enseignantsService';
+import { query } from '@/app/lib/database';
+import bcrypt from 'bcryptjs';
 
+// GET - Récupérer tous les employés
 export async function GET(request: NextRequest) {
   try {
-    console.log('🌐 API Personnel - Début requête GET');
+    console.log('🌐 API Personnel - GET');
     
-    const { searchParams } = new URL(request.url);
-    const filtres = {
-      recherche: searchParams.get('recherche') || undefined,
-      specialite: searchParams.get('specialite') || undefined,
-      statut: searchParams.get('statut') || undefined,
-      type_contrat: searchParams.get('type_contrat') || undefined,
-      type_enseignant: searchParams.get('type_enseignant') || undefined,
-      genre: searchParams.get('genre') || undefined,
-      fonction: searchParams.get('fonction') || undefined, // AJOUTÉ
-      departement: searchParams.get('departement') || undefined // AJOUTÉ
-    };
-
-    console.log('🔍 Filtres reçus:', filtres);
-
-    const resultat = await EnseignantsService.obtenirEnseignants(filtres);
+    const result = await query(`
+      SELECT 
+        e.*,
+        u.nom,
+        u.prenom,
+        u.email,
+        u.avatar_url as user_avatar_url
+      FROM enseignants e
+      INNER JOIN users u ON e.user_id = u.id
+      ORDER BY u.nom, u.prenom
+    `, []);
     
-    if (!resultat.success) {
-      console.error('❌ Erreur service personnel:', resultat.erreur);
-      return NextResponse.json(
-        { success: false, erreur: resultat.erreur },
-        { status: 400 }
-      );
-    }
-
-    console.log('✅ Personnel retourné:', resultat.enseignants?.length || 0);
+    const enseignants = Array.isArray(result) ? result : [];
     
     return NextResponse.json({
       success: true,
-      enseignants: resultat.enseignants || [] // Gardez le nom "enseignants" pour la compatibilité
+      enseignants: enseignants
     });
+    
   } catch (error: any) {
-    console.error('💥 Erreur API personnel:', error);
-    console.error('💥 Stack trace:', error.stack);
+    console.error('❌ Erreur GET:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        erreur: `Erreur serveur: ${error.message || 'Erreur inconnue'}` 
-      },
+      { success: false, enseignants: [], erreur: error?.message },
       { status: 500 }
     );
   }
 }
 
-// La méthode POST reste exactement la même
+// POST - Créer un nouvel employé
 export async function POST(request: NextRequest) {
   try {
-    const enseignantData = await request.json();
-    console.log('📝 API Création membre - Données:', enseignantData);
+    console.log('🌐 API Personnel - POST');
     
-    const resultat = await EnseignantsService.creerEnseignant(enseignantData);
+    // 1. Lire les données de la requête
+    const data = await request.json();
+    console.log('📦 Données reçues:', data);
     
-    if (!resultat.success) {
-      console.error('❌ Erreur création membre:', resultat.erreur);
+    // 2. Validation des champs obligatoires
+    if (!data.nom || !data.prenom || !data.email || !data.matricule) {
       return NextResponse.json(
-        { success: false, erreur: resultat.erreur },
+        { 
+          success: false, 
+          erreur: 'Les champs nom, prénom, email et matricule sont requis' 
+        },
         { status: 400 }
       );
     }
 
-    console.log('✅ Membre créé avec succès');
+    // 3. Vérifier si l'email existe déjà
+    const emailCheck = await query(
+      'SELECT id FROM users WHERE email = ?',
+      [data.email]
+    ) as any[];
     
+    if (Array.isArray(emailCheck) && emailCheck.length > 0) {
+      return NextResponse.json(
+        { success: false, erreur: 'Cet email est déjà utilisé' },
+        { status: 400 }
+      );
+    }
+
+    // 4. Vérifier si le matricule existe déjà
+    const matriculeCheck = await query(
+      'SELECT id FROM enseignants WHERE matricule = ?',
+      [data.matricule]
+    ) as any[];
+    
+    if (Array.isArray(matriculeCheck) && matriculeCheck.length > 0) {
+      return NextResponse.json(
+        { success: false, erreur: 'Ce matricule est déjà utilisé' },
+        { status: 400 }
+      );
+    }
+
+    // 5. Hasher le mot de passe
+    const motDePasse = data.password || 'Scolarion26';
+    const hashedPassword = await bcrypt.hash(motDePasse, 10);
+
+    // 6. Créer l'utilisateur et RÉCUPÉRER L'ID
+    const userResult = await query(
+      `INSERT INTO users (email, password, nom, prenom, role, statut)
+       VALUES (?, ?, ?, ?, 'enseignant', ?)`,
+      [
+        data.email,
+        hashedPassword,
+        data.nom.toUpperCase(),
+        data.prenom,
+        data.statut || 'actif'
+      ]
+    ) as any;
+
+    // ✅ Récupérer l'ID de l'utilisateur inséré
+    let userId;
+    
+    // Vérifier le format du résultat (selon la librairie MySQL)
+    if (userResult && userResult.insertId !== undefined) {
+      // Format standard (mysql2)
+      userId = userResult.insertId;
+    } else if (userResult && userResult.id !== undefined) {
+      // Format alternatif
+      userId = userResult.id;
+    } else if (Array.isArray(userResult) && userResult.length > 0 && userResult[0].insertId) {
+      // Format avec tableau
+      userId = userResult[0].insertId;
+    } else {
+      // Dernier recours : récupérer l'ID par email
+      console.log('⚠️ Format de résultat non standard, recherche par email...');
+      const userQuery = await query(
+        'SELECT id FROM users WHERE email = ?',
+        [data.email]
+      ) as any[];
+      
+      if (Array.isArray(userQuery) && userQuery.length > 0) {
+        userId = userQuery[0].id;
+      } else {
+        throw new Error('Impossible de récupérer l\'ID du nouvel utilisateur');
+      }
+    }
+
+    console.log('✅ Utilisateur créé avec ID:', userId);
+
+    // 7. Déterminer le type d'enseignant et les champs spécifiques
+    let typeEnseignant = data.type_enseignant || 'professeur';
+    let specialite = null;
+    let matieresEnseignees = null;
+    let fonction = null;
+    let departement = null;
+
+    if (typeEnseignant === 'professeur' && data.specialite) {
+      specialite = data.specialite;
+    } else if (typeEnseignant === 'instituteur' && data.matieres_enseignees) {
+      matieresEnseignees = data.matieres_enseignees;
+    } else if (typeEnseignant === 'administratif') {
+      if (data.fonction) {
+        fonction = data.fonction.startsWith('ADMIN - ') 
+          ? data.fonction 
+          : `ADMIN - ${data.fonction}`;
+      }
+      departement = data.departement || null;
+    }
+
+    // 8. Créer l'enseignant AVEC LE BON USER_ID
+    await query(
+      `INSERT INTO enseignants (
+        user_id, matricule, date_naissance, lieu_naissance, genre,
+        adresse, telephone, specialite, diplome, date_embauche,
+        statut, type_contrat, type_enseignant, matieres_enseignees,
+        salaire, avatar_url, fonction, departement
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId, // ✅ Maintenant userId est défini !
+        data.matricule,
+        data.date_naissance || null,
+        data.lieu_naissance || null,
+        data.genre || 'M',
+        data.adresse || null,
+        data.telephone || null,
+        specialite,
+        data.diplome || null,
+        data.date_embauche || new Date().toISOString().split('T')[0],
+        data.statut || 'actif',
+        data.type_contrat || 'titulaire',
+        typeEnseignant,
+        matieresEnseignees,
+        data.salaire || null,
+        data.avatar_url || null,
+        fonction,
+        departement
+      ]
+    );
+
+    // 9. Récupérer le nouvel employé
+    const newEnseignant = await query(
+      `SELECT 
+        e.*,
+        u.nom,
+        u.prenom,
+        u.email,
+        u.avatar_url as user_avatar_url
+      FROM enseignants e
+      INNER JOIN users u ON e.user_id = u.id
+      WHERE e.user_id = ?`,
+      [userId]
+    ) as any[];
+
+    console.log('✅ Employé créé avec succès');
+
     return NextResponse.json({
       success: true,
-      enseignant: resultat.enseignant
+      enseignant: Array.isArray(newEnseignant) && newEnseignant.length > 0 
+        ? newEnseignant[0] 
+        : null,
+      message: 'Employé créé avec succès'
     }, { status: 201 });
+
   } catch (error: any) {
-    console.error('💥 Erreur API création membre:', error);
+    console.error('❌ Erreur POST:', error);
+    
+    // Gérer les erreurs spécifiques
+    if (error.code === 'ER_DUP_ENTRY') {
+      return NextResponse.json(
+        { success: false, erreur: 'Un employé avec cet email ou matricule existe déjà' },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { 
         success: false, 

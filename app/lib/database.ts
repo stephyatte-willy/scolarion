@@ -1,90 +1,121 @@
 import mysql from 'mysql2/promise';
 
 const dbConfig = {
-  host: process.env.DB_HOST || 'mysql-af6df01-scolarion.d.aivencloud.com',  // ou localhost
-  user: process.env.DB_USER || 'avnadmin', 
+  host: process.env.DB_HOST || 'mysql-af6df01-scolarion.d.aivencloud.com',
+  user: process.env.DB_USER || 'avnadmin',
   password: process.env.DB_PASSWORD || 'AVNS_HK0OfgFA7axftHzKGxH',
   database: process.env.DB_NAME || 'defaultdb',
-  port: 23990,  // Port MySQL par défaut
+  port: parseInt(process.env.DB_PORT || '23990'),
   waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+  connectionLimit: 5, // Réduire la limite
+  queueLimit: 10,
   charset: 'utf8mb4',
-  timezone: '+00:00'
+  timezone: '+00:00',
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
+  ssl: {
+    rejectUnauthorized: false
+  }
 };
 
-const pool = mysql.createPool(dbConfig);
+let pool: mysql.Pool;
 
-function cleanParams(params: any[]): any[] {
-  return params.map(param => {
-    if (param === undefined) return null;
-    return param;
-  });
+try {
+  pool = mysql.createPool(dbConfig);
+  console.log('✅ Pool de connexions MySQL créé avec succès');
+} catch (error) {
+  console.error('❌ Erreur création pool MySQL:', error);
+  throw error;
 }
 
-// ✅ FONCTION PRINCIPALE - utilise execute() pour les requêtes préparées
+function cleanParams(params: any[]): any[] {
+  return params.map(param => param === undefined ? null : param);
+}
+
+// ✅ FONCTION QUERY AVEC GARANTIE DE LIBÉRATION
 export async function query(sql: string, params: any[] = []) {
-  console.log('📝 SQL à exécuter:', sql);
+  console.log('📝 SQL:', sql);
+  console.log('🔧 Paramètres:', params);
   
   let connection;
   try {
     connection = await pool.getConnection();
     const cleanedParams = cleanParams(params);
-    console.log('🔧 Paramètres:', cleanedParams);
     
-    const [rows] = await connection.execute(sql, cleanedParams);
-    return rows;
+    const [rows] = await connection.query(sql, cleanedParams);
+    
+    console.log('✅ Type de résultat:', Array.isArray(rows) ? 'tableau' : typeof rows);
+    
+    // Retourner les lignes
+    if (rows && Array.isArray(rows)) {
+      return rows;
+    } else if (rows && typeof rows === 'object') {
+      // Pour les INSERT/UPDATE, retourner un tableau avec l'objet
+      return [rows];
+    }
+    
+    return [];
+    
   } catch (error: any) {
-    console.error('❌ Erreur SQL:', error.message);
+    console.error('❌ ERREUR SQL DÉTAILLÉE:');
+    console.error('   Message:', error.message);
     console.error('   Code:', error.code);
     console.error('   SQL:', sql);
     console.error('   Params:', cleanParams(params));
+    console.error('   Stack:', error.stack);
+    
     throw error;
   } finally {
-    if (connection) connection.release();
+    // ✅ TOUJOURS libérer la connexion, même en cas d'erreur
+    if (connection) {
+      try {
+        connection.release();
+        console.log('✅ Connexion libérée');
+      } catch (releaseError) {
+        console.error('❌ Erreur lors de la libération:', releaseError);
+      }
+    }
   }
 }
 
-// ✅ NOUVELLE FONCTION SPÉCIALEMENT POUR LES TRANSACTIONS
-// Utilise query() au lieu de execute() pour les commandes non-préparées
 export async function transactionQuery(sql: string) {
-  console.log('🔄 Transaction SQL:', sql);
-  
   let connection;
   try {
     connection = await pool.getConnection();
-    // ✅ IMPORTANT: Utiliser query() au lieu de execute() pour les transactions
     const [rows] = await connection.query(sql);
-    console.log('✅ Transaction réussie:', sql.trim());
     return rows;
-  } catch (error: any) {
-    console.error('❌ Erreur transaction:', error.message);
+  } catch (error) {
+    console.error('❌ Erreur transaction:', error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (connection) {
+      try {
+        connection.release();
+      } catch (releaseError) {
+        console.error('❌ Erreur libération transaction:', releaseError);
+      }
+    }
   }
 }
 
-// ✅ FONCTION TRANSACTION COMPLÈTE
 export async function runTransaction(callback: (connection: mysql.PoolConnection) => Promise<any>) {
   const connection = await pool.getConnection();
-  
   try {
-    // ✅ Utiliser query() pour START TRANSACTION
     await connection.query('START TRANSACTION');
-    
     const result = await callback(connection);
-    
-    // ✅ Utiliser query() pour COMMIT
     await connection.query('COMMIT');
-    
     return result;
   } catch (error) {
-    // ✅ Utiliser query() pour ROLLBACK
     await connection.query('ROLLBACK');
     throw error;
   } finally {
-    connection.release();
+    if (connection) {
+      try {
+        connection.release();
+      } catch (releaseError) {
+        console.error('❌ Erreur libération transaction:', releaseError);
+      }
+    }
   }
 }
 

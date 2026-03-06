@@ -1,7 +1,8 @@
-// app/api/parametres/logo/route.ts
 import { NextResponse } from 'next/server';
-import { put, del } from '@vercel/blob';
+import { writeFile, unlink, mkdir } from 'fs/promises';  // ✅ mkdir est importé ici
+import path from 'path';
 import { query } from '@/app/lib/database';
+import { existsSync } from 'fs';
 
 export async function POST(request: Request) {
   try {
@@ -9,115 +10,74 @@ export async function POST(request: Request) {
     const file = formData.get('logo') as File;
     
     if (!file) {
-      return NextResponse.json(
-        { success: false, erreur: 'Aucun fichier fourni' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, erreur: 'Aucun fichier' });
     }
 
-    // Validation du type de fichier
+    // Validation
     const typesValides = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!typesValides.includes(file.type)) {
-      return NextResponse.json(
-        { success: false, erreur: 'Format de fichier non supporté. Utilisez JPEG, PNG, GIF ou WebP' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, erreur: 'Format non supporté' });
     }
 
-    // Validation de la taille (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json(
-        { success: false, erreur: 'Le fichier ne doit pas dépasser 5MB' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, erreur: 'Fichier trop volumineux' });
     }
 
-    // Générer un nom de fichier unique
-    const extension = file.name.split('.').pop() || file.type.split('/')[1];
-    const fileName = `logos/logo_${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
+    // ✅ Utiliser /tmp pour l'écriture temporaire
+    const uploadDir = '/tmp/uploads/logos';
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true });  // ✅ Maintenant mkdir est reconnu
+    }
 
-    // Upload vers Vercel Blob
-    const blob = await put(fileName, file, {
-      access: 'public',
-      addRandomSuffix: false,
-    });
-
-    // Mettre à jour la base de données
-    const existing = await query('SELECT id, logo_url FROM parametres LIMIT 1') as any[];
+    const extension = file.name.split('.').pop() || 'jpg';
+    const fileName = `logo_${Date.now()}.${extension}`;
+    const filePath = path.join(uploadDir, fileName);
     
-    if (existing && existing.length > 0) {
-      // Supprimer l'ancien logo du Blob s'il existe
-      const oldLogoUrl = existing[0].logo_url;
-      if (oldLogoUrl && oldLogoUrl.includes('blob.vercel-storage.com')) {
-        try {
-          await del(oldLogoUrl);
-        } catch (error) {
-          console.error('Erreur suppression ancien logo du Blob:', error);
-        }
-      }
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    await writeFile(filePath, buffer);
 
-      // Mettre à jour avec le nouveau logo
-      await query(
-        'UPDATE parametres SET logo_url = ?, updated_at = NOW() WHERE id = 1',
-        [blob.url]
-      );
-    } else {
-      // Insérer si la table est vide
-      await query(
-        `INSERT INTO parametres (nom_ecole, logo_url, annee_scolaire, created_at, updated_at) 
-         VALUES ('École', ?, '2024-2025', NOW(), NOW())`,
-        [blob.url]
-      );
-    }
+    // ✅ URL publique via une API
+    const logoUrl = `/api/logo/${fileName}`;
 
-    return NextResponse.json({ 
-      success: true, 
-      logo_url: blob.url,
-      message: 'Logo téléchargé avec succès' 
-    });
+    // Mettre à jour la BDD
+    await query('UPDATE parametres SET logo_url = ?, updated_at = NOW() WHERE id = 1', [logoUrl]);
 
-  } catch (error: any) {
-    console.error('Erreur upload logo:', error);
-    return NextResponse.json(
-      { success: false, erreur: 'Erreur lors du téléchargement du logo' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true, logo_url: logoUrl });
+
+  } catch (error) {
+    console.error('❌ Erreur:', error);
+    return NextResponse.json({ success: false, erreur: 'Erreur serveur' });
   }
 }
 
 export async function DELETE() {
   try {
-    // Récupérer l'URL du logo actuel
     const result = await query('SELECT logo_url FROM parametres WHERE id = 1') as any[];
     
     if (result && result.length > 0 && result[0].logo_url) {
       const logoUrl = result[0].logo_url;
       
-      // Supprimer du Blob si c'est une URL Vercel Blob
-      if (logoUrl.includes('blob.vercel-storage.com')) {
+      // Extraire le nom du fichier de l'URL
+      const fileName = logoUrl.split('/').pop();
+      if (fileName) {
+        const filePath = path.join('/tmp/uploads/logos', fileName);
         try {
-          await del(logoUrl);
+          if (existsSync(filePath)) {
+            await unlink(filePath);
+          }
         } catch (error) {
-          console.error('Erreur suppression du Blob:', error);
+          console.error('Erreur suppression fichier:', error);
         }
       }
 
-      // Mettre à jour la base de données
-      await query(
-        'UPDATE parametres SET logo_url = NULL, updated_at = NOW() WHERE id = 1'
-      );
+      await query('UPDATE parametres SET logo_url = NULL, updated_at = NOW() WHERE id = 1');
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Logo supprimé avec succès' 
-    });
+    return NextResponse.json({ success: true, message: 'Logo supprimé' });
 
-  } catch (error: any) {
-    console.error('Erreur suppression logo:', error);
-    return NextResponse.json(
-      { success: false, erreur: 'Erreur lors de la suppression du logo' },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('❌ Erreur suppression:', error);
+    return NextResponse.json({ success: false, erreur: 'Erreur serveur' });
   }
 }
