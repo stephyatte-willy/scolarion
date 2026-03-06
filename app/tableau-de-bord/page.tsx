@@ -777,32 +777,41 @@ const appliquerTheme = (theme: string) => {
   };
   
   const sauvegarderProfil = async () => {
-    try {
-      if (!utilisateur) return;
-      const resultat = await AuthService.mettreAJourProfil({
-        id: utilisateur.id,
-        ...donneesProfil,
-        avatar_url: previewAvatar || utilisateur?.avatar_url
-      });
-      if (resultat.success && resultat.utilisateur) {
-        const utilisateurMisAJour = {
-          ...utilisateur,
-          ...resultat.utilisateur
-        };
-        
-        localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
-        setUtilisateur(utilisateurMisAJour);
-        
-        setAlerteSucces('Profil mis à jour avec succès !');
-        fermerProfil();
-      } else {
-        alert(resultat.erreur || 'Erreur lors de la sauvegarde du profil');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde du profil:', error);
-      alert('Erreur lors de la sauvegarde du profil');
+  try {
+    if (!utilisateur) return;
+    
+    // ✅ NE PAS envoyer previewAvatar (Base64), mais l'URL de l'avatar existant
+    const dataAEnvoyer = {
+      id: utilisateur.id,
+      nom: donneesProfil.nom,
+      prenom: donneesProfil.prenom,
+      email: donneesProfil.email,
+      avatar_url: utilisateur?.avatar_url || '' // Utiliser l'URL existante, pas le Base64
+    };
+    
+    console.log('📤 Données envoyées:', dataAEnvoyer);
+    
+    const resultat = await AuthService.mettreAJourProfil(dataAEnvoyer);
+    
+    if (resultat.success && resultat.utilisateur) {
+      const utilisateurMisAJour = {
+        ...utilisateur,
+        ...resultat.utilisateur
+      };
+      
+      localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
+      setUtilisateur(utilisateurMisAJour);
+      
+      setAlerteSucces('Profil mis à jour avec succès !');
+      fermerProfil();
+    } else {
+      alert(resultat.erreur || 'Erreur lors de la sauvegarde du profil');
     }
-  };
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du profil:', error);
+    alert('Erreur lors de la sauvegarde du profil');
+  }
+};
 
   const changerMotDePasse = async () => {
     try {
@@ -881,23 +890,30 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
     // 👇 VOICI LE CONSOLE.LOG À AJOUTER ICI
     console.log('✅ URL retournée par API:', resultat.avatar_url);
     
-    if (resultat.success && resultat.avatar_url) {
-  // ✅ METTRE À JOUR LES DEUX TABLES
-  const avatarUrl = resultat.avatar_url; // "/api/avatars/avatar_1_123456.jpg"
+    // Après l'upload réussi
+if (resultat.success && resultat.avatar_url) {
+  // ✅ resultat.avatar_url doit être "/api/avatars/avatar_1_123456.jpg"
+  console.log('✅ URL retournée:', resultat.avatar_url);
   
   // Mettre à jour l'utilisateur
   const utilisateurMisAJour = {
     ...utilisateur,
-    avatar_url: avatarUrl
+    avatar_url: resultat.avatar_url
   };
+  
   localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
   setUtilisateur(utilisateurMisAJour);
   
   // Mettre à jour employeInfo
-  setEmployeInfo(prev => prev ? {
-    ...prev,
-    avatar_url: avatarUrl
-  } : null);
+  if (employeInfo) {
+    setEmployeInfo({
+      ...employeInfo,
+      avatar_url: resultat.avatar_url
+    });
+  }
+  
+  // Effacer la prévisualisation
+  setPreviewAvatar(null);
   
   setAlerteSucces('Photo de profil mise à jour avec succès !');
 } else {
@@ -920,20 +936,19 @@ const supprimerPhoto = async () => {
   if (!utilisateur) return;
   
   try {
-    const resultat = await AuthService.mettreAJourProfil({
-      id: utilisateur.id,
-      nom: utilisateur.nom,
-      prenom: utilisateur.prenom,
-      email: utilisateur.email,
-      avatar_url: '' // Envoyer une chaîne vide pour supprimer
+    // ✅ D'abord supprimer l'avatar via l'API dédiée
+    const response = await fetch('/api/utilisateurs/avatar', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: utilisateur.id })
     });
+    
+    const resultat = await response.json();
     
     if (resultat.success) {
       setPreviewAvatar(null);
       
-      // ✅ MISE À JOUR IMMÉDIATE DE L'AFFICHAGE
-      
-      // Mettre à jour l'utilisateur dans le state
+      // ✅ Mettre à jour l'utilisateur localement
       const utilisateurMisAJour = {
         ...utilisateur,
         avatar_url: undefined
@@ -942,7 +957,7 @@ const supprimerPhoto = async () => {
       localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
       setUtilisateur(utilisateurMisAJour);
       
-      // Mettre à jour employeInfo si disponible
+      // ✅ Mettre à jour employeInfo
       if (employeInfo) {
         setEmployeInfo({
           ...employeInfo,

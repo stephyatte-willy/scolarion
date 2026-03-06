@@ -58,34 +58,26 @@ export class AuthService {
     }
   }
 
-   static async mettreAJourProfil(utilisateurData: {
-    id: number;
-    nom: string;
-    prenom: string;
-    email: string;
-    avatar_url?: string;
-  }): Promise<{success: boolean, utilisateur?: any, erreur?: string}> {
-    try {
-      const response = await fetch('/api/utilisateurs/profil', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(utilisateurData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { success: false, erreur: data.erreur };
-      }
-
-      return { success: true, utilisateur: data.utilisateur };
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du profil:', error);
-      return { success: false, erreur: 'Erreur de connexion au serveur' };
-    }
+   // Dans services/authService.ts
+static async mettreAJourProfil(data: { 
+  id: number; 
+  nom: string; 
+  prenom: string; 
+  email: string; 
+  avatar_url?: string;
+}) {
+  try {
+    const response = await fetch('/api/utilisateurs/profil', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Erreur mise à jour profil:', error);
+    return { success: false, erreur: 'Erreur réseau' };
   }
+}
 
   static async changerMotDePasse(motDePasseData: {
     id: number;
