@@ -2887,6 +2887,19 @@ const reinitialiserFiltres = () => {
               </button>
             )}
           </div>
+
+          // Dans votre formulaire d'élève, ajoutez ce champ
+<div className="groupe-champ">
+  <label>URL de la photo (optionnel)</label>
+  <input
+    type="url"
+    name="photo_url"
+    value={formData.photo_url || ''}
+    onChange={gererChangementFormulaire}
+    placeholder="https://exemple.com/photo.jpg"
+  />
+  <small>Entrez l'URL d'une image hébergée ailleurs</small>
+</div>
         </div>
 
         {/* Grille de formulaire moderne */}
