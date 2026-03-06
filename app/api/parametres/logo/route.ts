@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile, unlink, mkdir } from 'fs/promises';
+import { writeFile, unlink, mkdir } from 'fs/promises';  // ✅ mkdir est importé ici
 import path from 'path';
 import { query } from '@/app/lib/database';
 import { existsSync } from 'fs';
@@ -23,10 +23,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, erreur: 'Fichier trop volumineux' });
     }
 
-    // ✅ Utiliser /tmp pour l'écriture
+    // ✅ Utiliser /tmp pour l'écriture temporaire
     const uploadDir = '/tmp/uploads/logos';
     if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
+      await mkdir(uploadDir, { recursive: true });  // ✅ Maintenant mkdir est reconnu
     }
 
     const extension = file.name.split('.').pop() || 'jpg';
@@ -37,8 +37,8 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes);
     await writeFile(filePath, buffer);
 
-    // ✅ URL publique via l'API
-    const logoUrl = `/api/logos/${fileName}`;
+    // ✅ URL publique via une API
+    const logoUrl = `/api/logo/${fileName}`;
 
     // Mettre à jour la BDD
     await query('UPDATE parametres SET logo_url = ?, updated_at = NOW() WHERE id = 1', [logoUrl]);
