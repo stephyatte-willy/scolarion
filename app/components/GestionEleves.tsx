@@ -226,7 +226,8 @@ export default function GestionEleves({ onRetourTableauDeBord }: Props) {
       nom_mere: '',
       telephone_parent: '',
       classe_id: '',
-      statut: 'actif'
+      statut: 'actif',
+       photo_url: ''
     });
   };
 
@@ -245,7 +246,8 @@ export default function GestionEleves({ onRetourTableauDeBord }: Props) {
       nom_mere: '',
       telephone_parent: '',
       classe_id: '',
-      statut: 'actif' as 'actif' | 'inactif' | 'diplome' | 'abandon'
+      statut: 'actif' as 'actif' | 'inactif' | 'diplome' | 'abandon',
+       photo_url: ''
     });
     
     reinitialiserUpload();
@@ -588,6 +590,7 @@ const reinitialiserFiltres = () => {
         nom_pere: eleve.nom_pere || '',
         nom_mere: eleve.nom_mere || '',
         telephone_parent: eleve.telephone_parent || '',
+          photo_url: '',
         classe_id: eleve.classe_id && classes.find(c => c.id === eleve.classe_id) 
           ? eleve.classe_id.toString() 
           : '',
@@ -616,7 +619,8 @@ const reinitialiserFiltres = () => {
         nom_mere: '',
         telephone_parent: '',
         classe_id: '',
-        statut: 'actif'
+        statut: 'actif',
+          photo_url: ''
       });
     }
     setModalOuvert(true);
