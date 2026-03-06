@@ -776,33 +776,42 @@ const appliquerTheme = (theme: string) => {
     }));
   };
   
-  const sauvegarderProfil = async () => {
-    try {
-      if (!utilisateur) return;
-      const resultat = await AuthService.mettreAJourProfil({
-        id: utilisateur.id,
-        ...donneesProfil,
-        avatar_url: previewAvatar || utilisateur?.avatar_url
-      });
-      if (resultat.success && resultat.utilisateur) {
-        const utilisateurMisAJour = {
-          ...utilisateur,
-          ...resultat.utilisateur
-        };
-        
-        localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
-        setUtilisateur(utilisateurMisAJour);
-        
-        setAlerteSucces('Profil mis à jour avec succès !');
-        fermerProfil();
-      } else {
-        alert(resultat.erreur || 'Erreur lors de la sauvegarde du profil');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde du profil:', error);
-      alert('Erreur lors de la sauvegarde du profil');
+const sauvegarderProfil = async () => {
+  try {
+    if (!utilisateur) return;
+    
+    // ✅ UTILISER L'URL EXISTANTE, PAS LA PRÉVISUALISATION
+    const dataAEnvoyer = {
+      id: utilisateur.id,
+      nom: donneesProfil.nom,
+      prenom: donneesProfil.prenom,
+      email: donneesProfil.email,
+      avatar_url: utilisateur?.avatar_url || ''
+    };
+    
+    console.log('📤 Données envoyées:', dataAEnvoyer);
+    
+    const resultat = await AuthService.mettreAJourProfil(dataAEnvoyer);
+    
+    if (resultat.success && resultat.utilisateur) {
+      const utilisateurMisAJour = {
+        ...utilisateur,
+        ...resultat.utilisateur
+      };
+      
+      localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
+      setUtilisateur(utilisateurMisAJour);
+      
+      setAlerteSucces('Profil mis à jour avec succès !');
+      fermerProfil();
+    } else {
+      alert(resultat.erreur || 'Erreur lors de la sauvegarde du profil');
     }
-  };
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du profil:', error);
+    alert('Erreur lors de la sauvegarde du profil');
+  }
+};
 
   const changerMotDePasse = async () => {
     try {
@@ -859,7 +868,7 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
   setChargementPhoto(true);
   
   try {
-    // Prévisualisation immédiate
+    // Prévisualisation immédiate (optionnelle)
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreviewAvatar(e.target?.result as string);
@@ -878,29 +887,34 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
     
     const resultat = await response.json();
     
-    // 👇 VOICI LE CONSOLE.LOG À AJOUTER ICI
-    console.log('✅ URL retournée par API:', resultat.avatar_url);
-    
     if (resultat.success && resultat.avatar_url) {
-  // ✅ METTRE À JOUR LES DEUX TABLES
-  const avatarUrl = resultat.avatar_url; // "/api/avatars/avatar_1_123456.jpg"
-  
-  // Mettre à jour l'utilisateur
-  const utilisateurMisAJour = {
-    ...utilisateur,
-    avatar_url: avatarUrl
-  };
-  localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
-  setUtilisateur(utilisateurMisAJour);
-  
-  // Mettre à jour employeInfo
-  setEmployeInfo(prev => prev ? {
-    ...prev,
-    avatar_url: avatarUrl
-  } : null);
-  
-  setAlerteSucces('Photo de profil mise à jour avec succès !');
-} else {
+      // ✅ AJOUTER UN TIMESTAMP POUR FORCER LE RECHARGEMENT
+      const avatarUrlWithTimestamp = `${resultat.avatar_url}?t=${Date.now()}`;
+      
+      console.log('✅ URL avatar reçue:', avatarUrlWithTimestamp);
+      
+      // Mettre à jour l'utilisateur dans le state
+      const utilisateurMisAJour = {
+        ...utilisateur,
+        avatar_url: avatarUrlWithTimestamp
+      };
+      
+      localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
+      setUtilisateur(utilisateurMisAJour);
+      
+      // Mettre à jour employeInfo
+      if (employeInfo) {
+        setEmployeInfo({
+          ...employeInfo,
+          avatar_url: avatarUrlWithTimestamp
+        });
+      }
+      
+      // Effacer la prévisualisation
+      setPreviewAvatar(null);
+      
+      setAlerteSucces('Photo de profil mise à jour avec succès !');
+    } else {
       alert(resultat.erreur || 'Erreur lors du changement de photo');
       setPreviewAvatar(null);
     }
@@ -922,18 +936,16 @@ const supprimerPhoto = async () => {
   try {
     const resultat = await AuthService.mettreAJourProfil({
       id: utilisateur.id,
-      nom: utilisateur.nom,
-      prenom: utilisateur.prenom,
-      email: utilisateur.email,
+      nom: donneesProfil.nom,
+      prenom: donneesProfil.prenom,
+      email: donneesProfil.email,
       avatar_url: '' // Envoyer une chaîne vide pour supprimer
     });
     
     if (resultat.success) {
       setPreviewAvatar(null);
       
-      // ✅ MISE À JOUR IMMÉDIATE DE L'AFFICHAGE
-      
-      // Mettre à jour l'utilisateur dans le state
+      // ✅ METTRE À JOUR L'UTILISATEUR SANS AVATAR
       const utilisateurMisAJour = {
         ...utilisateur,
         avatar_url: undefined
@@ -942,7 +954,7 @@ const supprimerPhoto = async () => {
       localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
       setUtilisateur(utilisateurMisAJour);
       
-      // Mettre à jour employeInfo si disponible
+      // ✅ METTRE À JOUR EMPLOYEINFO
       if (employeInfo) {
         setEmployeInfo({
           ...employeInfo,
@@ -1199,45 +1211,30 @@ const supprimerPhoto = async () => {
               className="profil-utilisateur"
               onClick={() => setMenuProfilOuvert(!menuProfilOuvert)}
             >
-             <div className="avatar-menu">
-  {employeInfo?.avatar_url ? (
-    <img 
-      src={`${employeInfo.avatar_url}?t=${Date.now()}`}
-      className="avatar-menu"
-      alt="Avatar"
-      onError={(e) => {
-        e.currentTarget.style.display = 'none';
-        const parent = e.currentTarget.parentElement;
-        if (parent) {
-          const initiales = document.createElement('span');
-          initiales.className = 'initiale-avatar';
-          initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-          parent.appendChild(initiales);
-        }
-      }}
-    />
-  ) : utilisateur?.avatar_url ? (
-    <img 
-      src={`${utilisateur.avatar_url}?t=${Date.now()}`}
-      className="avatar-menu"
-      alt="Avatar"
-      onError={(e) => {
-        e.currentTarget.style.display = 'none';
-        const parent = e.currentTarget.parentElement;
-        if (parent) {
-          const initiales = document.createElement('span');
-          initiales.className = 'initiale-avatar';
-          initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-          parent.appendChild(initiales);
-        }
-      }}
-    />
-  ) : (
-    <span className="initiale-avatar">
-      {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
-    </span>
-  )}
-</div>
+              <div className="avatar-menu">
+                {(employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
+                  <img 
+                    src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
+                    className="avatar-menu"
+                    alt="Avatar"
+                    key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        const initiales = document.createElement('span');
+                        initiales.className = 'initiale-avatar';
+                        initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                        parent.appendChild(initiales);
+                      }
+                    }}
+                  />
+                ) : (
+                  <span className="initiale-avatar">
+                    {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
+                  </span>
+                )}
+              </div>
               <div className="info-utilisateur">
                 <div className="nom-utilisateur">
                   {utilisateur?.nom || ''} {utilisateur?.prenom || ''}
@@ -1257,45 +1254,30 @@ const supprimerPhoto = async () => {
             {menuProfilOuvert && (
               <div className="menu-deroulant-profil">
                 <div className="en-tete-menu-profil">
-                 <div className="avatar-menu">
-  {employeInfo?.avatar_url ? (
-    <img 
-      src={`${employeInfo.avatar_url}?t=${Date.now()}`}
-      className="avatar-menu"
-      alt="Avatar"
-      onError={(e) => {
-        e.currentTarget.style.display = 'none';
-        const parent = e.currentTarget.parentElement;
-        if (parent) {
-          const initiales = document.createElement('span');
-          initiales.className = 'initiale-avatar-menu';
-          initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-          parent.appendChild(initiales);
-        }
-      }}
-    />
-  ) : utilisateur?.avatar_url ? (
-    <img 
-      src={`${utilisateur.avatar_url}?t=${Date.now()}`}
-      className="avatar-menu"
-      alt="Avatar"
-      onError={(e) => {
-        e.currentTarget.style.display = 'none';
-        const parent = e.currentTarget.parentElement;
-        if (parent) {
-          const initiales = document.createElement('span');
-          initiales.className = 'initiale-avatar-menu';
-          initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-          parent.appendChild(initiales);
-        }
-      }}
-    />
-  ) : (
-    <span className="initiale-avatar-menu">
-      {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
-    </span>
-  )}
-</div>
+                <div className="avatar-menu">
+                  {(employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
+                    <img 
+                      src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
+                      className="avatar-menu"
+                      alt="Avatar"
+                      key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          const initiales = document.createElement('span');
+                          initiales.className = 'initiale-avatar-menu';
+                          initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                          parent.appendChild(initiales);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <span className="initiale-avatar-menu">
+                      {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
+                    </span>
+                  )}
+                </div>
                   <div className="info-menu-profil">
                     <div className="nom-menu-profil">
                       {utilisateur?.nom || ''} {utilisateur?.prenom || ''}
@@ -1426,42 +1408,39 @@ const supprimerPhoto = async () => {
                   <div className="section-avatar-profil">
                     <div className="avatar-grand-container">
                       <div className="avatar-grand">
-                        {previewAvatar ? (
-                          <img 
-                            src={previewAvatar} 
-                            alt="Avatar" 
-                            className="image-avatar"
-                          />
-                        ) : (employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
-                          <img 
-                            src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
-                            alt="Avatar" 
-                            className="image-avatar"
-                            key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                let initialesSpan = parent.querySelector('.initiale-avatar-grand');
-                                if (!initialesSpan) {
-                                  initialesSpan = document.createElement('span');
-                                  initialesSpan.className = 'initiale-avatar-grand';
-                                  initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-                                  parent.appendChild(initialesSpan);
-                                }
-                              }
-                            }}
-                          />
-                        ) : (
-                          <span className="initiale-avatar-grand">
-                            {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
-                          </span>
-                        )}
-                        {chargementPhoto && (
-                          <div className="overlay-chargement-avatar">
-                            <div className="spinner-avatar"></div>
-                          </div>
-                        )}
+                      {previewAvatar ? (
+                        <img 
+                          src={previewAvatar} 
+                          alt="Avatar" 
+                          className="image-avatar"
+                        />
+                      ) : (employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
+                        <img 
+                          src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
+                          alt="Avatar" 
+                          className="image-avatar"
+                          key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const parent = e.currentTarget.parentElement;
+                            if (parent) {
+                              const initiales = document.createElement('span');
+                              initiales.className = 'initiale-avatar-grand';
+                              initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                              parent.appendChild(initiales);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="initiale-avatar-grand">
+                          {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
+                        </span>
+                      )}
+                      {chargementPhoto && (
+                        <div className="overlay-chargement-avatar">
+                          <div className="spinner-avatar"></div>
+                        </div>
+                      )}
                       </div>
                       <div className="actions-avatar">
                         <input
