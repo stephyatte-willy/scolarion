@@ -3787,7 +3787,29 @@ export default function GestionPersonnel({ onRetourTableauDeBord }: Props) {
                     <div className="matricule-personnel">
                     </div>
                   </td>
-                
+                  
+                  <td>
+                    <div className="classes-personnel">
+                      {membre.type_personnel !== 'administratif' ? (
+                        <>
+                          <div className="style-4">
+                            {membre.nombre_classes || 0} classe{membre.nombre_classes !== 1 ? 's' : ''}
+                          </div>
+                          {membre.classes_principales && (
+                            <div className="liste-classes">
+                              {membre.classes_principales}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="info-administrative">
+                          <div className="departement-info-adm">
+                            {membre.departement || 'Service général'}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </td>
                   
                    <td style={{ padding: '2px 1px' }}>
               <div className="actions-ligne" style={{ 
