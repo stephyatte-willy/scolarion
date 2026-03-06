@@ -724,10 +724,12 @@ const reinitialiserFiltres = () => {
       };
 
       if (uploadPhoto.fichier) {
-        dataAEnvoyer.photo_url = await uploaderPhoto();
+       dataAEnvoyer.photo_url = await uploaderPhoto(); 
       } else if (uploadPhoto.apercu === null && eleveSelectionne?.photo_url) {
+        // Supprimer la photo
         dataAEnvoyer.photo_url = null;
       } else if (uploadPhoto.apercu === eleveSelectionne?.photo_url) {
+        // Garder la photo existante
         dataAEnvoyer.photo_url = eleveSelectionne.photo_url;
       }
 
@@ -1002,7 +1004,9 @@ const uploaderPhoto = async (): Promise<string> => {
     
     // Petite pause pour voir la progression
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
+     console.log('📸 URL photo reçue:', data.photo_url);
+
     // ✅ L'URL retournée est propre et courte
     return data.photo_url;
 
@@ -2712,6 +2716,7 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                               target.parentElement?.querySelector('.avatar-placeholder-liste')?.classList.remove('avatar-placeholder-liste-hidden');
+                              console.log('❌ Erreur chargement photo:', eleve.photo_url);
                             }}
                           />
                         ) : null}
@@ -2868,7 +2873,15 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
                 </div>
               ) : eleveSelectionne?.photo_url ? (
                 <div className="apercu-photo-modern existant">
-                  <img src={eleveSelectionne.photo_url} alt="Photo actuelle" />
+                  <img 
+                    src={eleveSelectionne.photo_url} 
+                    alt="Photo actuelle"
+                    onError={(e) => {
+                      console.log('❌ Erreur chargement photo actuelle:', eleveSelectionne.photo_url);
+                      e.currentTarget.style.display = 'none';
+                      // Afficher un placeholder
+                    }}
+                  />
                   <div className="overlay-upload-modern">
                     <span className="icone-upload-modern">📸</span>
                     <span className="texte-overlay">Changer la photo</span>
@@ -2880,7 +2893,7 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
                   <div className="icone-upload-grand-modern">📸</div>
                   <div className="texte-upload-modern">
                     <span className="titre-upload-modern">Ajouter une photo</span>
-                    <span className="sous-titre-upload-modern">JPEG, PNG - Max 5MB</span>
+                    <span className="sous-titre-upload-modern">JPEG, PNG - Max 2MB</span>
                   </div>
                 </div>
               )}
@@ -3307,18 +3320,22 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
       <div className="en-tete-detail-modern">
   <div className="profil-header">
     <div className="avatar-profil">
-      {eleveSelectionne.photo_url ? (
-        <img 
-          src={eleveSelectionne.photo_url} 
-          alt={`${eleveSelectionne.prenom} ${eleveSelectionne.nom}`}
-          className="photo-profil-detail"
-        />
-      ) : (
-        <div className="avatar-placeholder-detail">
-          {eleveSelectionne.prenom.charAt(0)}{eleveSelectionne.nom.charAt(0)}
-        </div>
-      )}
-    </div>
+  {eleveSelectionne?.photo_url ? (
+    <img 
+      src={eleveSelectionne.photo_url} 
+      alt={`${eleveSelectionne.prenom} ${eleveSelectionne.nom}`}
+      className="photo-profil-detail"
+      onError={(e) => {
+        console.log('❌ Erreur chargement photo détail:', eleveSelectionne.photo_url);
+        e.currentTarget.style.display = 'none';
+        e.currentTarget.parentElement?.querySelector('.avatar-placeholder-detail')?.classList.remove('avatar-placeholder-detail-hidden');
+      }}
+    />
+  ) : null}
+  <div className={`avatar-placeholder-detail ${eleveSelectionne?.photo_url ? 'avatar-placeholder-detail-hidden' : ''}`}>
+    {eleveSelectionne?.prenom?.charAt(0)}{eleveSelectionne?.nom?.charAt(0)}
+  </div>
+</div>
     
     <div className="info-principale-modern">
       <div className="info-header-row">
@@ -3758,15 +3775,21 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
                                 src={eleve.photo_url} 
                                 alt={`${eleve.prenom} ${eleve.nom}`}
                                 className="photo-eleve-liste"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  target.parentElement?.querySelector('.avatar-placeholder-liste')?.classList.remove('avatar-placeholder-liste-hidden');
+                                  console.log('❌ Erreur chargement photo:', eleve.photo_url);
+                                }}
                               />
-                            ) : (
-                              <div className="avatar-placeholder-liste">
-                                {eleve.prenom.charAt(0)}{eleve.nom.charAt(0)}
-                              </div>
-                            )}
+                            ) : null}
+                            <div className={`avatar-placeholder-liste ${eleve.photo_url ? 'avatar-placeholder-liste-hidden' : ''}`}>
+                              {eleve.genre === 'M' ? '👦' : '👧'}
+                            </div>
                           </div>
                           <div className="info-eleve-liste">
                             <strong>{eleve.nom} {eleve.prenom}</strong>
+                            {eleve.email && <div className="email">{eleve.email}</div>}
                           </div>
                         </div>
                       </td>
