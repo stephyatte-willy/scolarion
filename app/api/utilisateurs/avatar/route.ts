@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { runTransaction } from '@/app/lib/database';
+import { existsSync } from 'fs';
 
 export async function POST(request: Request) {
   try {
@@ -37,6 +38,13 @@ export async function POST(request: Request) {
       );
     }
     
+    // ✅ Utiliser /tmp au lieu de public/ (comme pour les élèves)
+    const uploadDir = '/tmp/uploads/avatars';
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true });
+      console.log('📁 Dossier créé:', uploadDir);
+    }
+    
     // Générer un nom de fichier unique
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -44,22 +52,13 @@ export async function POST(request: Request) {
     const timestamp = Date.now();
     const extension = path.extname(file.name);
     const filename = `avatar_${userId}_${timestamp}${extension}`;
-    
-    // S'assurer que le dossier uploads/avatars existe
-    const uploadDir = path.join(process.cwd(), 'public/uploads/avatars');
-    try {
-      await mkdir(uploadDir, { recursive: true });
-      console.log('📁 Dossier créé/vérifié:', uploadDir);
-    } catch (error) {
-      console.log('📁 Dossier existe déjà ou erreur:', error);
-    }
-    
     const filepath = path.join(uploadDir, filename);
+    
     await writeFile(filepath, buffer);
     console.log('💾 Fichier sauvegardé:', filepath);
     
-    // URL accessible publiquement
-    const avatarUrl = `/uploads/avatars/${filename}`;
+    // ✅ URL publique via une API (comme pour les élèves)
+    const avatarUrl = `/api/avatars/${filename}`;
     
     // Mettre à jour dans la base de données
     await runTransaction(async (connection) => {
