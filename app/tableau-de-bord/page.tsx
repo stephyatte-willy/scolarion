@@ -841,114 +841,121 @@ const appliquerTheme = (theme: string) => {
     }
   };
 
-  const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !utilisateur) return;
+ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file || !utilisateur) return;
+  
+  const typesValides = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  if (!typesValides.includes(file.type)) {
+    alert('Veuillez sélectionner une image valide (JPEG, PNG, GIF, WebP)');
+    return;
+  }
+  
+  if (file.size > 5 * 1024 * 1024) {
+    alert('L\'image ne doit pas dépasser 5MB');
+    return;
+  }
+  
+  setChargementPhoto(true);
+  try {
+    // Prévisualisation
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewAvatar(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
     
-    const typesValides = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!typesValides.includes(file.type)) {
-      alert('Veuillez sélectionner une image valide (JPEG, PNG, GIF, WebP)');
-      return;
-    }
+    // Upload
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('userId', utilisateur.id.toString());
     
-    if (file.size > 5 * 1024 * 1024) {
-      alert('L\'image ne doit pas dépasser 5MB');
-      return;
-    }
+    const resultat = await AuthService.uploadAvatar(formData);
     
-    setChargementPhoto(true);
-    try {
-      // Prévisualisation
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewAvatar(e.target?.result as string);
+    if (resultat.success && resultat.avatar_url) {
+      // ✅ MISE À JOUR IMMÉDIATE DE L'AFFICHAGE
+      
+      // Mettre à jour l'utilisateur dans le state
+      const utilisateurMisAJour = {
+        ...utilisateur,
+        avatar_url: resultat.avatar_url
       };
-      reader.readAsDataURL(file);
       
-      // Upload
-      const formData = new FormData();
-      formData.append('avatar', file);
-      formData.append('userId', utilisateur.id.toString());
+      localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
+      setUtilisateur(utilisateurMisAJour);
       
-      const resultat = await AuthService.uploadAvatar(formData);
-      
-      if (resultat.success && resultat.avatar_url) {
-        // Mettre à jour l'utilisateur dans le state
-        const utilisateurMisAJour = {
-          ...utilisateur,
+      // Mettre à jour employeInfo si disponible
+      if (employeInfo) {
+        setEmployeInfo({
+          ...employeInfo,
           avatar_url: resultat.avatar_url
-        };
-        
-        localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
-        setUtilisateur(utilisateurMisAJour);
-        
-        // Mettre à jour employeInfo si disponible
-        if (employeInfo) {
-          setEmployeInfo({
-            ...employeInfo,
-            avatar_url: resultat.avatar_url
-          });
-        }
-        
-        setAlerteSucces('Photo de profil mise à jour avec succès !');
-        setPreviewAvatar(null); // Effacer la prévisualisation
-      } else {
-        alert(resultat.erreur || 'Erreur lors du changement de photo');
-        setPreviewAvatar(null);
+        });
       }
-    } catch (error) {
-      console.error('Erreur lors du changement de photo:', error);
-      alert('Erreur lors du changement de photo');
+      
+      // Effacer la prévisualisation
       setPreviewAvatar(null);
-    } finally {
-      setChargementPhoto(false);
-      // Réinitialiser l'input file
-      if (inputFileRef.current) {
-        inputFileRef.current.value = '';
-      }
+      
+      setAlerteSucces('Photo de profil mise à jour avec succès !');
+    } else {
+      alert(resultat.erreur || 'Erreur lors du changement de photo');
+      setPreviewAvatar(null);
     }
-  };
+  } catch (error) {
+    console.error('Erreur lors du changement de photo:', error);
+    alert('Erreur lors du changement de photo');
+    setPreviewAvatar(null);
+  } finally {
+    setChargementPhoto(false);
+    // Réinitialiser l'input file
+    if (inputFileRef.current) {
+      inputFileRef.current.value = '';
+    }
+  }
+};
 
   const supprimerPhoto = async () => {
-    if (!utilisateur) return;
-    try {
-      const resultat = await AuthService.mettreAJourProfil({
-        id: utilisateur.id,
-        nom: utilisateur.nom,
-        prenom: utilisateur.prenom,
-        email: utilisateur.email,
-        avatar_url: '' // Envoyer une chaîne vide pour supprimer
-      });
+  if (!utilisateur) return;
+  
+  try {
+    const resultat = await AuthService.mettreAJourProfil({
+      id: utilisateur.id,
+      nom: utilisateur.nom,
+      prenom: utilisateur.prenom,
+      email: utilisateur.email,
+      avatar_url: '' // Envoyer une chaîne vide pour supprimer
+    });
+    
+    if (resultat.success) {
+      setPreviewAvatar(null);
       
-      if (resultat.success) {
-        setPreviewAvatar(null);
-        
-        // Mettre à jour l'utilisateur dans le state
-        const utilisateurMisAJour = {
-          ...utilisateur,
+      // ✅ MISE À JOUR IMMÉDIATE DE L'AFFICHAGE
+      
+      // Mettre à jour l'utilisateur dans le state
+      const utilisateurMisAJour = {
+        ...utilisateur,
+        avatar_url: undefined
+      };
+      
+      localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
+      setUtilisateur(utilisateurMisAJour);
+      
+      // Mettre à jour employeInfo si disponible
+      if (employeInfo) {
+        setEmployeInfo({
+          ...employeInfo,
           avatar_url: undefined
-        };
-        
-        localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
-        setUtilisateur(utilisateurMisAJour);
-        
-        // Mettre à jour employeInfo si disponible
-        if (employeInfo) {
-          setEmployeInfo({
-            ...employeInfo,
-            avatar_url: undefined
-          });
-        }
-        
-        setAlerteSucces('Photo de profil supprimée avec succès !');
-      } else {
-        alert(resultat.erreur || 'Erreur lors de la suppression de la photo');
+        });
       }
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la photo:', error);
-      alert('Erreur lors de la suppression de la photo');
+      
+      setAlerteSucces('Photo de profil supprimée avec succès !');
+    } else {
+      alert(resultat.erreur || 'Erreur lors de la suppression de la photo');
     }
-  };
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la photo:', error);
+    alert('Erreur lors de la suppression de la photo');
+  }
+};
 
   const ouvrirSelecteurFichier = () => {
     inputFileRef.current?.click();
