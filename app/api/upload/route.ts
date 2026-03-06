@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,39 +28,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Convertir l'image en Base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const base64 = buffer.toString('base64');
+    
+    // Créer l'URL data (format: data:image/jpeg;base64,XXXXX)
+    const mimeType = file.type;
+    const photoBase64 = `data:${mimeType};base64,${base64}`;
 
-    // Créer le dossier uploads s'il n'existe pas
-    const uploadsDir = join(process.cwd(), 'public/uploads/eleves');
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-    }
-
-    // Générer un nom de fichier unique
-    const timestamp = Date.now();
-    const extension = file.name.split('.').pop();
-    const filename = `eleve-${timestamp}.${extension}`;
-    const filepath = join(uploadsDir, filename);
-
-    // Sauvegarder le fichier
-    await writeFile(filepath, buffer);
-
-    // URL accessible publiquement
-    const photoUrl = `/uploads/eleves/${filename}`;
-
-    console.log('✅ Photo uploadée:', photoUrl);
+    console.log('✅ Photo convertie en Base64, taille:', Math.round(base64.length / 1024), 'KB');
 
     return NextResponse.json({
       success: true,
-      photo_url: photoUrl,
-      message: 'Photo uploadée avec succès'
+      photo_url: photoBase64, // C'est directement l'image en texte !
+      message: 'Photo convertie avec succès'
     });
 
   } catch (error) {
-    console.error('❌ Erreur upload photo:', error);
+    console.error('❌ Erreur conversion photo:', error);
     return NextResponse.json(
-      { success: false, erreur: 'Erreur lors de l\'upload de la photo' },
+      { success: false, erreur: 'Erreur lors du traitement de la photo' },
       { status: 500 }
     );
   }
