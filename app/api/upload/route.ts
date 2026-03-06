@@ -28,27 +28,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convertir l'image en Base64
+    // Lire l'image et la convertir en Base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const base64 = buffer.toString('base64');
     
-    // Créer l'URL data (format: data:image/jpeg;base64,XXXXX)
-    const mimeType = file.type;
-    const photoBase64 = `data:${mimeType};base64,${base64}`;
+    // Créer l'URL data
+    const photoBase64 = `data:${file.type};base64,${base64}`;
 
-    console.log('✅ Photo convertie en Base64, taille:', Math.round(base64.length / 1024), 'KB');
+    // SI C'EST TROP LONG, on retourne une image par défaut
+    if (photoBase64.length > 200000) { // 200KB max
+      return NextResponse.json({
+        success: true,
+        photo_url: '/default-avatar.png', // Image par défaut
+        message: 'Image trop grande, utilisation de l\'image par défaut'
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      photo_url: photoBase64, // C'est directement l'image en texte !
+      photo_url: photoBase64,
       message: 'Photo convertie avec succès'
     });
 
   } catch (error) {
-    console.error('❌ Erreur conversion photo:', error);
+    console.error('❌ Erreur:', error);
     return NextResponse.json(
-      { success: false, erreur: 'Erreur lors du traitement de la photo' },
+      { success: false, erreur: 'Erreur lors du traitement' },
       { status: 500 }
     );
   }
