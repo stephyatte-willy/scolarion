@@ -977,7 +977,7 @@ const uploaderPhoto = async (): Promise<string> => {
     const formData = new FormData();
     formData.append('photo', uploadPhoto.fichier);
 
-    // Simuler la progression (optionnel - pour l'effet visuel)
+    // Simuler la progression
     const interval = setInterval(() => {
       setUploadPhoto(prev => ({
         ...prev,
@@ -985,32 +985,26 @@ const uploaderPhoto = async (): Promise<string> => {
       }));
     }, 200);
 
-    // ✅ Appel à votre nouvelle API Cloudinary
-    const response = await fetch('/api/upload-photo', {
+    const response = await fetch('/api/eleves/photo', {
       method: 'POST',
       body: formData,
     });
 
     clearInterval(interval);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.erreur || 'Erreur lors de l\'upload');
-    }
+    const data = await response.json();
 
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.erreur || 'Erreur upload');
+    if (!response.ok || !data.success) {
+      throw new Error(data.erreur || 'Erreur lors de l\'upload');
     }
 
     setUploadPhoto(prev => ({ ...prev, progression: 100 }));
     
-    // Petite pause pour voir la progression à 100%
+    // Petite pause pour voir la progression
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // ✅ Cloudinary retourne une URL propre !
-    return result.photo_url;
+    // ✅ L'URL retournée est propre et courte
+    return data.photo_url;
 
   } catch (error) {
     console.error('❌ Erreur upload:', error);
@@ -1018,6 +1012,24 @@ const uploaderPhoto = async (): Promise<string> => {
     throw error;
   } finally {
     setUploadPhoto(prev => ({ ...prev, enCours: false }));
+  }
+};
+
+const supprimerPhotoServeur = async (photoUrl: string) => {
+  try {
+    const fileName = photoUrl.split('/').pop();
+    if (!fileName) return;
+    
+    const response = await fetch(`/api/eleves/photo?file=${fileName}`, {
+      method: 'DELETE'
+    });
+    
+    const data = await response.json();
+    if (!data.success) {
+      console.warn('⚠️ Erreur suppression photo:', data.erreur);
+    }
+  } catch (error) {
+    console.error('❌ Erreur suppression photo serveur:', error);
   }
 };
 
