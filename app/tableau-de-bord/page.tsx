@@ -857,31 +857,34 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
   }
   
   setChargementPhoto(true);
+  
   try {
-    // Prévisualisation immédiate
+    // Créer une prévisualisation temporaire
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreviewAvatar(e.target?.result as string);
     };
     reader.readAsDataURL(file);
     
-    // Upload
+    // Upload du fichier
     const formData = new FormData();
     formData.append('avatar', file);
     formData.append('userId', utilisateur.id.toString());
     
-    const resultat = await AuthService.uploadAvatar(formData);
+    const response = await fetch('/api/utilisateurs/avatar', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const resultat = await response.json();
     
     if (resultat.success && resultat.avatar_url) {
       // ✅ MISE À JOUR IMMÉDIATE DE L'AFFICHAGE
       
-      // Ajouter un timestamp pour forcer le rechargement
-      const avatarUrlWithTimestamp = `${resultat.avatar_url}?t=${Date.now()}`;
-      
       // Mettre à jour l'utilisateur dans le state
       const utilisateurMisAJour = {
         ...utilisateur,
-        avatar_url: avatarUrlWithTimestamp
+        avatar_url: resultat.avatar_url
       };
       
       localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
@@ -891,7 +894,7 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
       if (employeInfo) {
         setEmployeInfo({
           ...employeInfo,
-          avatar_url: avatarUrlWithTimestamp
+          avatar_url: resultat.avatar_url
         });
       }
       
@@ -899,17 +902,6 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
       setPreviewAvatar(null);
       
       setAlerteSucces('Photo de profil mise à jour avec succès !');
-      
-      // ✅ FORCER le rechargement de tous les avatars dans le DOM (VERSION CORRIGÉE)
-      setTimeout(() => {
-        const avatars = document.querySelectorAll('img[src*="/api/avatars/"]');
-        avatars.forEach((img) => {
-          const htmlImg = img as HTMLImageElement;
-          const src = htmlImg.src.split('?')[0];
-          htmlImg.src = `${src}?t=${Date.now()}`;
-        });
-      }, 100);
-      
     } else {
       alert(resultat.erreur || 'Erreur lors du changement de photo');
       setPreviewAvatar(null);
@@ -962,7 +954,6 @@ const supprimerPhoto = async () => {
       }
       
       setAlerteSucces('Photo de profil supprimée avec succès !');
-      
     } else {
       alert(resultat.erreur || 'Erreur lors de la suppression de la photo');
     }
