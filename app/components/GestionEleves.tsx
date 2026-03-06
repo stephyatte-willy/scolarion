@@ -117,20 +117,21 @@ export default function GestionEleves({ onRetourTableauDeBord }: Props) {
 
   // États pour le formulaire
   const [formData, setFormData] = useState({
-    matricule: '',
-    nom: '',
-    prenom: '',
-    date_naissance: '',
-    lieu_naissance: '',
-    genre: 'M' as 'M' | 'F',
-    adresse: '',
-    email: '',
-    nom_pere: '',
-    nom_mere: '',
-    telephone_parent: '',
-    classe_id: '',
-    statut: 'actif' as 'actif' | 'inactif' | 'diplome' | 'abandon'
-  });
+  matricule: '',
+  nom: '',
+  prenom: '',
+  date_naissance: '',
+  lieu_naissance: '',
+  genre: 'M' as 'M' | 'F',
+  adresse: '',
+  email: '',
+  nom_pere: '',
+  nom_mere: '',
+  telephone_parent: '',
+  classe_id: '',
+  statut: 'actif' as 'actif' | 'inactif' | 'diplome' | 'abandon',
+  photo_url: '' // 👈 AJOUTEZ CETTE LIGNE
+});
 
   // États pour la gestion des erreurs
   const [erreurFormulaire, setErreurFormulaire] = useState('');
