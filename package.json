@@ -15,6 +15,7 @@
     "@vercel/blob": "^2.3.1",
     "bcryptjs": "^3.0.3",
     "chart.js": "^4.5.1",
+    "cloudinary": "^2.9.0",
     "date-fns": "^4.1.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",

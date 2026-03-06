@@ -966,45 +966,60 @@ const reinitialiserFiltres = () => {
     }
   };
 
-  const uploaderPhoto = async (): Promise<string> => {
-    if (!uploadPhoto.fichier) {
-      throw new Error('Aucun fichier à uploader');
+const uploaderPhoto = async (): Promise<string> => {
+  if (!uploadPhoto.fichier) {
+    throw new Error('Aucun fichier à uploader');
+  }
+
+  setUploadPhoto(prev => ({ ...prev, enCours: true, progression: 0 }));
+
+  try {
+    const formData = new FormData();
+    formData.append('photo', uploadPhoto.fichier);
+
+    // Simuler la progression (optionnel - pour l'effet visuel)
+    const interval = setInterval(() => {
+      setUploadPhoto(prev => ({
+        ...prev,
+        progression: Math.min(prev.progression + 10, 90)
+      }));
+    }, 200);
+
+    // ✅ Appel à votre nouvelle API Cloudinary
+    const response = await fetch('/api/upload-photo', {
+      method: 'POST',
+      body: formData,
+    });
+
+    clearInterval(interval);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.erreur || 'Erreur lors de l\'upload');
     }
 
-    setUploadPhoto(prev => ({ ...prev, enCours: true, progression: 0 }));
+    const result = await response.json();
 
-    try {
-      const formData = new FormData();
-      formData.append('photo', uploadPhoto.fichier);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'upload');
-      }
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.erreur || 'Erreur upload');
-      }
-
-      setUploadPhoto(prev => ({ ...prev, progression: 100 }));
-      
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      return result.photo_url;
-
-    } catch (error) {
-      console.error('❌ Erreur upload:', error);
-      throw error;
-    } finally {
-      setUploadPhoto(prev => ({ ...prev, enCours: false }));
+    if (!result.success) {
+      throw new Error(result.erreur || 'Erreur upload');
     }
-  };
+
+    setUploadPhoto(prev => ({ ...prev, progression: 100 }));
+    
+    // Petite pause pour voir la progression à 100%
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // ✅ Cloudinary retourne une URL propre !
+    return result.photo_url;
+
+  } catch (error) {
+    console.error('❌ Erreur upload:', error);
+    showError(`Erreur upload: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+    throw error;
+  } finally {
+    setUploadPhoto(prev => ({ ...prev, enCours: false }));
+  }
+};
 
   const reinitialiserUpload = () => {
     if (uploadPhoto.apercu) {
@@ -2892,19 +2907,6 @@ const reinitialiserFiltres = () => {
               </button>
             )}
           </div>
-
-          // Dans votre formulaire d'élève, ajoutez ce champ
-<div className="groupe-champ">
-  <label>URL de la photo (optionnel)</label>
-  <input
-    type="url"
-    name="photo_url"
-    value={formData.photo_url || ''}
-    onChange={gererChangementFormulaire}
-    placeholder="https://exemple.com/photo.jpg"
-  />
-  <small>Entrez l'URL d'une image hébergée ailleurs</small>
-</div>
         </div>
 
         {/* Grille de formulaire moderne */}
