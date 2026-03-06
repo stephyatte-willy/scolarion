@@ -859,7 +859,7 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
   setChargementPhoto(true);
   
   try {
-    // Créer une prévisualisation temporaire
+    // Prévisualisation immédiate
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreviewAvatar(e.target?.result as string);
@@ -879,27 +879,38 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
     const resultat = await response.json();
     
     if (resultat.success && resultat.avatar_url) {
-      // ✅ MISE À JOUR IMMÉDIATE DE L'AFFICHAGE
+      // ✅ FORCER L'AFFICHAGE AVEC UN TIMESTAMP
+      const timestamp = Date.now();
+      const avatarUrlWithTimestamp = `${resultat.avatar_url}?t=${timestamp}`;
       
       // Mettre à jour l'utilisateur dans le state
       const utilisateurMisAJour = {
         ...utilisateur,
-        avatar_url: resultat.avatar_url
+        avatar_url: avatarUrlWithTimestamp
       };
       
       localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
       setUtilisateur(utilisateurMisAJour);
       
-      // Mettre à jour employeInfo si disponible
+      // Mettre à jour employeInfo
       if (employeInfo) {
         setEmployeInfo({
           ...employeInfo,
-          avatar_url: resultat.avatar_url
+          avatar_url: avatarUrlWithTimestamp
         });
       }
       
       // Effacer la prévisualisation
       setPreviewAvatar(null);
+      
+      // ✅ FORCER LE RECHARGEMENT DE TOUS LES AVATARS
+      setTimeout(() => {
+        const avatars = document.querySelectorAll('img[src*="/api/avatars/"]');
+        avatars.forEach((img) => {
+          const htmlImg = img as HTMLImageElement;
+          htmlImg.src = `${htmlImg.src.split('?')[0]}?t=${Date.now()}`;
+        });
+      }, 100);
       
       setAlerteSucces('Photo de profil mise à jour avec succès !');
     } else {
@@ -912,7 +923,6 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
     setPreviewAvatar(null);
   } finally {
     setChargementPhoto(false);
-    // Réinitialiser l'input file
     if (inputFileRef.current) {
       inputFileRef.current.value = '';
     }
@@ -1209,16 +1219,20 @@ const supprimerPhoto = async () => {
                     className="avatar-menu"
                     alt="Avatar"
                     key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
+                    onLoad={(e) => console.log('✅ Avatar chargé:', e.currentTarget.src)}
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
+                      console.log('❌ Erreur chargement avatar:', e.currentTarget.src);
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
                       if (parent) {
-                        // Créer et afficher les initiales
-                        const initialesSpan = document.createElement('span');
-                        initialesSpan.className = 'initiale-avatar';
-                        initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-                        parent.appendChild(initialesSpan);
+                        // Vérifier s'il y a déjà des initiales
+                        let initialesSpan = parent.querySelector('.initiale-avatar');
+                        if (!initialesSpan) {
+                          initialesSpan = document.createElement('span');
+                          initialesSpan.className = 'initiale-avatar';
+                          initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                          parent.appendChild(initialesSpan);
+                        }
                       }
                     }}
                   />
@@ -1247,7 +1261,7 @@ const supprimerPhoto = async () => {
             {menuProfilOuvert && (
               <div className="menu-deroulant-profil">
                 <div className="en-tete-menu-profil">
-                  <div className="avatar-menu">
+                 <div className="avatar-menu">
                     {(employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
                       <img 
                         src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
@@ -1255,14 +1269,16 @@ const supprimerPhoto = async () => {
                         alt="Avatar"
                         key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
                         onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const parent = target.parentElement;
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentElement;
                           if (parent) {
-                            const initialesSpan = document.createElement('span');
-                            initialesSpan.className = 'initiale-avatar-menu';
-                            initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-                            parent.appendChild(initialesSpan);
+                            let initialesSpan = parent.querySelector('.initiale-avatar-menu');
+                            if (!initialesSpan) {
+                              initialesSpan = document.createElement('span');
+                              initialesSpan.className = 'initiale-avatar-menu';
+                              initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                              parent.appendChild(initialesSpan);
+                            }
                           }
                         }}
                       />
@@ -1415,15 +1431,16 @@ const supprimerPhoto = async () => {
                             className="image-avatar"
                             key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
                             onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              // Afficher les initiales dans le modal
-                              const parent = target.parentElement;
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
                               if (parent) {
-                                const initialesSpan = document.createElement('span');
-                                initialesSpan.className = 'initiale-avatar-grand';
-                                initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-                                parent.appendChild(initialesSpan);
+                                let initialesSpan = parent.querySelector('.initiale-avatar-grand');
+                                if (!initialesSpan) {
+                                  initialesSpan = document.createElement('span');
+                                  initialesSpan.className = 'initiale-avatar-grand';
+                                  initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                                  parent.appendChild(initialesSpan);
+                                }
                               }
                             }}
                           />
