@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { runTransaction } from '@/app/lib/database';
+import { query } from '@/app/lib/database';
 import { existsSync } from 'fs';
 
 export async function POST(request: Request) {
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       );
     }
     
-    // ✅ Utiliser /tmp au lieu de public/ (comme pour les élèves)
+    // Créer le dossier s'il n'existe pas
     const uploadDir = '/tmp/uploads/avatars';
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
@@ -57,25 +57,22 @@ export async function POST(request: Request) {
     await writeFile(filepath, buffer);
     console.log('💾 Fichier sauvegardé:', filepath);
     
-    // ✅ URL publique via une API (comme pour les élèves)
-    const avatarUrl = `/api/avatars/${filename}`;
+    // URL publique
+    const avatarUrl = `/api/utilisateurs/avatar/${filename}`;
     
     // Mettre à jour dans la base de données
-    await runTransaction(async (connection) => {
-      // Mettre à jour dans users
-      await connection.execute(
-        'UPDATE users SET avatar_url = ? WHERE id = ?',
-        [avatarUrl, userId]
-      );
-      console.log('✅ Avatar mis à jour dans users');
-      
-      // Mettre à jour dans enseignants (si l'utilisateur est un enseignant)
-      await connection.execute(
-        'UPDATE enseignants SET avatar_url = ? WHERE user_id = ?',
-        [avatarUrl, userId]
-      );
-      console.log('✅ Avatar mis à jour dans enseignants');
-    });
+    await query(
+      'UPDATE users SET avatar_url = ? WHERE id = ?',
+      [avatarUrl, userId]
+    );
+    console.log('✅ Avatar mis à jour dans users');
+    
+    // Mettre à jour dans enseignants
+    await query(
+      'UPDATE enseignants SET avatar_url = ? WHERE user_id = ?',
+      [avatarUrl, userId]
+    );
+    console.log('✅ Avatar mis à jour dans enseignants');
     
     console.log('✅ Upload réussi, URL:', avatarUrl);
     

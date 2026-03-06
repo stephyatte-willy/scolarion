@@ -868,13 +868,6 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
   setChargementPhoto(true);
   
   try {
-    // Prévisualisation immédiate (optionnelle)
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewAvatar(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-    
     // Upload du fichier
     const formData = new FormData();
     formData.append('avatar', file);
@@ -888,12 +881,13 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
     const resultat = await response.json();
     
     if (resultat.success && resultat.avatar_url) {
-      // ✅ AJOUTER UN TIMESTAMP POUR FORCER LE RECHARGEMENT
-      const avatarUrlWithTimestamp = `${resultat.avatar_url}?t=${Date.now()}`;
+      // Ajouter timestamp pour forcer le rechargement
+      const timestamp = Date.now();
+      const avatarUrlWithTimestamp = `${resultat.avatar_url}?t=${timestamp}`;
       
-      console.log('✅ URL avatar reçue:', avatarUrlWithTimestamp);
+      console.log('✅ Avatar uploadé:', avatarUrlWithTimestamp);
       
-      // Mettre à jour l'utilisateur dans le state
+      // Mettre à jour l'utilisateur
       const utilisateurMisAJour = {
         ...utilisateur,
         avatar_url: avatarUrlWithTimestamp
@@ -910,18 +904,13 @@ const gererChangementPhoto = async (event: React.ChangeEvent<HTMLInputElement>) 
         });
       }
       
-      // Effacer la prévisualisation
-      setPreviewAvatar(null);
-      
       setAlerteSucces('Photo de profil mise à jour avec succès !');
     } else {
       alert(resultat.erreur || 'Erreur lors du changement de photo');
-      setPreviewAvatar(null);
     }
   } catch (error) {
-    console.error('Erreur lors du changement de photo:', error);
+    console.error('Erreur:', error);
     alert('Erreur lors du changement de photo');
-    setPreviewAvatar(null);
   } finally {
     setChargementPhoto(false);
     if (inputFileRef.current) {
@@ -934,18 +923,21 @@ const supprimerPhoto = async () => {
   if (!utilisateur) return;
   
   try {
-    const resultat = await AuthService.mettreAJourProfil({
-      id: utilisateur.id,
-      nom: donneesProfil.nom,
-      prenom: donneesProfil.prenom,
-      email: donneesProfil.email,
-      avatar_url: '' // Envoyer une chaîne vide pour supprimer
+    const response = await fetch('/api/utilisateurs/profil', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: utilisateur.id,
+        nom: utilisateur.nom,
+        prenom: utilisateur.prenom,
+        email: utilisateur.email,
+        avatar_url: ''
+      })
     });
     
+    const resultat = await response.json();
+    
     if (resultat.success) {
-      setPreviewAvatar(null);
-      
-      // ✅ METTRE À JOUR L'UTILISATEUR SANS AVATAR
       const utilisateurMisAJour = {
         ...utilisateur,
         avatar_url: undefined
@@ -954,7 +946,6 @@ const supprimerPhoto = async () => {
       localStorage.setItem('utilisateur', JSON.stringify(utilisateurMisAJour));
       setUtilisateur(utilisateurMisAJour);
       
-      // ✅ METTRE À JOUR EMPLOYEINFO
       if (employeInfo) {
         setEmployeInfo({
           ...employeInfo,
@@ -962,13 +953,10 @@ const supprimerPhoto = async () => {
         });
       }
       
-      setAlerteSucces('Photo de profil supprimée avec succès !');
-    } else {
-      alert(resultat.erreur || 'Erreur lors de la suppression de la photo');
+      setAlerteSucces('Photo supprimée !');
     }
   } catch (error) {
-    console.error('Erreur lors de la suppression de la photo:', error);
-    alert('Erreur lors de la suppression de la photo');
+    console.error('Erreur:', error);
   }
 };
 
@@ -1211,30 +1199,29 @@ const supprimerPhoto = async () => {
               className="profil-utilisateur"
               onClick={() => setMenuProfilOuvert(!menuProfilOuvert)}
             >
-              <div className="avatar-menu">
-                {(employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
-                  <img 
-                    src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
-                    className="avatar-menu"
-                    alt="Avatar"
-                    key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      const parent = e.currentTarget.parentElement;
-                      if (parent) {
-                        const initiales = document.createElement('span');
-                        initiales.className = 'initiale-avatar';
-                        initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-                        parent.appendChild(initiales);
-                      }
-                    }}
-                  />
-                ) : (
-                  <span className="initiale-avatar">
-                    {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
-                  </span>
-                )}
-              </div>
+          <div className="avatar-menu">
+              {utilisateur?.avatar_url ? (
+                <img 
+                  src={utilisateur.avatar_url}
+                  className="avatar-menu"
+                  alt="Avatar"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      const span = document.createElement('span');
+                      span.className = 'initiale-avatar';
+                      span.textContent = `${utilisateur.prenom?.[0] || ''}${utilisateur.nom?.[0] || ''}`;
+                      parent.appendChild(span);
+                    }
+                  }}
+                />
+              ) : (
+                <span className="initiale-avatar">
+                  {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
+                </span>
+              )}
+            </div>
               <div className="info-utilisateur">
                 <div className="nom-utilisateur">
                   {utilisateur?.nom || ''} {utilisateur?.prenom || ''}
@@ -1255,29 +1242,28 @@ const supprimerPhoto = async () => {
               <div className="menu-deroulant-profil">
                 <div className="en-tete-menu-profil">
                 <div className="avatar-menu">
-                  {(employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
-                    <img 
-                      src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
-                      className="avatar-menu"
-                      alt="Avatar"
-                      key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) {
-                          const initiales = document.createElement('span');
-                          initiales.className = 'initiale-avatar-menu';
-                          initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-                          parent.appendChild(initiales);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <span className="initiale-avatar-menu">
-                      {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
-                    </span>
-                  )}
-                </div>
+                    {utilisateur?.avatar_url ? (
+                      <img 
+                        src={utilisateur.avatar_url}
+                        className="avatar-menu"
+                        alt="Avatar"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            const span = document.createElement('span');
+                            span.className = 'initiale-avatar-menu';
+                            span.textContent = `${utilisateur.prenom?.[0] || ''}${utilisateur.nom?.[0] || ''}`;
+                            parent.appendChild(span);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <span className="initiale-avatar-menu">
+                        {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
+                      </span>
+                    )}
+                  </div>
                   <div className="info-menu-profil">
                     <div className="nom-menu-profil">
                       {utilisateur?.nom || ''} {utilisateur?.prenom || ''}
@@ -1408,39 +1394,32 @@ const supprimerPhoto = async () => {
                   <div className="section-avatar-profil">
                     <div className="avatar-grand-container">
                       <div className="avatar-grand">
-                      {previewAvatar ? (
-                        <img 
-                          src={previewAvatar} 
-                          alt="Avatar" 
-                          className="image-avatar"
-                        />
-                      ) : (employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
-                        <img 
-                          src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
-                          alt="Avatar" 
-                          className="image-avatar"
-                          key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            const parent = e.currentTarget.parentElement;
-                            if (parent) {
-                              const initiales = document.createElement('span');
-                              initiales.className = 'initiale-avatar-grand';
-                              initiales.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
-                              parent.appendChild(initiales);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <span className="initiale-avatar-grand">
-                          {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
-                        </span>
-                      )}
-                      {chargementPhoto && (
-                        <div className="overlay-chargement-avatar">
-                          <div className="spinner-avatar"></div>
-                        </div>
-                      )}
+                        {utilisateur?.avatar_url ? (
+                          <img 
+                            src={utilisateur.avatar_url}
+                            alt="Avatar" 
+                            className="image-avatar"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                const span = document.createElement('span');
+                                span.className = 'initiale-avatar-grand';
+                                span.textContent = `${utilisateur.prenom?.[0] || ''}${utilisateur.nom?.[0] || ''}`;
+                                parent.appendChild(span);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span className="initiale-avatar-grand">
+                            {utilisateur?.prenom?.[0] || ''}{utilisateur?.nom?.[0] || ''}
+                          </span>
+                        )}
+                        {chargementPhoto && (
+                          <div className="overlay-chargement-avatar">
+                            <div className="spinner-avatar"></div>
+                          </div>
+                        )}
                       </div>
                       <div className="actions-avatar">
                         <input

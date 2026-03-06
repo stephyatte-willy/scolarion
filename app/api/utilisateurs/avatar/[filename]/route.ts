@@ -10,9 +10,10 @@ export async function GET(
   try {
     const { filename } = await params;
     
-    // Sécurité : éviter les injections de chemin
     const cleanFilename = path.basename(filename);
     const filePath = path.join('/tmp/uploads/avatars', cleanFilename);
+    
+    console.log('🔍 Recherche avatar:', filePath);
     
     if (!existsSync(filePath)) {
       console.log('❌ Avatar non trouvé:', filePath);
@@ -24,7 +25,6 @@ export async function GET(
 
     const file = await readFile(filePath);
     
-    // Déterminer le type MIME
     const extension = cleanFilename.split('.').pop()?.toLowerCase();
     const mimeTypes: Record<string, string> = {
       'jpg': 'image/jpeg',
