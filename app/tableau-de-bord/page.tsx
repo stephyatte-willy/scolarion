@@ -1203,15 +1203,23 @@ const supprimerPhoto = async () => {
               onClick={() => setMenuProfilOuvert(!menuProfilOuvert)}
             >
               <div className="avatar-menu">
-                {employeInfo?.avatar_url || utilisateur?.avatar_url ? (
+                {(employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
                   <img 
-                    key={utilisateur?.avatar_url || 'default'} // 👈 AJOUTEZ key
-                    src={utilisateur?.avatar_url || ''} 
+                    src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
                     className="avatar-menu"
                     alt="Avatar"
+                    key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      // Afficher les initiales
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        // Créer et afficher les initiales
+                        const initialesSpan = document.createElement('span');
+                        initialesSpan.className = 'initiale-avatar';
+                        initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                        parent.appendChild(initialesSpan);
+                      }
                     }}
                   />
                 ) : (
@@ -1240,12 +1248,23 @@ const supprimerPhoto = async () => {
               <div className="menu-deroulant-profil">
                 <div className="en-tete-menu-profil">
                   <div className="avatar-menu">
-                    {employeInfo?.avatar_url || utilisateur?.avatar_url ? (
+                    {(employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
                       <img 
-                        key={utilisateur?.avatar_url || 'default'} // 👈 AJOUTEZ key
-                        src={utilisateur?.avatar_url || ''} 
-                        alt="Avatar" 
-                        className="image-avatar"
+                        src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
+                        className="avatar-menu"
+                        alt="Avatar"
+                        key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const initialesSpan = document.createElement('span');
+                            initialesSpan.className = 'initiale-avatar-menu';
+                            initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                            parent.appendChild(initialesSpan);
+                          }
+                        }}
                       />
                     ) : (
                       <span className="initiale-avatar-menu">
@@ -1389,11 +1408,24 @@ const supprimerPhoto = async () => {
                             alt="Avatar" 
                             className="image-avatar"
                           />
-                        ) : utilisateur?.avatar_url ? (
+                        ) : (employeInfo?.avatar_url || utilisateur?.avatar_url) ? (
                           <img 
-                            src={utilisateur.avatar_url} 
+                            src={employeInfo?.avatar_url || utilisateur?.avatar_url || ''} 
                             alt="Avatar" 
                             className="image-avatar"
+                            key={employeInfo?.avatar_url || utilisateur?.avatar_url || 'default'}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              // Afficher les initiales dans le modal
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const initialesSpan = document.createElement('span');
+                                initialesSpan.className = 'initiale-avatar-grand';
+                                initialesSpan.textContent = `${utilisateur?.prenom?.[0] || ''}${utilisateur?.nom?.[0] || ''}`;
+                                parent.appendChild(initialesSpan);
+                              }
+                            }}
                           />
                         ) : (
                           <span className="initiale-avatar-grand">
