@@ -2996,10 +2996,10 @@ export default function GestionPersonnel({ onRetourTableauDeBord }: Props) {
   return (
     <div className={`conteneur-gestion-personnel ${parametresApp?.theme_defaut || 'clair'}`}>
       {/* EN-TÊTE FIXE */}
-      <div className="en-tete-fixe-perso">
-        <div className="conteneur-en-tete-fixe">
-          <div className="titre-fixe-perso">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+      <div className="en-tete-fixe-eleves">
+        <div className="conteneur-en-tete-fixe-eleves">
+          <div className="titre-fixe-eleves">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '22px' }}>👨‍💼</span>
               <h1>
                 Gestion du Personnel

@@ -1730,10 +1730,9 @@ const getTotalElevesSelectionnes = (): number => {
   return (
     <div className={`conteneur-gestion-classes ${getThemeClass()}`}>
       {/* En-tête FIXE */}
-      <div className="en-tete-fixe-classe">
-        <div className="conteneur-en-tete-fixe-classe">
-          {/* Titre à gauche */}
-          <div className="titre-fixe-classe">
+      <div className="en-tete-fixe-eleves">
+        <div className="conteneur-en-tete-fixe-eleves">
+          <div className="titre-fixe-eleves">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
              <span style={{ fontSize: '22px' }}>🏫</span>
               <h1>

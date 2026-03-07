@@ -756,10 +756,10 @@ console.log('🔍 Rendu - Nombre de matières:', matieres.length);
   return (
     <div className={`conteneur-gestion-cours ${parametresApp?.theme_defaut || 'clair'}`}>
       {/* En-tête */}
-      <div className="en-tete-fixe-perso">
-        <div className="conteneur-en-tete-fixe">
-          <div className="titre-fixe-perso">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+      <div className="en-tete-fixe-eleves">
+        <div className="conteneur-en-tete-fixe-eleves">
+          <div className="titre-fixe-eleves">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '22px' }}>📚</span>
               <h1>
                 Gestion des Cours
