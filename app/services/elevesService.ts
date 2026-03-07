@@ -161,76 +161,112 @@ export class ElevesService {
   }
 
   static async creerEleve(eleveData: any): Promise<{success: boolean, eleve?: Eleve, erreur?: string}> {
-    try {
-      console.log('📝 Création élève - Données reçues:', eleveData);
-      
-      // Utiliser le matricule fourni par l'utilisateur
-      const matricule = eleveData.matricule || `ELV${new Date().getFullYear()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-      
-      // Vérifier si le matricule existe déjà
-      const sqlVerif = 'SELECT id FROM eleves WHERE matricule = ?';
-      const existing = await query(sqlVerif, [matricule]) as any[];
-      
-      if (existing.length > 0) {
-        return { 
-          success: false, 
-          erreur: `Le matricule "${matricule}" est déjà utilisé par un autre élève` 
-        };
-      }
-      
-      // ✅ CORRECTION: Ajout de email_parents dans la liste des champs
-      const sql = `
-        INSERT INTO eleves (
-          matricule, nom, prenom, date_naissance, lieu_naissance, genre, 
-          adresse, email, email_parents, nom_pere, nom_mere, telephone_parent, 
-          classe_id, photo_url, statut, date_inscription, dossiers_physiques
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
-      `;
-      
-      // ✅ Utiliser email de l'élève ou email des parents par défaut
-      const emailParents = eleveData.email_parents || eleveData.email || null;
-      
-      const params = [
-        matricule,
-        eleveData.nom,
-        eleveData.prenom,
-        eleveData.date_naissance,
-        eleveData.lieu_naissance || null,
-        eleveData.genre,
-        eleveData.adresse || null,
-        eleveData.email || null,
-        emailParents, // ✅ AJOUTÉ: email_parents
-        eleveData.nom_pere || null,
-        eleveData.nom_mere || null,
-        eleveData.telephone_parent || null,
-        eleveData.classe_id || null,
-        eleveData.photo_url || null,
-        eleveData.statut || 'actif',
-        eleveData.dossiers_physiques || null
-      ];
-
-      const result = await query(sql, params) as any;
-      console.log('✅ Résultat insertion:', result);
-      
-      const nouvelEleve = await this.obtenirEleveParId(result.insertId);
-      
-      return nouvelEleve;
-    } catch (error: any) {
-      console.error('❌ Erreur création élève:', error);
-      
-      if (error.code === 'ER_DUP_ENTRY') {
-        return { 
-          success: false, 
-          erreur: 'Ce matricule est déjà utilisé. Veuillez en choisir un autre.' 
-        };
-      }
-      
+  try {
+    console.log('📝 Création élève - Données reçues:', eleveData);
+    
+    // Utiliser le matricule fourni par l'utilisateur
+    const matricule = eleveData.matricule || `ELV${new Date().getFullYear()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    
+    // Vérifier si le matricule existe déjà
+    const sqlVerif = 'SELECT id FROM eleves WHERE matricule = ?';
+    const existing = await query(sqlVerif, [matricule]) as any[];
+    
+    if (existing.length > 0) {
       return { 
         success: false, 
-        erreur: `Erreur lors de la création de l'élève: ${error.message}` 
+        erreur: `Le matricule "${matricule}" est déjà utilisé par un autre élève` 
       };
     }
+    
+    // ✅ Valeur par défaut pour email_parents (obligatoire)
+    const emailParents = eleveData.email_parents || eleveData.email || '';
+    
+    const sql = `
+      INSERT INTO eleves (
+        matricule, nom, prenom, date_naissance, lieu_naissance, genre, 
+        adresse, email, email_parents, nom_pere, nom_mere, telephone_parent, 
+        classe_id, photo_url, statut, date_inscription, dossiers_physiques
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
+    `;
+    
+    const params = [
+      matricule,
+      eleveData.nom,
+      eleveData.prenom,
+      eleveData.date_naissance,
+      eleveData.lieu_naissance || null,
+      eleveData.genre,
+      eleveData.adresse || null,
+      eleveData.email || null,
+      emailParents, // ✅ Plus jamais null
+      eleveData.nom_pere || null,
+      eleveData.nom_mere || null,
+      eleveData.telephone_parent || null,
+      eleveData.classe_id || null,
+      eleveData.photo_url || null,
+      eleveData.statut || 'actif',
+      eleveData.dossiers_physiques || null
+    ];
+
+    console.log('📝 Exécution INSERT avec params:', params);
+    
+    const result = await query(sql, params) as any;
+    console.log('✅ Résultat insertion - insertId:', result.insertId);
+    
+    // ✅ Vérifier que l'insertion a réussi
+    if (!result.insertId) {
+      return { 
+        success: false, 
+        erreur: 'Échec de la création : aucun ID retourné' 
+      };
+    }
+    
+    // ✅ Récupérer l'élève créé avec une requête directe
+    const selectSql = `
+      SELECT 
+        e.*, 
+        c.nom as nom_classe, 
+        c.niveau as niveau_classe 
+      FROM eleves e 
+      LEFT JOIN classes c ON e.classe_id = c.id 
+      WHERE e.id = ?
+    `;
+    
+    const nouvelEleveResult = await query(selectSql, [result.insertId]) as any[];
+    
+    if (!nouvelEleveResult || nouvelEleveResult.length === 0) {
+      console.error('❌ Élève créé mais non trouvé avec ID:', result.insertId);
+      return { 
+        success: false, 
+        erreur: 'Élève créé mais non trouvé dans la base de données' 
+      };
+    }
+    
+    // Transformer l'élève
+    const eleve = this.transformEleve(nouvelEleveResult[0]);
+    console.log('✅ Élève créé avec succès - ID:', eleve.id, 'Nom:', eleve.nom);
+    
+    return { 
+      success: true, 
+      eleve: eleve 
+    };
+    
+  } catch (error: any) {
+    console.error('❌ Erreur création élève:', error);
+    
+    if (error.code === 'ER_DUP_ENTRY') {
+      return { 
+        success: false, 
+        erreur: 'Ce matricule est déjà utilisé. Veuillez en choisir un autre.' 
+      };
+    }
+    
+    return { 
+      success: false, 
+      erreur: `Erreur lors de la création de l'élève: ${error.message}` 
+    };
   }
+}
 
   static async mettreAJourEleve(id: number, eleveData: any): Promise<{success: boolean, eleve?: Eleve, erreur?: string}> {
     try {

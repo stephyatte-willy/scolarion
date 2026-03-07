@@ -51,15 +51,6 @@ export async function POST(request: NextRequest) {
     const eleveData = await request.json();
     console.log('➕ API CRÉATION ÉLÈVE - Données reçues:', JSON.stringify(eleveData, null, 2));
     
-    // Log spécifique pour les dossiers
-    if (eleveData.dossiers_physiques) {
-      console.log('📁 Dossiers physiques reçus:', 
-        typeof eleveData.dossiers_physiques === 'string' 
-          ? eleveData.dossiers_physiques.substring(0, 100) + '...'
-          : eleveData.dossiers_physiques
-      );
-    }
-    
     const resultat = await ElevesService.creerEleve(eleveData);
     
     console.log('📊 API CRÉATION - Résultat:', resultat);
@@ -73,8 +64,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      eleve: resultat.eleve
+      eleve: resultat.eleve,
+      message: 'Élève créé avec succès'
     }, { status: 201 });
+    
   } catch (error) {
     console.error('❌ Erreur API création élève:', error);
     return NextResponse.json(
