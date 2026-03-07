@@ -178,7 +178,7 @@ export class ElevesService {
       };
     }
     
-    // ✅ Valeur par défaut pour email_parents (obligatoire)
+    // Valeur par défaut pour email_parents (obligatoire)
     const emailParents = eleveData.email_parents || eleveData.email || '';
     
     const sql = `
@@ -198,7 +198,7 @@ export class ElevesService {
       eleveData.genre,
       eleveData.adresse || null,
       eleveData.email || null,
-      emailParents, // ✅ Plus jamais null
+      emailParents,
       eleveData.nom_pere || null,
       eleveData.nom_mere || null,
       eleveData.telephone_parent || null,
@@ -210,18 +210,24 @@ export class ElevesService {
 
     console.log('📝 Exécution INSERT avec params:', params);
     
+    // ✅ Utiliser query directement et récupérer le résultat complet
     const result = await query(sql, params) as any;
-    console.log('✅ Résultat insertion - insertId:', result.insertId);
+    console.log('✅ Résultat INSERT complet:', result);
     
-    // ✅ Vérifier que l'insertion a réussi
-    if (!result.insertId) {
+    // ✅ Récupérer insertId du résultat
+    const insertId = result?.insertId;
+    
+    if (!insertId) {
+      console.error('❌ Aucun insertId reçu, résultat:', result);
       return { 
         success: false, 
         erreur: 'Échec de la création : aucun ID retourné' 
       };
     }
     
-    // ✅ Récupérer l'élève créé avec une requête directe
+    console.log('✅ Insertion réussie avec ID:', insertId);
+    
+    // Récupérer l'élève créé
     const selectSql = `
       SELECT 
         e.*, 
@@ -232,10 +238,10 @@ export class ElevesService {
       WHERE e.id = ?
     `;
     
-    const nouvelEleveResult = await query(selectSql, [result.insertId]) as any[];
+    const nouvelEleveResult = await query(selectSql, [insertId]) as any[];
     
     if (!nouvelEleveResult || nouvelEleveResult.length === 0) {
-      console.error('❌ Élève créé mais non trouvé avec ID:', result.insertId);
+      console.error('❌ Élève créé mais non trouvé avec ID:', insertId);
       return { 
         success: false, 
         erreur: 'Élève créé mais non trouvé dans la base de données' 

@@ -7,7 +7,7 @@ const dbConfig = {
   database: process.env.DB_NAME || 'defaultdb',
   port: parseInt(process.env.DB_PORT || '23990'),
   waitForConnections: true,
-  connectionLimit: 5, // Réduire la limite
+  connectionLimit: 5,
   queueLimit: 10,
   charset: 'utf8mb4',
   timezone: '+00:00',
@@ -32,7 +32,7 @@ function cleanParams(params: any[]): any[] {
   return params.map(param => param === undefined ? null : param);
 }
 
-// ✅ FONCTION QUERY AVEC GARANTIE DE LIBÉRATION
+// ✅ FONCTION QUERY CORRIGÉE
 export async function query(sql: string, params: any[] = []) {
   console.log('📝 SQL:', sql);
   console.log('🔧 Paramètres:', params);
@@ -42,19 +42,13 @@ export async function query(sql: string, params: any[] = []) {
     connection = await pool.getConnection();
     const cleanedParams = cleanParams(params);
     
-    const [rows] = await connection.query(sql, cleanedParams);
+    const [result] = await connection.query(sql, cleanedParams);
     
-    console.log('✅ Type de résultat:', Array.isArray(rows) ? 'tableau' : typeof rows);
+    console.log('✅ Type de résultat:', result ? typeof result : 'undefined');
+    console.log('✅ Est un tableau?', Array.isArray(result));
     
-    // Retourner les lignes
-    if (rows && Array.isArray(rows)) {
-      return rows;
-    } else if (rows && typeof rows === 'object') {
-      // Pour les INSERT/UPDATE, retourner un tableau avec l'objet
-      return [rows];
-    }
-    
-    return [];
+    // ✅ RETOURNER LE RÉSULTAT COMPLET, PAS SEULEMENT LES LIGNES
+    return result;
     
   } catch (error: any) {
     console.error('❌ ERREUR SQL DÉTAILLÉE:');
@@ -66,7 +60,6 @@ export async function query(sql: string, params: any[] = []) {
     
     throw error;
   } finally {
-    // ✅ TOUJOURS libérer la connexion, même en cas d'erreur
     if (connection) {
       try {
         connection.release();
@@ -76,6 +69,22 @@ export async function query(sql: string, params: any[] = []) {
       }
     }
   }
+}
+
+// ✅ FONCTION SPÉCIALE POUR LES REQUÊTES SELECT
+export async function queryRows(sql: string, params: any[] = []) {
+  const result = await query(sql, params);
+  return Array.isArray(result) ? result : [];
+}
+
+// ✅ FONCTION SPÉCIALE POUR LES INSERT/UPDATE
+export async function queryInsert(sql: string, params: any[] = []) {
+  const result = await query(sql, params) as any;
+  return {
+    insertId: result.insertId,
+    affectedRows: result.affectedRows,
+    success: !!result.insertId
+  };
 }
 
 export async function transactionQuery(sql: string) {
