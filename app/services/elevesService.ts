@@ -18,9 +18,10 @@ export interface Eleve {
   genre: 'M' | 'F';
   adresse?: string;
   email?: string;
+  email_parents?: string; // ✅ AJOUTÉ
   nom_pere?: string;
   nom_mere?: string;
-  telephone_parent?: string; // Changé de 'telephone' à 'telephone_parent'
+  telephone_parent?: string;
   classe_id?: number;
   photo_url?: string;
   dossiers_physiques?: DossierPhysique[];
@@ -177,14 +178,17 @@ export class ElevesService {
         };
       }
       
-      // ✅ CORRECTION: Supprimé 'telephone' de la liste des champs
+      // ✅ CORRECTION: Ajout de email_parents dans la liste des champs
       const sql = `
         INSERT INTO eleves (
           matricule, nom, prenom, date_naissance, lieu_naissance, genre, 
-          adresse, email, nom_pere, nom_mere, telephone_parent, 
+          adresse, email, email_parents, nom_pere, nom_mere, telephone_parent, 
           classe_id, photo_url, statut, date_inscription, dossiers_physiques
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
       `;
+      
+      // ✅ Utiliser email de l'élève ou email des parents par défaut
+      const emailParents = eleveData.email_parents || eleveData.email || null;
       
       const params = [
         matricule,
@@ -195,9 +199,10 @@ export class ElevesService {
         eleveData.genre,
         eleveData.adresse || null,
         eleveData.email || null,
+        emailParents, // ✅ AJOUTÉ: email_parents
         eleveData.nom_pere || null,
         eleveData.nom_mere || null,
-        eleveData.telephone_parent || null, // ✅ Utilisation de telephone_parent
+        eleveData.telephone_parent || null,
         eleveData.classe_id || null,
         eleveData.photo_url || null,
         eleveData.statut || 'actif',
@@ -251,7 +256,7 @@ export class ElevesService {
         }
       }
 
-      // ✅ VÉRIFICATION DE LA CLASSE SI ELLE EST FOURNIE
+      // VÉRIFICATION DE LA CLASSE SI ELLE EST FOURNIE
       if (eleveData.classe_id !== undefined && eleveData.classe_id !== null) {
         const classes = await this.obtenirClasses();
         if (classes.success) {
@@ -268,10 +273,10 @@ export class ElevesService {
       const champs = [];
       const params = [];
 
-      // ✅ CORRECTION: Remplacé 'telephone' par 'telephone_parent' dans la liste des champs autorisés
+      // ✅ CORRECTION: Ajout de 'email_parents' dans la liste des champs autorisés
       const champsAutorises = [
         'matricule', 'nom', 'prenom', 'date_naissance', 'lieu_naissance', 'genre',
-        'adresse', 'email', 'nom_pere', 'nom_mere',
+        'adresse', 'email', 'email_parents', 'nom_pere', 'nom_mere',
         'telephone_parent', 'classe_id', 'photo_url', 'statut', 'dossiers_physiques'
       ];
 
@@ -279,20 +284,18 @@ export class ElevesService {
         if (champsAutorises.includes(key) && value !== undefined) {
           champs.push(`${key} = ?`);
           
-          // ✅ Gestion robuste des valeurs
+          // Gestion robuste des valeurs
           if (key === 'classe_id') {
             if (value === '' || value === null) {
-              params.push(null); // NULL pour aucune classe
+              params.push(null);
             } else {
               const classeId = Number(value);
               params.push(isNaN(classeId) ? null : classeId);
             }
           } else if (key === 'date_naissance' && value) {
-            // ✅ S'assurer que la date est au format MySQL
             const date = new Date(value as string);
             params.push(date.toISOString().split('T')[0]);
           } else if (key === 'dossiers_physiques') {
-            // ✅ Gérer les dossiers
             if (value === null || value === '' || value === 'null') {
               params.push(null);
             } else {
@@ -373,14 +376,12 @@ export class ElevesService {
     }
   }
 
-  // Ajoutez cette méthode pour valider les IDs
   static async validerIdEleve(id: number): Promise<{success: boolean, erreur?: string}> {
     try {
       if (!id || isNaN(id) || id <= 0) {
         return { success: false, erreur: 'ID d\'élève invalide' };
       }
       
-      // Vérifier que l'élève existe
       const eleve = await this.obtenirEleveParId(id);
       return { 
         success: eleve.success, 
@@ -392,60 +393,56 @@ export class ElevesService {
     }
   }
 
-static async obtenirStatistiques(): Promise<{success: boolean, statistiques?: any, erreur?: string}> {
-  try {
-    // ✅ CORRECTION : Utiliser des paramètres préparés au lieu de valeurs en dur
-    const sqlTotal = 'SELECT COUNT(*) as total FROM eleves WHERE statut = ?';
-    const totalResult = await query(sqlTotal, ['actif']) as any[];
-    
-    // Par genre
-    const sqlParGenre = `
-      SELECT genre, COUNT(*) as count 
-      FROM eleves 
-      WHERE statut = ?
-      GROUP BY genre
-    `;
-    const parGenre = await query(sqlParGenre, ['actif']) as any[];
-    
-    // Par classe avec détail genre
-    const sqlParClasse = `
-      SELECT 
-        c.id,
-        c.nom, 
-        c.niveau, 
-        COUNT(e.id) as total_eleves,
-        SUM(CASE WHEN e.genre = 'F' THEN 1 ELSE 0 END) as filles,
-        SUM(CASE WHEN e.genre = 'M' THEN 1 ELSE 0 END) as garcons
-      FROM classes c 
-      LEFT JOIN eleves e ON c.id = e.classe_id AND e.statut = ?
-      GROUP BY c.id, c.nom, c.niveau
-      ORDER BY c.niveau, c.nom
-    `;
-    const parClasse = await query(sqlParClasse, ['actif']) as any[];
-    
-    // Total par statut
-    const sqlParStatut = 'SELECT statut, COUNT(*) as count FROM eleves GROUP BY statut';
-    const parStatut = await query(sqlParStatut) as any[];
+  static async obtenirStatistiques(): Promise<{success: boolean, statistiques?: any, erreur?: string}> {
+    try {
+      const sqlTotal = 'SELECT COUNT(*) as total FROM eleves WHERE statut = ?';
+      const totalResult = await query(sqlTotal, ['actif']) as any[];
+      
+      const sqlParGenre = `
+        SELECT genre, COUNT(*) as count 
+        FROM eleves 
+        WHERE statut = ?
+        GROUP BY genre
+      `;
+      const parGenre = await query(sqlParGenre, ['actif']) as any[];
+      
+      const sqlParClasse = `
+        SELECT 
+          c.id,
+          c.nom, 
+          c.niveau, 
+          COUNT(e.id) as total_eleves,
+          SUM(CASE WHEN e.genre = 'F' THEN 1 ELSE 0 END) as filles,
+          SUM(CASE WHEN e.genre = 'M' THEN 1 ELSE 0 END) as garcons
+        FROM classes c 
+        LEFT JOIN eleves e ON c.id = e.classe_id AND e.statut = ?
+        GROUP BY c.id, c.nom, c.niveau
+        ORDER BY c.niveau, c.nom
+      `;
+      const parClasse = await query(sqlParClasse, ['actif']) as any[];
+      
+      const sqlParStatut = 'SELECT statut, COUNT(*) as count FROM eleves GROUP BY statut';
+      const parStatut = await query(sqlParStatut) as any[];
 
-    const totalEleves = totalResult[0]?.total || 0;
-    const garcons = parGenre.find((g: any) => g.genre === 'M')?.count || 0;
-    const filles = parGenre.find((g: any) => g.genre === 'F')?.count || 0;
+      const totalEleves = totalResult[0]?.total || 0;
+      const garcons = parGenre.find((g: any) => g.genre === 'M')?.count || 0;
+      const filles = parGenre.find((g: any) => g.genre === 'F')?.count || 0;
 
-    return {
-      success: true,
-      statistiques: {
-        total: totalEleves,
-        garcons: garcons,
-        filles: filles,
-        parClasse: parClasse,
-        parStatut: parStatut
-      }
-    };
-  } catch (error) {
-    console.error('Erreur lors de la récupération des statistiques:', error);
-    return { success: false, erreur: 'Erreur lors de la récupération des statistiques' };
+      return {
+        success: true,
+        statistiques: {
+          total: totalEleves,
+          garcons: garcons,
+          filles: filles,
+          parClasse: parClasse,
+          parStatut: parStatut
+        }
+      };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques:', error);
+      return { success: false, erreur: 'Erreur lors de la récupération des statistiques' };
+    }
   }
-}
 
   static async obtenirRepartitionParClasse(): Promise<{success: boolean, repartition?: any[], erreur?: string}> {
     try {
