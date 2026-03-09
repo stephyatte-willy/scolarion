@@ -125,6 +125,107 @@ export class ElevesService {
     }
   }
 
+  // Dans services/elevesService.ts, ajoutez ces méthodes :
+
+/**
+ * Ajouter un dossier physique à un élève
+ */
+static async ajouterDossierPhysique(eleveId: number, dossier: DossierPhysique): Promise<{success: boolean, erreur?: string}> {
+  try {
+    console.log('📁 Ajout dossier physique pour élève ID:', eleveId);
+    
+    // Récupérer l'élève
+    const eleve = await this.obtenirEleveParId(eleveId);
+    if (!eleve.success || !eleve.eleve) {
+      return { success: false, erreur: 'Élève non trouvé' };
+    }
+
+    // Récupérer les dossiers existants
+    const dossiersExistants = eleve.eleve.dossiers_physiques || [];
+    
+    // Ajouter le nouveau dossier
+    dossiersExistants.push(dossier);
+    
+    // Mettre à jour en base de données
+    const dossiersJSON = JSON.stringify(dossiersExistants);
+    
+    const sql = 'UPDATE eleves SET dossiers_physiques = ? WHERE id = ?';
+    await query(sql, [dossiersJSON, eleveId]);
+    
+    console.log('✅ Dossier ajouté avec succès');
+    return { success: true };
+    
+  } catch (error: any) {
+    console.error('❌ Erreur ajout dossier:', error);
+    return { success: false, erreur: error.message };
+  }
+}
+
+/**
+ * Supprimer un dossier physique d'un élève
+ */
+static async supprimerDossierPhysique(eleveId: number, index: number): Promise<{success: boolean, erreur?: string}> {
+  try {
+    console.log('🗑️ Suppression dossier physique index:', index, 'pour élève ID:', eleveId);
+    
+    // Récupérer l'élève
+    const eleve = await this.obtenirEleveParId(eleveId);
+    if (!eleve.success || !eleve.eleve) {
+      return { success: false, erreur: 'Élève non trouvé' };
+    }
+
+    // Récupérer les dossiers existants
+    const dossiersExistants = eleve.eleve.dossiers_physiques || [];
+    
+    // Vérifier que l'index existe
+    if (index < 0 || index >= dossiersExistants.length) {
+      return { success: false, erreur: 'Index de dossier invalide' };
+    }
+    
+    // Supprimer le dossier
+    dossiersExistants.splice(index, 1);
+    
+    // Mettre à jour en base de données
+    const dossiersJSON = JSON.stringify(dossiersExistants);
+    
+    const sql = 'UPDATE eleves SET dossiers_physiques = ? WHERE id = ?';
+    await query(sql, [dossiersJSON, eleveId]);
+    
+    console.log('✅ Dossier supprimé avec succès');
+    return { success: true };
+    
+  } catch (error: any) {
+    console.error('❌ Erreur suppression dossier:', error);
+    return { success: false, erreur: error.message };
+  }
+}
+
+/**
+ * Récupérer les dossiers physiques d'un élève
+ */
+static async getDossiersPhysiques(eleveId: number): Promise<{success: boolean, dossiers?: DossierPhysique[], erreur?: string}> {
+  try {
+    console.log('📁 Récupération dossiers physiques pour élève ID:', eleveId);
+    
+    const sql = 'SELECT dossiers_physiques FROM eleves WHERE id = ?';
+    const result = await query(sql, [eleveId]) as any[];
+    
+    if (!result || result.length === 0) {
+      return { success: false, erreur: 'Élève non trouvé' };
+    }
+    
+    const dossiersString = result[0].dossiers_physiques;
+    const dossiers = this.parseDossiersPhysiques(dossiersString);
+    
+    console.log(`✅ ${dossiers.length} dossiers récupérés`);
+    return { success: true, dossiers };
+    
+  } catch (error: any) {
+    console.error('❌ Erreur récupération dossiers:', error);
+    return { success: false, erreur: error.message };
+  }
+}
+
   static async obtenirEleveParId(id: number): Promise<{success: boolean, eleve?: Eleve, erreur?: string}> {
     try {
       const sql = `
@@ -182,12 +283,12 @@ export class ElevesService {
     const emailParents = eleveData.email_parents || eleveData.email || '';
     
     const sql = `
-      INSERT INTO eleves (
-        matricule, nom, prenom, date_naissance, lieu_naissance, genre, 
-        adresse, email, email_parents, nom_pere, nom_mere, telephone_parent, 
-        classe_id, photo_url, statut, date_inscription, dossiers_physiques
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
-    `;
+  INSERT INTO eleves (
+    matricule, nom, prenom, date_naissance, lieu_naissance, genre, 
+    adresse, email, email_parents, nom_pere, nom_mere, telephone_parent, 
+    classe_id, photo_url, statut, date_inscription, dossiers_physiques
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
+`;
     
     const params = [
       matricule,

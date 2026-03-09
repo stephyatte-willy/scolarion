@@ -945,69 +945,89 @@ const reinitialiserFiltres = () => {
     setFichiersDossiers(prev => prev.filter((_, i) => i !== index));
   };
 
-  const uploaderDossiersPhysiques = async (): Promise<any[]> => {
-    if (fichiersDossiers.length === 0) {
-      console.log('📤 Aucun fichier à uploader');
-      return [];
-    }
+const uploaderDossiersPhysiques = async (): Promise<DossierPhysique[]> => {
+  if (fichiersDossiers.length === 0) {
+    console.log('📤 Aucun fichier à uploader');
+    return [];
+  }
 
-    console.log('📤 Début upload dossiers:', fichiersDossiers.length, 'fichiers');
-    
-    setUploadDossiersEnCours(true);
-    const resultats: any[] = [];
+  console.log('📤 Début upload dossiers:', fichiersDossiers.length, 'fichiers');
+  
+  setUploadDossiersEnCours(true);
+  const resultats: DossierPhysique[] = [];
 
-    try {
-      for (let i = 0; i < fichiersDossiers.length; i++) {
-        const fichier = fichiersDossiers[i];
-        console.log(`📤 [${i+1}/${fichiersDossiers.length}] Upload fichier:`, fichier.name);
-        
-        const uploadFormData = new FormData();
-        uploadFormData.append('dossier', fichier);
-        uploadFormData.append('nomEleve', `${formData.nom}_${formData.prenom}`.replace(/[^a-zA-Z0-9]/g, '_'));
-        uploadFormData.append('matricule', eleveSelectionne?.matricule || 'nouveau_' + Date.now());
+  try {
+    for (let i = 0; i < fichiersDossiers.length; i++) {
+      const fichier = fichiersDossiers[i];
+      console.log(`📤 [${i+1}/${fichiersDossiers.length}] Upload fichier:`, fichier.name);
+      
+      const uploadFormData = new FormData();
+      uploadFormData.append('dossier', fichier);
+      
+      // Nom de l'élève pour l'upload (optionnel)
+      const nomElevePourUpload = `${formData.nom}_${formData.prenom}`.replace(/[^a-zA-Z0-9]/g, '_');
+      uploadFormData.append('nomEleve', nomElevePourUpload);
+      
+      // Matricule (important pour l'unicité)
+      uploadFormData.append('matricule', eleveSelectionne?.matricule || formData.matricule || 'nouveau');
 
-        console.log('📤 Envoi requête à /api/upload-dossier...');
-        
-        const response = await fetch('/api/upload-dossier', {
-          method: 'POST',
-          body: uploadFormData,
-        });
+      console.log('📤 Envoi requête à /api/upload-dossier...');
+      
+      const response = await fetch('/api/upload-dossier', {
+        method: 'POST',
+        body: uploadFormData,
+      });
 
-        console.log('📡 Réponse upload:', response.status, response.statusText);
-        
-        const result = await response.json();
-        console.log('📊 Résultat upload:', result);
-        
-        if (response.ok && result.success) {
-          resultats.push({
-            url: result.url,
-            nomOriginal: result.nomOriginal || fichier.name,
-            taille: result.taille || fichier.size,
-            type: result.type || fichier.type,
-            date: result.date || new Date().toISOString()
-          });
-          console.log('✅ Fichier uploadé avec succès:', result.nomOriginal);
-        } else {
-          console.error('❌ Erreur upload fichier:', result.erreur || 'Erreur inconnue');
-          throw new Error(`Échec upload ${fichier.name}: ${result.erreur || 'Erreur serveur'}`);
-        }
-        
-        if (i < fichiersDossiers.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
+      console.log('📡 Statut réponse upload:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.erreur || `Erreur HTTP ${response.status}`);
       }
-
-      console.log('✅ Tous les uploads terminés:', resultats.length, 'fichiers');
-      return resultats;
-
-    } catch (error) {
-      console.error('❌ Erreur upload des dossiers:', error);
-      showError(`Erreur lors de l'upload des dossiers: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
-      throw error;
-    } finally {
-      setUploadDossiersEnCours(false);
+      
+      const result = await response.json();
+      console.log('📊 Résultat upload:', result);
+      
+      if (result.success && result.dossier) {
+        // ✅ S'assurer que le dossier a le bon format
+        const dossierValide: DossierPhysique = {
+          url: result.dossier.url,
+          nomOriginal: result.dossier.nomOriginal || fichier.name,
+          taille: result.dossier.taille || fichier.size,
+          type: result.dossier.type || fichier.type,
+          date: result.dossier.date || new Date().toISOString()
+        };
+        
+        resultats.push(dossierValide);
+        console.log('✅ Fichier uploadé avec succès:', dossierValide.nomOriginal);
+      } else {
+        console.error('❌ Réponse inattendue:', result);
+        throw new Error(result.erreur || 'Format de réponse invalide');
+      }
+      
+      // Petite pause entre les uploads
+      if (i < fichiersDossiers.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
     }
-  };
+
+    console.log('✅ Tous les uploads terminés:', resultats.length, 'fichiers');
+    
+    // Afficher un toast de succès
+    if (resultats.length > 0) {
+      showSuccess(`${resultats.length} dossier(s) uploadé(s) avec succès!`);
+    }
+    
+    return resultats;
+
+  } catch (error: any) {
+    console.error('❌ Erreur upload des dossiers:', error);
+    showError(`Erreur lors de l'upload des dossiers: ${error.message || 'Erreur inconnue'}`);
+    throw error;
+  } finally {
+    setUploadDossiersEnCours(false);
+  }
+};
 
   const gererSelectionFichier = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fichier = e.target.files?.[0];
