@@ -130,19 +130,36 @@ export class ClassesService {
     }
   }
 
-  static async creerClasse(classeData: Omit<Classe, 'id' | 'created_at' | 'nom_professeur_principal' | 'prenom_professeur_principal' | 'nombre_eleves'>): Promise<{success: boolean, classe?: Classe, erreur?: string}> {
+static async creerClasse(classeData: Omit<Classe, 'id' | 'created_at' | 'nom_professeur_principal' | 'prenom_professeur_principal' | 'nombre_eleves'>): Promise<{success: boolean, classe?: Classe, erreur?: string}> {
   try {
+    // Déterminer le cycle en fonction du niveau
+    let cycle = '';
+    const niveau = classeData.niveau || '';
+    
+    if (niveau.includes('6ème') || niveau.includes('5ème') || niveau.includes('4ème') || niveau.includes('3ème')) {
+      cycle = 'Collège';
+    } else if (niveau.includes('Seconde') || niveau.includes('Première') || niveau.includes('Terminale')) {
+      cycle = 'Lycée';
+    } else if (niveau.includes('CP') || niveau.includes('CE') || niveau.includes('CM')) {
+      cycle = 'Primaire';
+    } else {
+      cycle = 'Général'; // Valeur par défaut
+    }
+    
     const sql = `
-      INSERT INTO classes (nom, niveau, professeur_principal_id)
-      VALUES (?, ?, ?)
+      INSERT INTO classes (nom, niveau, cycle, professeur_principal_id)
+      VALUES (?, ?, ?, ?)
     `;
     
     const params = [
       classeData.nom,
       classeData.niveau,
+      cycle, // ✅ AJOUTÉ: le cycle est maintenant fourni
       classeData.professeur_principal_id || null
     ];
 
+    console.log('📝 Insertion classe avec cycle:', cycle);
+    
     const result = await query(sql, params) as any;
     const nouvelleClasse = await this.obtenirClasseParId(result.insertId);
     
@@ -154,7 +171,7 @@ export class ClassesService {
       return { success: false, erreur: 'Une classe avec ce nom existe déjà' };
     }
     
-    return { success: false, erreur: 'Erreur lors de la création de la classe' };
+    return { success: false, erreur: 'Erreur lors de la création de la classe: ' + error.message };
   }
 }
 
@@ -172,11 +189,12 @@ static async mettreAJourClasse(id: number, classeData: Partial<Classe>): Promise
     const params = [];
 
     // Construire dynamiquement la requête UPDATE
-    const champsAutorises = ['nom', 'niveau', 'professeur_principal_id'];
+    const champsAutorises = ['nom', 'niveau', 'cycle', 'professeur_principal_id'];
 
     for (const [key, value] of Object.entries(classeData)) {
       if (champsAutorises.includes(key) && value !== undefined) {
         champs.push(`${key} = ?`);
+        
         // Gérer les valeurs null pour professeur_principal_id
         if (key === 'professeur_principal_id') {
           params.push(value === '' || value === null ? null : value);
@@ -184,6 +202,25 @@ static async mettreAJourClasse(id: number, classeData: Partial<Classe>): Promise
           params.push(value);
         }
       }
+    }
+
+    // Si le niveau est modifié mais pas le cycle, recalculer le cycle automatiquement
+    if (classeData.niveau && !classeData.cycle) {
+      let cycle = '';
+      const niveau = classeData.niveau || '';
+      
+      if (niveau.includes('6ème') || niveau.includes('5ème') || niveau.includes('4ème') || niveau.includes('3ème')) {
+        cycle = 'Collège';
+      } else if (niveau.includes('Seconde') || niveau.includes('Première') || niveau.includes('Terminale')) {
+        cycle = 'Lycée';
+      } else if (niveau.includes('CP') || niveau.includes('CE') || niveau.includes('CM')) {
+        cycle = 'Primaire';
+      } else {
+        cycle = 'Général';
+      }
+      
+      champs.push('cycle = ?');
+      params.push(cycle);
     }
 
     if (champs.length === 0) {
@@ -217,7 +254,6 @@ static async mettreAJourClasse(id: number, classeData: Partial<Classe>): Promise
     return { success: false, erreur: 'Erreur lors de la mise à jour de la classe: ' + error.message };
   }
 }
-
 
   static async supprimerClasse(id: number): Promise<{success: boolean, erreur?: string}> {
     try {

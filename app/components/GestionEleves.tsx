@@ -2806,7 +2806,7 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
                           {eleve.genre === 'M' ? '👦' : '👧'}
                         </div>
                       </div>
-                      <div className="info-eleve-liste">
+                      <div className="info-eleve-liste2">
                         <strong>{eleve.nom} {eleve.prenom}</strong>
                         {eleve.email && <div className="email">{eleve.email}</div>}
                       </div>
@@ -2834,16 +2834,8 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
                     </span>
                   </td>
                   <td>
-                    <div className="contacts-parents">
+                    <div className="style-3">
                       {eleve.telephone_parent && <div>📞 {eleve.telephone_parent}</div>}
-                      {(eleve.nom_pere || eleve.nom_mere) && (
-                        <div className="noms-parents">
-                          {eleve.nom_pere && eleve.nom_mere 
-                            ? `${eleve.nom_pere} / ${eleve.nom_mere}`
-                            : eleve.nom_pere || eleve.nom_mere
-                          }
-                        </div>
-                      )}
                     </div>
                   </td>
                   <td>
