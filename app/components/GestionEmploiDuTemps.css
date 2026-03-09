@@ -385,12 +385,124 @@
   overflow: hidden;
 }
 
-.en-tete-tableau {
+.en-tete-tableau-emploi {
   display: grid;
   grid-template-columns: 80px repeat(6, 1fr);
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
+   text-align: center;
 }
+
+.en-tete-tableau-emploi .cellule-heure,
+.en-tete-tableau-emploi .cellule-jour {
+  padding: 12px 8px;
+  text-align: center;
+  border-right: 1px solid #e2e8f0;
+}
+
+.en-tete-tableau-emploi .cellule-jour {
+  background: #e6f0ff;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* Lignes du tableau */
+.ligne-heure {
+  display: grid;
+  grid-template-columns: 100px repeat(6, 1fr);
+  min-height: 60px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ligne-heure .cellule-heure {
+  padding: 8px;
+  background: #f8fafc;
+  font-weight: 500;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #e2e8f0;
+}
+
+.ligne-heure .cellule-creneau {
+  position: relative;
+  border-right: 1px solid #e2e8f0;
+  padding: 4px;
+}
+
+/* Créneau simplifié */
+.creneau {
+  position: relative;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.creneau:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.contenu-creneau-simple {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.matiere-nom {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.horaire-simple {
+  font-size: 11px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* Actions */
+.actions-creneau {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: none;
+}
+
+.creneau:hover .actions-creneau {
+  display: block;
+}
+
+.bouton-supprimer-creneau {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.bouton-supprimer-creneau:hover {
+  background: rgba(255, 0, 0, 0.8);
+}
+
 
 .cellule-heure {
   padding: 12px;

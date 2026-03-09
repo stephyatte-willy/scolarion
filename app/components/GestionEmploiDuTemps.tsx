@@ -1313,13 +1313,13 @@ const exporterExcel = async () => {
     return professeur ? `${professeur.prenom} ${professeur.nom}` : 'Professeur inconnu';
   };
 
- const getCreneauxParClasse = (classeId: number | null) => {
+const getCreneauxParClasse = (classeId: number | null) => {
   if (!classeId) return [];
   
   return emploiDuTemps
     .filter(c => c.classe_id === classeId)
     .sort((a, b) => {
-      // Trier d'abord par jour
+      // Trier d'abord par jour selon l'ordre défini
       const jourA = indexJours[a.jour_semaine] ?? 0;
       const jourB = indexJours[b.jour_semaine] ?? 0;
       if (jourA !== jourB) return jourA - jourB;
@@ -1335,10 +1335,12 @@ const getCreneauxParProfesseur = (professeurId: number | null) => {
   return emploiDuTemps
     .filter(c => c.professeur_id === professeurId)
     .sort((a, b) => {
-      // Trier d'abord par jour
+      // Trier d'abord par jour selon l'ordre défini
       const jourA = indexJours[a.jour_semaine] ?? 0;
       const jourB = indexJours[b.jour_semaine] ?? 0;
       if (jourA !== jourB) return jourA - jourB;
+      
+      // Ensuite par heure de début
       return a.heure_debut.localeCompare(b.heure_debut);
     });
 };
@@ -1538,7 +1540,6 @@ const getCreneauxParProfesseur = (professeurId: number | null) => {
 
       {/* Contenu principal (inchangé dans la structure) */}
       <div className="contenu-principal-emploi-temps">
-        {/* ... (le reste du contenu reste identique) ... */}
         {filtreActif === 'classes' ? (
           <div className="vue-classes">
             <div className="liste-classes">
@@ -1591,91 +1592,89 @@ const getCreneauxParProfesseur = (professeurId: number | null) => {
                       </span>
                     </div>
                   </div>
-                  
-                  {chargementEmploi ? (
-                    <div className="chargement-tableau">
-                      <div className="spinner"></div>
-                      <p>Chargement de l'emploi du temps...</p>
-                    </div>
-                  ) : (
-                    <div className="tableau-emploi-temps">
-                      <div className="en-tete-tableau">
-                        <div className="cellule-heure"></div>
-                        {joursSemaine.map(jour => (
-                          <div key={jour} className="cellule-jour">
-                            {jour}
-                          </div>
-                        ))}
+
+{chargementEmploi ? (
+  <div className="chargement-tableau">
+    <div className="spinner"></div>
+    <p>Chargement de l'emploi du temps...</p>
+  </div>
+) : (
+  <div className="tableau-emploi-temps">
+    {/* En-tête du tableau avec les jours */}
+    <div className="en-tete-tableau-emploi">
+      <div className="cellule-heure"></div>
+      {joursSemaine.map(jour => (
+        <div key={jour} className="cellule-jour">
+          {jour}
+        </div>
+      ))}
+    </div>
+    
+    {/* Lignes horaires */}
+    {heures.map(heure => (
+      <div key={heure} className="ligne-heure">
+        <div className="cellule-heure">
+          {heure}
+        </div>
+        
+        {/* Cellules pour chaque jour */}
+        {joursSemaine.map(jour => {
+          // Filtrer les créneaux pour ce jour et cette heure
+          const creneaux = getCreneauxParClasse(classeSelectionnee)
+            .filter(c => c.jour_semaine === jour)
+            .filter(c => {
+              const heureDebut = formaterHeure(c.heure_debut);
+              const heureFin = formaterHeure(c.heure_fin);
+              return heureDebut <= heure && heureFin > heure;
+            });
+          
+          return (
+            <div key={jour} className="cellule-creneau">
+              {creneaux.map(creneau => {
+                const duree = getDureeCreneau(creneau.heure_debut, creneau.heure_fin);
+                
+                return (
+                  <div 
+                    key={creneau.id}
+                    className="creneau"
+                    style={{
+                      backgroundColor: creneau.couleur,
+                      height: `${duree * 60}px`
+                    }}
+                    onClick={() => ouvrirModalEditionCreneau(creneau)}
+                    title="Cliquer pour modifier"
+                  >
+                    <div className="contenu-creneau-simple">
+                      <div className="matiere-nom">
+                        {creneau.nom_cours || creneau.description || 'Cours'}
                       </div>
-                      
-                      {heures.map((heure, index) => (
-                        <div key={heure} className="ligne-heure">
-                          <div className="cellule-heure">
-                            {heure}
-                          </div>
-                          {joursSemaine.map(jour => {
-                            const creneaux = getCreneauxParProfesseur(professeurSelectionne)
-                              .filter(c => c.jour_semaine === jour)
-                              .filter(c => {
-                                const heureDebut = formaterHeure(c.heure_debut);
-                                const heureFin = formaterHeure(c.heure_fin);
-                                return heureDebut <= heure && heureFin > heure;
-                              });
-                            
-                            return (
-                              <div key={jour} className="cellule-creneau">
-                                {creneaux.map(creneau => {
-                                  const debutPosition = getHeurePosition(formaterHeure(creneau.heure_debut));
-                                  const duree = getDureeCreneau(creneau.heure_debut, creneau.heure_fin);
-                                  
-                                  return (
-                                    <div 
-                                      key={creneau.id}
-                                      className="creneau"
-                                      style={{
-                                        backgroundColor: creneau.couleur,
-                                        height: `${duree * 60}px`,
-                                        top: `${(debutPosition - index) * 60}px`
-                                      }}
-                                      onClick={() => ouvrirModalEditionCreneau(creneau)}
-                                    >
-                                      <div className="contenu-creneau">
-                                        <div className="titre-creneau">
-                                          {creneau.type_creneau === 'cours' ? 
-                                            creneau.nom_cours || creneau.code_cours :
-                                            creneau.description || creneau.type_creneau
-                                          }
-                                        </div>
-                                        <div className="details-creneau">
-                                          <span className="detail">{creneau.professeur_nom || getNomProfesseur(creneau.professeur_id)}</span>
-                                          <span className="detail">{creneau.salle}</span>
-                                        </div>
-                                        <div className="horaire-creneau">
-                                          {formaterHeure(creneau.heure_debut)} - {formaterHeure(creneau.heure_fin)}
-                                        </div>
-                                      </div>
-                                      <div className="actions-creneau">
-                                        <button 
-                                          className="bouton-supprimer-creneau"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            supprimerCreneau(creneau);
-                                          }}
-                                          title="Supprimer"
-                                        >
-                                          ✕
-                                        </button>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
+                      <div className="horaire-simple">
+                        {formaterHeure(creneau.heure_debut)} - {formaterHeure(creneau.heure_fin)}
+                      </div>
                     </div>
-                  )}
+                    
+                    <div className="actions-creneau">
+                      <button 
+                        className="bouton-supprimer-creneau"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          supprimerCreneau(creneau);
+                        }}
+                        title="Supprimer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    ))}
+  </div>
+)}
                 </>
               ) : (
                 <div className="aucune-classe-selectionnee">
@@ -1745,90 +1744,88 @@ const getCreneauxParProfesseur = (professeurId: number | null) => {
                     </div>
                   </div>
                   
-                  {chargementEmploi ? (
-                    <div className="chargement-tableau">
-                      <div className="spinner"></div>
-                      <p>Chargement de l'emploi du temps...</p>
-                    </div>
-                  ) : (
-                    <div className="tableau-emploi-temps">
-                      <div className="en-tete-tableau">
-                        <div className="cellule-heure"></div>
-                        {joursSemaine.map(jour => (  // Utilisez directement joursSemaine qui est déjà dans l'ordre
-                          <div key={jour} className="cellule-jour">
-                            {jour}
-                          </div>
-                        ))}
+                 {chargementEmploi ? (
+  <div className="chargement-tableau">
+    <div className="spinner"></div>
+    <p>Chargement de l'emploi du temps...</p>
+  </div>
+) : (
+  <div className="tableau-emploi-temps">
+    {/* En-tête du tableau avec les jours */}
+    <div className="en-tete-tableau-emploi">
+      <div className="cellule-heure"></div>
+      {joursSemaine.map(jour => (
+        <div key={jour} className="cellule-jour">
+          {jour}
+        </div>
+      ))}
+    </div>
+    
+    {/* Lignes horaires */}
+    {heures.map(heure => (
+      <div key={heure} className="ligne-heure">
+        <div className="cellule-heure">
+          {heure}
+        </div>
+        
+        {/* Cellules pour chaque jour */}
+        {joursSemaine.map(jour => {
+          // Filtrer les créneaux pour ce jour et cette heure
+          const creneaux = getCreneauxParProfesseur(professeurSelectionne)
+            .filter(c => c.jour_semaine === jour)
+            .filter(c => {
+              const heureDebut = formaterHeure(c.heure_debut);
+              const heureFin = formaterHeure(c.heure_fin);
+              return heureDebut <= heure && heureFin > heure;
+            });
+          
+          return (
+            <div key={jour} className="cellule-creneau">
+              {creneaux.map(creneau => {
+                const duree = getDureeCreneau(creneau.heure_debut, creneau.heure_fin);
+                
+                return (
+                  <div 
+                    key={creneau.id}
+                    className="creneau"
+                    style={{
+                      backgroundColor: creneau.couleur,
+                      height: `${duree * 60}px`
+                    }}
+                    onClick={() => ouvrirModalEditionCreneau(creneau)}
+                    title="Cliquer pour modifier"
+                  >
+                    <div className="contenu-creneau-simple">
+                      <div className="matiere-nom">
+                        {creneau.nom_cours || creneau.description || 'Cours'}
                       </div>
-                      
-                      {heures.map((heure, index) => (
-                        <div key={heure} className="ligne-heure">
-                          <div className="cellule-heure">
-                            {heure}
-                          </div>
-                          {joursSemaine.map(jour => {  // Même ordre pour l'affichage des cellules
-                            const creneaux = getCreneauxParClasse(classeSelectionnee)
-                              .filter(c => c.jour_semaine === jour)
-                              .filter(c => {
-                                const heureDebut = formaterHeure(c.heure_debut);
-                                const heureFin = formaterHeure(c.heure_fin);
-                                return heureDebut <= heure && heureFin > heure;
-                              });
-                            
-                            return (
-                              <div key={jour} className="cellule-creneau">
-                                {creneaux.map(creneau => {
-                                  const debutPosition = getHeurePosition(formaterHeure(creneau.heure_debut));
-                                  const duree = getDureeCreneau(creneau.heure_debut, creneau.heure_fin);
-                                  
-                                  return (
-                                    <div 
-                                      key={creneau.id}
-                                      className="creneau"
-                                      style={{
-                                        backgroundColor: creneau.couleur,
-                                        height: `${duree * 60}px`,
-                                        top: `${(debutPosition - index) * 60}px`
-                                      }}
-                                      onClick={() => ouvrirModalEditionCreneau(creneau)}
-                                    >
-                                      <div className="contenu-creneau">
-                                        <div className="titre-creneau">
-                                          {creneau.type_creneau === 'cours' ? 
-                                            creneau.nom_cours || creneau.code_cours :
-                                            creneau.description || creneau.type_creneau
-                                          }
-                                        </div>
-                                        <div className="details-creneau">
-                                          <span className="detail">{creneau.classe_nom || getNomClasse(creneau.classe_id)}</span>
-                                          <span className="detail">{creneau.salle}</span>
-                                        </div>
-                                        <div className="horaire-creneau">
-                                          {formaterHeure(creneau.heure_debut)} - {formaterHeure(creneau.heure_fin)}
-                                        </div>
-                                      </div>
-                                      <div className="actions-creneau">
-                                        <button 
-                                          className="bouton-supprimer-creneau"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            supprimerCreneau(creneau);
-                                          }}
-                                          title="Supprimer"
-                                        >
-                                          ✕
-                                        </button>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
+                      <div className="horaire-simple">
+                        {formaterHeure(creneau.heure_debut)} - {formaterHeure(creneau.heure_fin)}
+                      </div>
                     </div>
-                  )}
+                    
+                    <div className="actions-creneau">
+                      <button 
+                        className="bouton-supprimer-creneau"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          supprimerCreneau(creneau);
+                        }}
+                        title="Supprimer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    ))}
+  </div>
+)}
                 </>
               ) : (
                 <div className="aucune-professeur-selectionne">
