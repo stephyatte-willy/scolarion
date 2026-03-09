@@ -233,14 +233,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier si la matière existe dans matieres_primaire
-    const checkMatiereSql = 'SELECT id FROM matieres_primaire WHERE id = ? AND statut = "actif"';
+    const checkMatiereSql = 'SELECT id FROM matieres_primaire WHERE id = ?';
     const matiereExists = await query(checkMatiereSql, [data.matiere_id]) as any[];
-    
+
     if (matiereExists.length === 0) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'La matière sélectionnée n\'existe pas ou est inactive' 
+          error: 'La matière sélectionnée n\'existe pas' 
         },
         { status: 400 }
       );
@@ -427,19 +427,20 @@ export async function PUT(request: NextRequest) {
 
     // Vérifier si la matière existe dans matieres_primaire
     if (data.matiere_id) {
-      const checkMatiereSql = 'SELECT id FROM matieres_primaire WHERE id = ? AND statut = "actif"';
-      const matiereExists = await query(checkMatiereSql, [data.matiere_id]) as any[];
-      
-      if (matiereExists.length === 0) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'La matière sélectionnée n\'existe pas ou est inactive' 
-          },
-          { status: 400 }
-        );
-      }
-    }
+  // ✅ CORRECTION : Supprimer la condition sur statut
+  const checkMatiereSql = 'SELECT id FROM matieres_primaire WHERE id = ?';
+  const matiereExists = await query(checkMatiereSql, [data.matiere_id]) as any[];
+  
+  if (matiereExists.length === 0) {
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'La matière sélectionnée n\'existe pas' 
+      },
+      { status: 400 }
+    );
+  }
+}
 
     // Vérifier si le professeur existe
     if (data.professeur_id) {

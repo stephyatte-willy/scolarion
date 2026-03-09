@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import './GestionNotesPrimaire.css';
 import ModalRelevesGeneres from './ModalRelevesGeneres';
+import GestionMatieres from './GestionMatieres';
 import { FileText, Eye, Printer } from 'lucide-react';
 
 // Interfaces (inchangées)
@@ -290,14 +291,9 @@ export default function GestionNotesPrimaire({ onRetourTableauDeBord }: Props) {
   const [ongletActif, setOngletActif] = useState<'compositions' | 'saisie' | 'releves'>('compositions');
 
   // ========== MODALES ET FORMULAIRES ==========
-  const [modalMatiereOuvert, setModalMatiereOuvert] = useState(false);
   const [modalCompositionOuvert, setModalCompositionOuvert] = useState(false);
   const [modalPeriodeOuvert, setModalPeriodeOuvert] = useState(false);
-  
-  // États pour la gestion des matières (modification/suppression)
-  const [matiereAModifier, setMatiereAModifier] = useState<MatierePrimaire | null>(null);
-  const [matiereASupprimer, setMatiereASupprimer] = useState<MatierePrimaire | null>(null);
-  
+    
   // États pour la gestion des périodes (modification/suppression)
   const [periodeAModifier, setPeriodeAModifier] = useState<PeriodePrimaire | null>(null);
   const [periodeASupprimer, setPeriodeASupprimer] = useState<PeriodePrimaire | null>(null);
@@ -323,24 +319,16 @@ export default function GestionNotesPrimaire({ onRetourTableauDeBord }: Props) {
   const [showRelevesModal, setShowRelevesModal] = useState(false);
   const [selectedCompositionForReleves, setSelectedCompositionForReleves] = useState<number | null>(null);
   const [moyenneClasse, setMoyenneClasse] = useState<number>(0);
-  const [matieresSupprimables, setMatieresSupprimables] = useState<Record<number, boolean>>({});
   const [periodesSupprimables, setPeriodesSupprimables] = useState<Record<number, boolean>>({});
 
   const [verificationsMatieres, setVerificationsMatieres] = useState<Record<number, MatiereVerification>>({});
   const [verificationsPeriodes, setVerificationsPeriodes] = useState<Record<number, PeriodeVerification>>({});
 
-  const [formMatiere, setFormMatiere] = useState({
-    nom: '',
-    code_matiere: '',
-    niveau: 'primaire',
-    description: '',
-    couleur: '#3B82F6',
-    icone: '📚',
-    coefficient: 1.0,
-    note_sur: 20.00,
-    ordre_affichage: 0,
-    statut: 'actif' as 'actif' | 'inactif'
-  });
+  const [modalMatieresCoursOuvert, setModalMatieresCoursOuvert] = useState(false);
+
+  const ouvrirGestionMatieres = () => {
+  setModalMatieresCoursOuvert(true);
+};
 
   const [formComposition, setFormComposition] = useState({
     titre: '',
@@ -1226,161 +1214,6 @@ export default function GestionNotesPrimaire({ onRetourTableauDeBord }: Props) {
     if (!dateString) return false;
     const date = new Date(dateString);
     return !isNaN(date.getTime());
-  };
-
-  // ========== GESTION DES MATIÈRES ==========
-  const ouvrirModalMatiere = (matiere?: MatierePrimaire) => {
-    if (matiere) {
-      setMatiereAModifier(matiere);
-      setFormMatiere({
-        nom: matiere.nom || '',
-        code_matiere: matiere.code_matiere || '',
-        niveau: matiere.niveau || 'primaire',
-        description: matiere.description || '',
-        couleur: matiere.couleur || '#3B82F6',
-        icone: matiere.icone || '📚',
-        coefficient: matiere.coefficient || 1.0,
-        note_sur: matiere.note_sur || 20.00,
-        ordre_affichage: matiere.ordre_affichage || 0,
-        statut: (matiere.statut as 'actif' | 'inactif') || 'actif'
-      });
-    } else {
-      setMatiereAModifier(null);
-      setFormMatiere({
-        nom: '',
-        code_matiere: '',
-        niveau: 'primaire',
-        description: '',
-        couleur: '#3B82F6',
-        icone: '📚',
-        coefficient: 1.0,
-        note_sur: 20.00,
-        ordre_affichage: matieres.length,
-        statut: 'actif'
-      });
-    }
-    setModalMatiereOuvert(true);
-  };
-
-  const fermerModalMatiere = () => {
-    setModalMatiereOuvert(false);
-    setTimeout(() => {
-      setMatiereAModifier(null);
-    }, 300);
-  };
-
-  const sauvegarderMatiere = async () => {
-    try {
-      if (!formMatiere.nom.trim()) {
-        ajouterToast('error', 'Le nom de la matière est requis');
-        return;
-      }
-      
-      if (!formMatiere.coefficient || formMatiere.coefficient <= 0) {
-        ajouterToast('error', 'Le coefficient doit être supérieur à 0');
-        return;
-      }
-      
-      if (!formMatiere.note_sur || formMatiere.note_sur <= 0) {
-        ajouterToast('error', 'La note sur doit être supérieure à 0');
-        return;
-      }
-
-      const url = matiereAModifier 
-        ? `/api/matieres-primaires/${matiereAModifier.id}`
-        : '/api/matieres-primaires';
-      
-      const method = matiereAModifier ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(matiereAModifier ? { ...formMatiere, id: matiereAModifier.id } : formMatiere)
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        ajouterToast('success', matiereAModifier 
-          ? 'Matière modifiée avec succès' 
-          : 'Matière primaire créée avec succès'
-        );
-        fermerModalMatiere();
-        chargerMatieresPrimaire();
-      } else {
-        ajouterToast('error', data.error || 'Erreur lors de l\'opération');
-      }
-    } catch (error) {
-      console.error('Erreur opération matière primaire:', error);
-      ajouterToast('error', 'Erreur lors de l\'opération');
-    }
-  };
-
-  const verifierSiMatierePeutEtreSupprimee = async (matiereId: number): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/matieres-primaires/${matiereId}/verifier-suppression`);
-      if (response.ok) {
-        const data = await response.json();
-        return data.canDelete || false;
-      }
-    } catch (error) {
-      console.error('Erreur vérification suppression matière:', error);
-    }
-    return true; // Par défaut, autoriser la suppression si l'API échoue
-  };
-
-  const verifierSiPeriodePeutEtreSupprimee = async (periodeId: number): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/periodes-primaires/${periodeId}/verifier-suppression`);
-      if (response.ok) {
-        const data = await response.json();
-        return data.canDelete || false;
-      }
-    } catch (error) {
-      console.error('Erreur vérification suppression période:', error);
-    }
-    return true; // Par défaut, autoriser la suppression si l'API échoue
-  };
-
-  const supprimerMatiere = async () => {
-    if (!matiereASupprimer) return;
-    
-    try {
-      // Vérifier d'abord si la matière peut être supprimée
-      const responseVerification = await fetch(`/api/matieres-primaires/${matiereASupprimer.id}/check-delete`);
-      
-      if (responseVerification.ok) {
-        const verificationData = await responseVerification.json();
-        
-        if (!verificationData.can_be_deleted) {
-          // Si la matière ne peut pas être supprimée, afficher un message
-          ajouterToast('error', 
-            verificationData.error || 
-            'Cette matière ne peut pas être supprimée car elle est utilisée dans des notes'
-          );
-          setMatiereASupprimer(null);
-          return;
-        }
-      }
-      
-      // Si on arrive ici, la suppression est autorisée
-      const response = await fetch(`/api/matieres-primaires/${matiereASupprimer.id}`, {
-        method: 'DELETE',
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        ajouterToast('success', 'Matière supprimée avec succès');
-        setMatiereASupprimer(null);
-        chargerMatieresPrimaire();
-      } else {
-        ajouterToast('error', data.error || 'Erreur lors de la suppression');
-      }
-    } catch (error: any) {
-      console.error('Erreur suppression matière:', error);
-      ajouterToast('error', 'Erreur lors de la suppression de la matière');
-    }
   };
 
   const supprimerPeriode = async () => {
@@ -3759,15 +3592,15 @@ export default function GestionNotesPrimaire({ onRetourTableauDeBord }: Props) {
                   >
                     <span className="icone-ajouter">+</span>
                     Nouvelle Composition
-                  </button>
-            <button 
-              className="bouton-creer-matiere"
-              onClick={() => ouvrirModalMatiere()}
-              title="Ajouter une matière pour le primaire"
-            >
-              <span className="icone-ajouter">+</span>
-              Nouvelle Matière
-            </button>
+                    </button>
+           <button 
+  className="bouton-creer-matiere"
+  onClick={ouvrirGestionMatieres}
+  title="Gérer les matières"
+>
+  <span className="icone-ajouter">📚</span>
+  Gérer les matières  ({matieres.length})
+</button>
           </div>
           </div>
         </div>
@@ -3810,63 +3643,6 @@ export default function GestionNotesPrimaire({ onRetourTableauDeBord }: Props) {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Section Liste des Matières */}
-        <div className="section-matieres-primaires">
-          <div className="en-tete-section-note">
-            <h3>📚 Liste des matières</h3>
-          </div>
-          
-          {matieres.length > 0 ? (
-            <div className="liste-matieres">
-              {matieres.map(matiere => (
-                <div key={matiere.id} className="carte-matiere">
-                  <div className="info-matiere">
-                    <div className="details-matiere">
-                      <div className="icone-matiere-mat" style={{ backgroundColor: matiere.couleur }}></div>
-                      <div className="info-matiere">
-                      <h3>{matiere.nom}</h3>
-                      <div className="code-matiere">
-                       <span className="badge-note1"> 
-                        {matiere.code_matiere}  
-                        </span>
-                        <span className="badge-note2">
-                          Coef: {matiere.coefficient}
-                        </span>  
-                        <span className="badge-note3">
-                          Sur {matiere.note_sur}
-                        </span></div>
-                      {matiere.description && (
-                        <div className="description-matiere">{matiere.description}</div>
-                      )}
-                    </div>
-                    </div>
-                  </div>
-                  
-                  <div className="actions-matiere">
-                    <button 
-                      className="bouton-action-modifier"
-                      onClick={() => ouvrirModalMatiere(matiere)}
-                    >
-                      ✏️
-                    </button>
-                    <button 
-                      className="bouton-action-supprimer"
-                      onClick={() => setMatiereASupprimer(matiere)}
-                      title="Supprimer la matière"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="aucune-matiere">
-              <p>Aucune matière disponible. Ajoutez une matière pour commencer.</p>
-            </div>
-          )}
         </div>
 
         {/* Section Liste des Périodes */}
@@ -4823,200 +4599,6 @@ export default function GestionNotesPrimaire({ onRetourTableauDeBord }: Props) {
         </div>
       )}
 
-      {modalMatiereOuvert && (
-        <div className="modal-overlay">
-          <div className="modal-matiere">
-            <div className="en-tete-modal">
-              <h2>{matiereAModifier ? 'Modifier la matière' : 'Nouvelle matière primaire'}</h2>
-              <button className="bouton-fermer-modal" onClick={fermerModalMatiere}>✕</button>
-            </div>
-            
-            <div className="contenu-modal">
-              <div className="formulaire-matiere">
-                <div className="groupe-champ double">
-                  <div className="sous-groupe">
-                    <label>Nom de la matière *</label>
-                    <input
-                      type="text"
-                      value={formMatiere.nom || ''}
-                      onChange={(e) => setFormMatiere(prev => ({ ...prev, nom: e.target.value }))}
-                      className="champ"
-                      placeholder="Ex: Français"
-                    />
-                  </div>
-                  
-                  <div className="sous-groupe">
-                    <label>Code matière</label>
-                    <input
-                      type="text"
-                      value={formMatiere.code_matiere}
-                      onChange={(e) => setFormMatiere(prev => ({ ...prev, code_matiere: e.target.value }))}
-                      className="champ"
-                      placeholder="Ex: FRAN-PRIM"
-                    />
-                    <small className="texte-aide">Laissé vide pour génération automatique</small>
-                  </div>
-                </div>
-                
-                <div className="groupe-champ double">
-                  <div className="sous-groupe">
-                    <label>Icône</label>
-                    <input
-                      type="text"
-                      value={formMatiere.icone}
-                      onChange={(e) => setFormMatiere(prev => ({ ...prev, icone: e.target.value }))}
-                      className="champ"
-                      placeholder="Ex: 📚"
-                      maxLength={5}
-                    />
-                  </div>
-                  
-                  <div className="sous-groupe">
-                    <label>Couleur</label>
-                    <div className="conteneur-couleur">
-                      <input
-                        type="color"
-                        value={formMatiere.couleur}
-                        onChange={(e) => setFormMatiere(prev => ({ ...prev, couleur: e.target.value }))}
-                        className="champ-couleur"
-                      />
-                      <input
-                        type="text"
-                        value={formMatiere.couleur}
-                        onChange={(e) => setFormMatiere(prev => ({ ...prev, couleur: e.target.value }))}
-                        className="champ"
-                        placeholder="#3B82F6"
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="groupe-champ double">
-                  <div className="sous-groupe">
-                    <label>Coefficient *</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      min="0.5"
-                      max="5"
-                      value={formMatiere.coefficient || 1.0}
-                      onChange={(e) => setFormMatiere(prev => ({ 
-                        ...prev, 
-                        coefficient: parseFloat(e.target.value) || 1.0 
-                      }))}
-                      className="champ"
-                    />
-                  </div>
-                  
-                  <div className="sous-groupe">
-                    <label>Note sur *</label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="1"
-                      max="100"
-                      value={formMatiere.note_sur || 20.00}
-                      onChange={(e) => setFormMatiere(prev => ({ 
-                        ...prev, 
-                        note_sur: parseFloat(e.target.value) || 20.00 
-                      }))}
-                      className="champ"
-                      placeholder="Ex: 20"
-                    />
-                    <small className="texte-aide">Valeur maximale de la note (ex: 20, 100)</small>
-                  </div>
-                </div>
-                
-                <div className="groupe-champ double">
-                  <div className="sous-groupe">
-                    <label>Niveau</label>
-                    <select
-                      value={formMatiere.niveau}
-                      onChange={(e) => setFormMatiere(prev => ({ ...prev, niveau: e.target.value }))}
-                      className="champ"
-                    >
-                      <option value="primaire">Primaire</option>
-                      <option value="CP1">CP1</option>
-                      <option value="CP2">CP2</option>
-                      <option value="CE1">CE1</option>
-                      <option value="CE2">CE2</option>
-                      <option value="CM1">CM1</option>
-                      <option value="CM2">CM2</option>
-                    </select>
-                  </div>
-                  
-                  <div className="sous-groupe">
-                    <label>Ordre d'affichage</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={formMatiere.ordre_affichage}
-                      onChange={(e) => setFormMatiere(prev => ({ 
-                        ...prev, 
-                        ordre_affichage: parseInt(e.target.value) || 0 
-                      }))}
-                      className="champ"
-                    />
-                  </div>
-                </div>
-                
-                <div className="groupe-champ">
-                  <label>Description</label>
-                  <textarea
-                    value={formMatiere.description}
-                    onChange={(e) => setFormMatiere(prev => ({ ...prev, description: e.target.value }))}
-                    className="champ champ-textarea"
-                    placeholder="Description de la matière..."
-                    rows={3}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="pied-modal">
-              <button className="bouton-annuler" onClick={fermerModalMatiere}>
-                Annuler
-              </button>
-              <button className="bouton-sauvegarder" onClick={sauvegarderMatiere}>
-                {matiereAModifier ? 'Modifier la matière' : 'Créer la matière'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {matiereASupprimer && (
-        <div className="modal-overlay">
-          <div className="modal-confirmation-contenu">
-          <h3 style={{
-                  padding: '10px',
-                  fontSize: '20px',
-                  fontWeight: '600'
-                }}>Supprimer</h3>
-            <p>
-              Êtes-vous sûr de vouloir supprimer la matière 
-              <strong> "{matiereASupprimer.nom}"</strong> ?
-            </p>
-            <p className="texte-avertissement">
-              ⚠️ Cette action est irréversible. Si cette matière est utilisée dans des notes, elle ne pourra pas être supprimée.
-            </p>
-            <div className="actions-confirmation">
-              <button 
-                className="bouton-annuler"
-                onClick={() => setMatiereASupprimer(null)}
-              >
-                X Annuler
-              </button>
-              <button 
-                className="bouton-confirmer"
-                onClick={supprimerMatiere}
-              >
-                🗑️ Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {periodeASupprimer && (
         <div className="modal-overlay">
@@ -5063,6 +4645,20 @@ export default function GestionNotesPrimaire({ onRetourTableauDeBord }: Props) {
           compositionId={selectedCompositionForReleves}
         />
       )}
+
+      {/* Modal de gestion des matières depuis GestionCours */}
+{modalMatieresCoursOuvert && (
+  <div className="modal-overlay-matieres" onClick={() => setModalMatieresCoursOuvert(false)}>
+    <div className="modal-matieres-contenu" onClick={(e) => e.stopPropagation()}>
+          <GestionMatieres 
+            onMatiereAjoutee={async () => {
+              await chargerMatieresPrimaire();
+            }}
+            onFermer={() => setModalMatieresCoursOuvert(false)}
+          />
+    </div>
+  </div>
+)}
 
       {/* Toast Notifications */}
       <div className="toasts-container">

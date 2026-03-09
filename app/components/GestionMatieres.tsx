@@ -453,7 +453,7 @@ const sauvegarderMatiere = async () => {
                 <div key={matiere.id} className="carte-matiere" style={{ borderLeftColor: matiere.couleur }}>
                   <div className="en-tete-carte-matiere">
                     <div className="icone-matiere-mat" style={{ backgroundColor: matiere.couleur }}>
-                      
+                       {matiere.icone} 
                     </div>
                     <div className="info-matiere">
                       <h3>{matiere.nom}</h3>

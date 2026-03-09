@@ -110,6 +110,8 @@ export default function GestionCours({ onRetourTableauDeBord }: Props) {
   const [coursASupprimer, setCoursASupprimer] = useState<Cours | null>(null);
   const [modalMatieresOuvert, setModalMatieresOuvert] = useState(false);
 
+  const [soumissionEnCours, setSoumissionEnCours] = useState(false);
+
   // Formulaire
   const [formData, setFormData] = useState({
     code_cours: '',
@@ -602,61 +604,68 @@ console.log('🔍 Rendu - Nombre de matières:', matieres.length);
   };
 
   // Soumettre formulaire
-  const soumettreFormulaire = async () => {
-    if (!validerFormulaire()) return;
+// Soumettre formulaire
+const soumettreFormulaire = async () => {
+  if (!validerFormulaire()) return;
 
-    try {
-      setChargement(true);
-      
-      const url = '/api/cours';
-      const method = editionMode ? 'PUT' : 'POST';
-      
-      const dataAEnvoyer = {
-        ...formData,
-        ...(editionMode && coursSelectionne && { 
-          ancien_code_cours: coursSelectionne.code_cours 
-        })
-      };
-      
-      console.log('📤 Envoi des données cours:', dataAEnvoyer);
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataAEnvoyer)
+  // ✅ Empêcher les doubles soumissions
+  if (soumissionEnCours) return;
+  
+  setSoumissionEnCours(true); // Activer l'état de chargement
+
+  try {
+    setChargement(true);
+    
+    const url = '/api/cours';
+    const method = editionMode ? 'PUT' : 'POST';
+    
+    const dataAEnvoyer = {
+      ...formData,
+      ...(editionMode && coursSelectionne && { 
+        ancien_code_cours: coursSelectionne.code_cours 
+      })
+    };
+    
+    console.log('📤 Envoi des données cours:', dataAEnvoyer);
+    
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dataAEnvoyer)
+    });
+
+    const responseText = await response.text();
+    const data = responseText ? JSON.parse(responseText) : { success: false, error: 'Réponse vide' };
+
+    if (data.success) {
+      setAlerte({ 
+        type: 'success', 
+        message: editionMode 
+          ? 'Cours modifié avec succès' 
+          : 'Cours créé avec succès' 
       });
-
-      const responseText = await response.text();
-      const data = responseText ? JSON.parse(responseText) : { success: false, error: 'Réponse vide' };
-
-      if (data.success) {
-        setAlerte({ 
-          type: 'success', 
-          message: editionMode 
-            ? 'Cours modifié avec succès' 
-            : 'Cours créé avec succès' 
-        });
-        
-        await rechargerToutesDonnees();
-        fermerModal();
-      } else {
-        setAlerte({ 
-          type: 'error', 
-          message: data.error || 'Erreur lors de la sauvegarde' 
-        });
-      }
-    } catch (error: any) {
-      console.error('💥 Erreur sauvegarde cours:', error);
+      
+      await rechargerToutesDonnees();
+      fermerModal();
+    } else {
       setAlerte({ 
         type: 'error', 
-        message: error.message || 'Erreur lors de la sauvegarde' 
+        message: data.error || 'Erreur lors de la sauvegarde' 
       });
-    } finally {
-      setChargement(false);
     }
-  };
+  } catch (error: any) {
+    console.error('💥 Erreur sauvegarde cours:', error);
+    setAlerte({ 
+      type: 'error', 
+      message: error.message || 'Erreur lors de la sauvegarde' 
+    });
+  } finally {
+    setChargement(false);
+    setSoumissionEnCours(false); // Désactiver l'état de chargement
+  }
+};
 
   // Gestion de la suppression
   const demanderSuppression = (cours: Cours) => {
@@ -782,12 +791,14 @@ console.log('🔍 Rendu - Nombre de matières:', matieres.length);
           <button className="bouton-ajouter-cours" onClick={ouvrirModalCreation}>
           + Nouveau Cours
           </button>
-           <button 
-            className="bouton-gerer-matieres"
+          <button 
+            className="bouton-creer-matiere"
             onClick={() => setModalMatieresOuvert(true)}
           >
-            Gérer les matières ({matieres.length})
+            <span className="icone-ajouter">📚</span>
+            Gérer les matières  ({matieres.length})
           </button>
+
           </div>
         </div>
       </div>
@@ -901,13 +912,11 @@ console.log('🔍 Rendu - Nombre de matières:', matieres.length);
             className="select-filtre"
           >
             <option value="tous">Toutes les matières</option>
-            {matieres
-              .filter(m => m.statut === 'actif')
-              .map(matiere => (
-                <option key={matiere.id} value={matiere.id.toString()}>
-                  {matiere.icone} {matiere.nom} ({matiere.code_matiere})
-                </option>
-              ))
+            {matieres.map(matiere => (
+            <option key={matiere.id} value={matiere.id.toString()}>
+              {matiere.icone} {matiere.nom} ({matiere.code_matiere}) - Coef: {matiere.coefficient}
+            </option>
+          ))
             }
           </select>
         </div>
@@ -1270,17 +1279,28 @@ console.log('🔍 Rendu - Nombre de matières:', matieres.length);
             </div>
             
             <div className="pied-modal-cours">
-              <button className="bouton-annuler-cours" onClick={fermerModal}>
-                Annuler
-              </button>
-              <button 
-                className="bouton-sauvegarder-cours" 
-                onClick={soumettreFormulaire}
-                disabled={matieres.length === 0 || professeurs.length === 0 || classes.length === 0}
-              >
-                {editionMode ? 'Modifier' : 'Créer'}
-              </button>
-            </div>
+  <button 
+    className="bouton-annuler-cours" 
+    onClick={fermerModal}
+    disabled={soumissionEnCours}
+  >
+    Annuler
+  </button>
+  <button 
+    className={`bouton-sauvegarder-cours ${soumissionEnCours ? 'en-cours' : ''}`} 
+    onClick={soumettreFormulaire}
+    disabled={matieres.length === 0 || professeurs.length === 0 || classes.length === 0 || soumissionEnCours}
+  >
+    {soumissionEnCours ? (
+      <>
+        <span className="spinner-bouton"></span>
+        {editionMode ? 'Modification en cours...' : 'Création en cours...'}
+      </>
+    ) : (
+      editionMode ? 'Modifier' : 'Créer'
+    )}
+  </button>
+</div>
           </div>
         </div>
       )}
