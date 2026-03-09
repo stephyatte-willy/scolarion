@@ -4,6 +4,7 @@ export interface Classe {
   id: number;
   nom: string;
   niveau: string;
+  cycle?: string; // ✅ AJOUTÉ - optionnel car peut être null en base
   professeur_principal_id?: number;
   created_at: string;
   nom_professeur_principal?: string;
