@@ -2,28 +2,79 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/database';
 import bcrypt from 'bcryptjs';
 
-// GET - Récupérer tous les employés
+// GET - Récupérer tous les employés avec leurs classes
 export async function GET(request: NextRequest) {
   try {
-    console.log('🌐 API Personnel - GET');
+    console.log('🌐 API Personnel - GET avec classes');
     
-    const result = await query(`
+    // Requête améliorée pour inclure les classes
+    const sql = `
       SELECT 
         e.*,
         u.nom,
         u.prenom,
         u.email,
-        u.avatar_url as user_avatar_url
+        u.avatar_url as user_avatar_url,
+        (
+          SELECT COUNT(*) 
+          FROM classes c 
+          WHERE c.professeur_principal_id = e.user_id
+        ) as nombre_classes,
+        (
+          SELECT GROUP_CONCAT(CONCAT(c.niveau, ' ', c.nom) SEPARATOR ', ')
+          FROM classes c 
+          WHERE c.professeur_principal_id = e.user_id
+        ) as classes_principales
       FROM enseignants e
       INNER JOIN users u ON e.user_id = u.id
       ORDER BY u.nom, u.prenom
-    `, []);
+    `;
     
-    const enseignants = Array.isArray(result) ? result : [];
+    console.log('📝 SQL:', sql);
+    
+    const result = await query(sql, []) as any[];
+    
+    console.log(`✅ ${result.length} employés trouvés`);
+    
+    // Transformer les données
+    const employes = result.map((row: any) => ({
+      id: row.id,
+      user_id: row.user_id,
+      matricule: row.matricule || '',
+      nom: row.nom || '',
+      prenom: row.prenom || '',
+      email: row.email || '',
+      date_naissance: row.date_naissance,
+      lieu_naissance: row.lieu_naissance,
+      genre: row.genre || 'M',
+      adresse: row.adresse,
+      telephone: row.telephone,
+      specialite: row.specialite,
+      diplome: row.diplome,
+      date_embauche: row.date_embauche,
+      statut: row.statut || 'actif',
+      type_contrat: row.type_contrat || 'titulaire',
+      type_enseignant: row.type_enseignant || 'professeur',
+      matieres_enseignees: row.matieres_enseignees,
+      fonction: row.fonction,
+      departement: row.departement,
+      salaire: row.salaire,
+      created_at: row.created_at,
+      nombre_classes: parseInt(row.nombre_classes) || 0,
+      classes_principales: row.classes_principales || null,
+      avatar_url: row.avatar_url || row.user_avatar_url
+    }));
+    
+    // Log pour vérifier les classes des enseignants
+    employes.forEach((emp: any) => {
+      if (emp.type_enseignant !== 'administratif' && emp.nombre_classes > 0) {
+        console.log(`👨‍🏫 ${emp.prenom} ${emp.nom} - ${emp.nombre_classes} classe(s): ${emp.classes_principales}`);
+      }
+    });
     
     return NextResponse.json({
       success: true,
-      enseignants: enseignants
+      enseignants: employes // Garder le nom "enseignants" pour la compatibilité
     });
     
   } catch (error: any) {
@@ -35,7 +86,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Créer un nouvel employé
+// POST - Créer un nouvel employé (identique à votre code original)
 export async function POST(request: NextRequest) {
   try {
     console.log('🌐 API Personnel - POST');
@@ -101,19 +152,13 @@ export async function POST(request: NextRequest) {
     // ✅ Récupérer l'ID de l'utilisateur inséré
     let userId;
     
-    // Vérifier le format du résultat (selon la librairie MySQL)
     if (userResult && userResult.insertId !== undefined) {
-      // Format standard (mysql2)
       userId = userResult.insertId;
     } else if (userResult && userResult.id !== undefined) {
-      // Format alternatif
       userId = userResult.id;
     } else if (Array.isArray(userResult) && userResult.length > 0 && userResult[0].insertId) {
-      // Format avec tableau
       userId = userResult[0].insertId;
     } else {
-      // Dernier recours : récupérer l'ID par email
-      console.log('⚠️ Format de résultat non standard, recherche par email...');
       const userQuery = await query(
         'SELECT id FROM users WHERE email = ?',
         [data.email]
@@ -148,7 +193,7 @@ export async function POST(request: NextRequest) {
       departement = data.departement || null;
     }
 
-    // 8. Créer l'enseignant AVEC LE BON USER_ID
+    // 8. Créer l'enseignant
     await query(
       `INSERT INTO enseignants (
         user_id, matricule, date_naissance, lieu_naissance, genre,
@@ -157,7 +202,7 @@ export async function POST(request: NextRequest) {
         salaire, avatar_url, fonction, departement
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        userId, // ✅ Maintenant userId est défini !
+        userId,
         data.matricule,
         data.date_naissance || null,
         data.lieu_naissance || null,
@@ -178,14 +223,24 @@ export async function POST(request: NextRequest) {
       ]
     );
 
-    // 9. Récupérer le nouvel employé
+    // 9. Récupérer le nouvel employé (avec les classes pour être cohérent)
     const newEnseignant = await query(
       `SELECT 
         e.*,
         u.nom,
         u.prenom,
         u.email,
-        u.avatar_url as user_avatar_url
+        u.avatar_url as user_avatar_url,
+        (
+          SELECT COUNT(*) 
+          FROM classes c 
+          WHERE c.professeur_principal_id = e.user_id
+        ) as nombre_classes,
+        (
+          SELECT GROUP_CONCAT(CONCAT(c.niveau, ' ', c.nom) SEPARATOR ', ')
+          FROM classes c 
+          WHERE c.professeur_principal_id = e.user_id
+        ) as classes_principales
       FROM enseignants e
       INNER JOIN users u ON e.user_id = u.id
       WHERE e.user_id = ?`,
@@ -205,7 +260,6 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('❌ Erreur POST:', error);
     
-    // Gérer les erreurs spécifiques
     if (error.code === 'ER_DUP_ENTRY') {
       return NextResponse.json(
         { success: false, erreur: 'Un employé avec cet email ou matricule existe déjà' },

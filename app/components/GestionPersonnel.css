@@ -645,7 +645,7 @@
 }
 
 .badge-instituteur {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  background: linear-gradient(135deg, #dbeafe 0%, #bffecc 100%);
   color: #1e40af;
   border: 2px solid #93c5fd;
 }
@@ -2405,6 +2405,58 @@
   box-shadow: 0 12px 30px rgba(239, 68, 68, 0.3);
 }
 
+/* Styles pour les badges de classes */
+.badge-classes {
+  background: #10b981;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.badge-classes:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Styles pour la liste des classes */
+.liste-classes {
+  font-size: 11px;
+  color: #64748b;
+  max-width: 200px;
+  word-break: break-word;
+  line-height: 1.5;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+}
+
+/* Styles pour la section administrative */
+.fonction-info-adm {
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.departement-info-adm {
+  font-size: 11px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Style pour la cellule complète */
+.classes-personnel {
+  padding: 8px 4px;
+}
+
 /* ==================== MODAL CLASSES ==================== */
 
 .modal-classes {
@@ -3236,7 +3288,7 @@ input[name="prenom"] {
   color: #be185d;
 }
 
-.badge-specialite, .badge-fonction, .badge-departement {
+.badge-specialite, .badge-departement {
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 13px;

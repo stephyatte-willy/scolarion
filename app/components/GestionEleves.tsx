@@ -3317,7 +3317,7 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
                   name="email"
                   value={formData.email}
                   onChange={gererChangementFormulaire}
-                  className="input-champ-modern"
+                  className="textarea-champ-modern"
                   placeholder="Ex: eleve@ecole.ci"
                 />
               </div>

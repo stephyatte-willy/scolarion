@@ -1746,10 +1746,14 @@ export default function GestionPersonnel({ onRetourTableauDeBord }: Props) {
       console.log('📊 Type de data.enseignants:', Array.isArray(data.enseignants) ? 'tableau' : typeof data.enseignants);
       console.log('📊 Longueur:', data.enseignants?.length);
 
-      if (data.success) {
-              if (data.enseignants && data.enseignants.length > 0) {
-            console.log('📊 Premier élément:', data.enseignants[0]);
-          }
+          if (data.success && data.enseignants) {
+      // Log pour vérifier les classes
+      data.enseignants.forEach((ens: any) => {
+        if (ens.type_enseignant !== 'administratif') {
+          console.log(`👨‍🏫 ${ens.prenom} ${ens.nom} - Classes: ${ens.nombre_classes || 0} - Liste: ${ens.classes_principales || 'aucune'}`);
+        }
+      });
+      
         const personnelTransforme = data.enseignants.map((ens: any) => {
         const estAdministratif = ens.fonction?.includes('ADMIN') || 
                                    ens.type_enseignant === 'administratif' || 
@@ -3654,7 +3658,7 @@ export default function GestionPersonnel({ onRetourTableauDeBord }: Props) {
               
               <th>
                 <div className="entete-colonne" onClick={() => gererTri('nombre_classes')}>
-                  Classes
+                  Classes/Département
                   <div className="fleches-tri">
                     <span className={`fleche ${tri.colonne === 'nombre_classes' && tri.direction === 'asc' ? 'active' : ''}`}>▲</span>
                     <span className={`fleche ${tri.colonne === 'nombre_classes' && tri.direction === 'desc' ? 'active' : ''}`}>▼</span>
@@ -3789,27 +3793,78 @@ export default function GestionPersonnel({ onRetourTableauDeBord }: Props) {
                   </td>
                   
                   <td>
-                    <div className="classes-personnel">
-                      {membre.type_personnel !== 'administratif' ? (
-                        <>
-                          <div className="style-4">
-                            {membre.nombre_classes || 0} classe{membre.nombre_classes !== 1 ? 's' : ''}
-                          </div>
-                          {membre.classes_principales && (
-                            <div className="liste-classes">
-                              {membre.classes_principales}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="info-administrative">
-                          <div className="departement-info-adm">
-                            {membre.departement || 'Service général'}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </td>
+  <div className="classes-personnel">
+    {membre.type_personnel !== 'administratif' ? (
+      <>
+        {/* Badge du nombre de classes */}
+        <div className="nombre-classes">
+          <span className="badge-classes" style={{
+            background: membre.nombre_classes && membre.nombre_classes > 0 ? '#10b981' : '#94a3b8',
+            color: 'white',
+            padding: '4px 10px',
+            borderRadius: '20px',
+            fontSize: '12px',
+            fontWeight: '600',
+            display: 'inline-block',
+            marginBottom: '5px'
+          }}>
+            🏫 {membre.nombre_classes || 0} classe{membre.nombre_classes !== 1 ? 's' : ''}
+          </span>
+        </div>
+        
+        {/* Liste des classes si disponibles */}
+        {membre.classes_principales && (
+          <div className="liste-classes" style={{
+            fontSize: '11px',
+            color: '#334155',
+            maxWidth: '200px',
+            wordBreak: 'break-word',
+            lineHeight: '1.5',
+            marginTop: '6px',
+            padding: '6px 8px',
+            background: '#f8fafc',
+            borderRadius: '6px',
+            borderLeft: '3px solid #10b981'
+          }}>
+            <strong>Classes:</strong> {membre.classes_principales}
+          </div>
+        )}
+        
+        {/* Message si pas de classes */}
+        {(!membre.classes_principales || membre.nombre_classes === 0) && (
+          <div className="aucune-classe" style={{
+            fontSize: '11px',
+            color: '#94a3b8',
+            fontStyle: 'italic',
+            marginTop: '5px'
+          }}>
+            Aucune classe attribuée
+          </div>
+        )}
+      </>
+    ) : (
+      <div className="info-administrative">
+        <div className="fonction-info-adm" style={{
+          fontWeight: '600',
+          color: '#334155',
+          marginBottom: '4px',
+          fontSize: '13px'
+        }}>
+          {membre.fonction || 'Fonction non définie'}
+        </div>
+        <div className="departement-info-adm" style={{
+          fontSize: '11px',
+          color: '#64748b',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px'
+        }}>
+          📍 {membre.departement || 'Service général'}
+        </div>
+      </div>
+    )}
+  </div>
+</td>
                   
                    <td style={{ padding: '2px 1px' }}>
               <div className="actions-ligne" style={{ 
