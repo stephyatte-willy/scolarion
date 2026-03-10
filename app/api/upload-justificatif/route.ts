@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import sharp from 'sharp';
 
 export async function POST(request: Request) {
   console.log('📤 API Upload Justificatif - Début');
@@ -51,21 +52,46 @@ export async function POST(request: Request) {
       );
     }
 
-    // Convertir le fichier en base64
     console.log('📤 Conversion en base64...');
     const bytes = await fichier.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    let buffer: Buffer = Buffer.from(bytes); // ✅ Type explicite
+    let finalType = fichier.type;
+    
+    // ✅ Si c'est une image, la compresser pour réduire la taille
+    if (fichier.type.startsWith('image/')) {
+      try {
+        console.log('🖼️ Compression de l\'image...');
+        
+        // Utiliser sharp pour compresser l'image
+        const compressedBuffer = await sharp(buffer)
+          .resize(800, 800, { // Redimensionner si trop grande
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .jpeg({ quality: 70 }) // Convertir en JPEG avec qualité 70%
+          .toBuffer();
+        
+        buffer = Buffer.from(compressedBuffer); // ✅ Conversion explicite en Buffer
+        finalType = 'image/jpeg';
+        console.log('✅ Image compressée, nouvelle taille:', buffer.length, 'bytes');
+      } catch (compressError) {
+        console.error('⚠️ Erreur compression, utilisation de l\'original:', compressError);
+        // Continuer avec l'original si la compression échoue
+      }
+    }
+    
+    // Convertir en base64
     const base64 = buffer.toString('base64');
-    const dataURI = `data:${fichier.type};base64,${base64}`;
+    const dataURI = `data:${finalType};base64,${base64}`;
 
-    console.log('✅ Conversion réussie, taille base64:', dataURI.length, 'caractères');
+    console.log('✅ Conversion réussie, taille base64 finale:', dataURI.length, 'caractères');
 
     return NextResponse.json({
       success: true,
       url: dataURI,
       nomFichier: fichier.name,
-      type: fichier.type,
-      taille: fichier.size
+      type: finalType,
+      taille: buffer.length
     });
 
   } catch (error) {

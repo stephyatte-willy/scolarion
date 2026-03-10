@@ -741,11 +741,18 @@ const uploaderJustificatif = async (absenceId: number): Promise<string | null> =
   setUploadJustificatif(prev => ({ ...prev, enCours: true, progression: 0 }));
 
   try {
+    let fichierAEnvoyer = uploadJustificatif.fichier;
+    
+    // Si c'est une image, la compresser
+    if (fichierAEnvoyer.type.startsWith('image/')) {
+      fichierAEnvoyer = await compresserImage(fichierAEnvoyer);
+    }
+
     const formData = new FormData();
-    formData.append('fichier', uploadJustificatif.fichier);
+    formData.append('fichier', fichierAEnvoyer);
     formData.append('absenceId', absenceId.toString());
 
-    console.log('📤 Upload du fichier:', uploadJustificatif.fichier.name);
+    console.log('📤 Upload du fichier:', fichierAEnvoyer.name);
 
     const response = await fetch('/api/upload-justificatif', {
       method: 'POST',
@@ -777,6 +784,60 @@ const uploaderJustificatif = async (absenceId: number): Promise<string | null> =
     }));
     return null;
   }
+};
+
+// Fonction de compression d'image
+const compresserImage = (fichier: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(fichier);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Redimensionner l'image si trop grande
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 800;
+        
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height * maxDimension) / width;
+            width = maxDimension;
+          } else {
+            width = (width * maxDimension) / height;
+            height = maxDimension;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Convertir en JPEG avec qualité réduite
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const nouveauFichier = new File([blob], fichier.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              });
+              resolve(nouveauFichier);
+            } else {
+              reject(new Error('Échec de la compression'));
+            }
+          },
+          'image/jpeg',
+          0.7 // Qualité 70%
+        );
+      };
+      img.onerror = () => reject(new Error('Erreur chargement image'));
+    };
+    reader.onerror = () => reject(new Error('Erreur lecture fichier'));
+  });
 };
 
 const ouvrirModalSaisie = () => {
