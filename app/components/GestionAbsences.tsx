@@ -1434,50 +1434,6 @@ const imprimerListe = () => {
   }
 };
 
-// Fonction pour exporter en CSV (format simple)
-const exporterCSV = () => {
-  try {
-    const absencesAFiltrer = getAbsencesFiltrees;
-    
-    if (absencesAFiltrer.length === 0) {
-      showWarning('Aucune donnée à exporter');
-      return;
-    }
-    
-    // Préparer les données
-    const donnees = preparerDonneesExport(absencesAFiltrer);
-    
-    // Créer l'en-tête CSV
-    const entetes = Object.keys(donnees[0]).join(';');
-    
-    // Créer les lignes de données
-    const lignes = donnees.map(ligne => 
-      Object.values(ligne).map(valeur => 
-        `"${valeur.toString().replace(/"/g, '""')}"`
-      ).join(';')
-    );
-    
-    // Assembler le CSV
-    const csv = [entetes, ...lignes].join('\n');
-    
-    // Créer le blob et télécharger
-    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' }); // \uFEFF pour UTF-8 avec BOM
-    const url = URL.createObjectURL(blob);
-    const lien = document.createElement('a');
-    lien.href = url;
-    lien.download = `absences_${formaterDate(new Date().toISOString()).replace(/\//g, '-')}.csv`;
-    document.body.appendChild(lien);
-    lien.click();
-    document.body.removeChild(lien);
-    URL.revokeObjectURL(url);
-    
-    showSuccess(`Export CSV réussi : ${absencesAFiltrer.length} absence(s) exportée(s)`);
-    
-  } catch (error) {
-    console.error('❌ Erreur export CSV:', error);
-    showError('Erreur lors de l\'export CSV');
-  }
-};
 
   const getNomEleve = (eleveId: number): string => {
     const eleve = eleves.find(e => e.id === eleveId);
@@ -1632,7 +1588,7 @@ const getAbsencesFiltrees = useMemo(() => {
               
               {/* Nouveaux boutons d'export */}
               <button 
-                className="bouton-exporter-excel" 
+                className="bouton-sauvegarder" 
                 onClick={exporterExcel}
                 title="Exporter en Excel"
               >
@@ -1649,14 +1605,6 @@ const getAbsencesFiltrees = useMemo(() => {
                 Imprimer
               </button>
               
-              <button 
-                className="bouton-exporter-csv" 
-                onClick={exporterCSV}
-                title="Exporter en CSV"
-              >
-                <span className="icone-csv">📄</span>
-                CSV
-              </button>
               <button className="bouton-reinitialiser" onClick={handleResetFilters}>
                 🔄 Réinitialiser
               </button>
@@ -2645,8 +2593,7 @@ const getAbsencesFiltrees = useMemo(() => {
                           }));
                         }}
                         className="checkbox"
-                      />
-                      <span>Absence justifiée</span>
+                      /> <span> Absence justifiée</span>
                     </label>
                   </div>
                   

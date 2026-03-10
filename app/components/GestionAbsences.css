@@ -1336,6 +1336,22 @@
   background-color: #2563eb;
 }
 
+.zone-upload {
+  margin: 10px 0;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.zone-upload:hover {
+  border-color: #3b82f6;
+  background: #f0f7ff;
+}
+
 /* Modal multiple */
 .instructions-multiple {
   background-color: #f0f9ff;

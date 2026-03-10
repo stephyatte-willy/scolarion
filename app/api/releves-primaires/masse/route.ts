@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, runTransaction } from '@/app/lib/database'; // Correction ici : runTransaction au lieu de transaction
+import { query, runTransaction } from '@/app/lib/database';
+import { RowDataPacket } from 'mysql2';
+
+// Interface pour le résultat de la requête composition
+interface CompositionResult extends RowDataPacket {
+  classe_id: number;
+  periode_id: number;
+}
 
 export async function POST(request: NextRequest) {
   console.log('🚀 API masse appelée');
@@ -17,17 +24,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await runTransaction(async (connection) => { // Correction ici
+    const result = await runTransaction(async (connection) => {
       // ÉTAPE 1: Supprimer les anciens relevés SI on a composition_id
       if (composition_id) {
         try {
           const compSql = 'SELECT classe_id, periode_id FROM compositions_primaire WHERE id = ?';
-          const [compResult]: any = await connection.execute(compSql, [composition_id]); // Utiliser execute()
+          const [compResult] = await connection.execute<CompositionResult[]>(compSql, [composition_id]);
           
           if (compResult && compResult.length > 0) {
             const comp = compResult[0];
             const deleteSql = 'DELETE FROM releves_primaire WHERE classe_id = ? AND periode_id = ?';
-            await connection.execute(deleteSql, [comp.classe_id, comp.periode_id]); // Utiliser execute()
+            await connection.execute(deleteSql, [comp.classe_id, comp.periode_id]);
             console.log(`🗑️ Anciens relevés supprimés`);
           }
         } catch (deleteError) {
@@ -48,7 +55,7 @@ export async function POST(request: NextRequest) {
               moyennes_par_matiere, moyenne_generale, rang,
               mention, appreciation_generale, date_generation,
               statut, email_envoye, date_envoi_email
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'finalise', 0, '0000-00-00 00:00:00')
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)
           `;
           
           const params = [
@@ -64,10 +71,13 @@ export async function POST(request: NextRequest) {
             releve.moyenne_generale || 0,
             releve.rang || 0,
             releve.mention || '',
-            releve.appreciation_generale || ''
+            releve.appreciation_generale || '',
+            'finalise',
+            0,
+            null
           ];
           
-          await connection.execute(sql, params); // Utiliser execute()
+          await connection.execute(sql, params);
           insertedCount++;
           
         } catch (insertError: any) {
@@ -88,7 +98,8 @@ export async function POST(request: NextRequest) {
                 mention = ?,
                 appreciation_generale = ?,
                 date_generation = NOW(),
-                updated_at = NOW()
+                updated_at = NOW(),
+                date_envoi_email = NULL
               WHERE eleve_id = ? AND classe_id = ? AND periode_id = ?
             `;
             
@@ -108,7 +119,7 @@ export async function POST(request: NextRequest) {
               releve.periode_id
             ];
             
-            await connection.execute(updateSql, updateParams); // Utiliser execute()
+            await connection.execute(updateSql, updateParams);
             insertedCount++;
           } else {
             console.error(`❌ Erreur insertion élève ${releve.eleve_id}:`, insertError.message);
@@ -123,7 +134,7 @@ export async function POST(request: NextRequest) {
           await connection.execute(
             'UPDATE compositions_primaire SET releves_generes = TRUE, updated_at = NOW() WHERE id = ?',
             [composition_id]
-          ); // Utiliser execute()
+          );
         } catch (updateError) {
           console.warn('⚠️ Mise à jour composition échouée:', updateError);
         }
