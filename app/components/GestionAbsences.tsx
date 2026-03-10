@@ -762,7 +762,7 @@ const uploaderJustificatif = async (absenceId: number): Promise<string | null> =
         enCours: false
       }));
       
-      console.log('✅ Fichier uploadé avec succès:', data.url);
+      console.log('✅ Fichier uploadé avec succès (base64)');
       return data.url;
     } else {
       throw new Error(data.error || 'Erreur upload');
@@ -1049,7 +1049,7 @@ const justifierAbsence = async () => {
       piece_justificative: pieceUrl
     };
 
-    console.log('📤 Envoi justification:', payload);
+    console.log('📤 Envoi justification avec pièce jointe (base64)');
 
     const response = await fetch(`/api/absences/${formAbsence.id}`, {
       method: 'PATCH',
@@ -1077,7 +1077,6 @@ const justifierAbsence = async () => {
     setSoumissionEnCours(false);
   }
 };
-
 const supprimerAbsence = (absence: Absence) => {
   setAbsenceASupprimer(absence);
   setModalSuppressionOuvert(true);
@@ -1604,7 +1603,7 @@ const getAbsencesFiltrees = useMemo(() => {
                 <span className="icone-imprimer">🖨️</span>
                 Imprimer
               </button>
-              
+
               <button className="bouton-reinitialiser" onClick={handleResetFilters}>
                 🔄 Réinitialiser
               </button>
@@ -1986,10 +1985,7 @@ const getAbsencesFiltrees = useMemo(() => {
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="lien-piece-justificative"
-                          onClick={(e) => {
-                            // Empêcher la propagation pour ne pas déclencher d'autres événements
-                            e.stopPropagation();
-                          }}
+                          onClick={(e) => e.stopPropagation()}
                           title="Ouvrir le justificatif"
                         >
                           <span className="icone-piece">📎</span>
