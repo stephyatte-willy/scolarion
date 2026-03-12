@@ -74,6 +74,7 @@ export interface FraisEleve {
   eleve_id: number;
   annee_scolaire: string;
   montant: number;
+  montant_original?: number;        // ✅ NOUVEAU - optionnel pour rétrocompatibilité
   montant_paye: number;
   date_echeance: string;
   statut: 'en_attente' | 'partiel' | 'paye' | 'en_retard';
@@ -82,6 +83,9 @@ export interface FraisEleve {
   reference_paiement?: string;
   notes?: string;
   created_at: string;
+  a_remise?: boolean;                // ✅ NOUVEAU - optionnel
+  remise_id?: number | null;         // ✅ NOUVEAU - optionnel
+  motif_remise?: string | null;      // ✅ NOUVEAU - optionnel
   // Jointures
   eleve_nom?: string;
   eleve_prenom?: string;
@@ -1119,6 +1123,153 @@ static async obtenirPaiements(filtres: any = {}): Promise<{success: boolean, pai
       };
     }
   }
+
+  // Ajouter cette méthode dans la classe FinanceService
+
+// Obtenir le montant avec remise pour un élève
+static async getMontantAvecRemise(fraisScolaireId: number, eleveId: number): Promise<{
+  success: boolean,
+  montant_original?: number,
+  montant_avec_remise?: number,
+  remise?: any,
+  a_remise: boolean
+}> {
+  try {
+    console.log(`🔍 Vérification remise pour frais ${fraisScolaireId}, élève ${eleveId}`);
+
+    // Vérifier s'il y a une remise active
+    const remiseSql = `
+      SELECT * FROM remises_frais 
+      WHERE frais_scolaire_id = ? AND eleve_id = ? AND statut = 'active'
+    `;
+    
+    const remises = await query(remiseSql, [fraisScolaireId, eleveId]) as any[];
+
+    // Récupérer le montant original du frais scolaire
+    const fraisSql = `SELECT montant FROM frais_scolaires WHERE id = ?`;
+    const fraisResult = await query(fraisSql, [fraisScolaireId]) as any[];
+
+    if (fraisResult.length === 0) {
+      return { success: false, a_remise: false };
+    }
+
+    const montantOriginal = parseFloat(fraisResult[0].montant);
+
+    if (remises.length > 0) {
+      return {
+        success: true,
+        a_remise: true,
+        montant_original: montantOriginal,
+        montant_avec_remise: parseFloat(remises[0].montant_final),
+        remise: remises[0]
+      };
+    }
+
+    return {
+      success: true,
+      a_remise: false,
+      montant_original: montantOriginal,
+      montant_avec_remise: montantOriginal
+    };
+
+  } catch (error: any) {
+    console.error('❌ Erreur vérification remise:', error);
+    return { success: false, a_remise: false };
+  }
+}
+
+// Créer un frais élève avec remise
+static async creerFraisEleveAvecRemise(
+  fraisScolaireId: number, 
+  eleveId: number, 
+  anneeScolaire: string
+): Promise<{success: boolean, fraisEleveId?: number, a_remise?: boolean, message?: string, erreur?: string}> {
+  try {
+    console.log('📝 Création frais élève avec vérification remise');
+
+    // Vérifier la remise
+    const remiseCheck = await this.getMontantAvecRemise(fraisScolaireId, eleveId);
+    
+    if (!remiseCheck.success) {
+      return { success: false, erreur: 'Impossible de vérifier les remises' };
+    }
+
+    const montantAPayer = remiseCheck.montant_avec_remise || remiseCheck.montant_original;
+    const aRemise = remiseCheck.a_remise;
+    const remise = remiseCheck.remise;
+
+    // Date d'échéance
+    const dateEcheance = new Date();
+    dateEcheance.setMonth(dateEcheance.getMonth() + 1);
+    const dateEcheanceStr = dateEcheance.toISOString().split('T')[0];
+
+    // Vérifier si le frais élève existe déjà
+    const verifSql = `
+      SELECT id FROM frais_eleves 
+      WHERE frais_scolaire_id = ? AND eleve_id = ? AND annee_scolaire = ?
+    `;
+    const existant = await query(verifSql, [fraisScolaireId, eleveId, anneeScolaire]) as any[];
+
+    if (existant.length > 0) {
+      // Mettre à jour le frais existant si nécessaire
+      if (aRemise) {
+        const updateSql = `
+          UPDATE frais_eleves 
+          SET montant = ?,
+              montant_original = ?,
+              a_remise = 1,
+              remise_id = ?,
+              motif_remise = ?
+          WHERE id = ?
+        `;
+        await query(updateSql, [
+          montantAPayer,
+          remiseCheck.montant_original,
+          remise?.id || null,
+          remise?.motif || null,
+          existant[0].id
+        ]);
+      }
+      return { 
+        success: true, 
+        fraisEleveId: existant[0].id,
+        a_remise: aRemise,
+        message: aRemise ? 'Frais avec remise appliquée' : 'Frais existant sans remise'
+      };
+    }
+
+    // Créer un nouveau frais élève
+    const insertSql = `
+      INSERT INTO frais_eleves (
+        frais_scolaire_id, eleve_id, annee_scolaire, montant, montant_original,
+        montant_paye, date_echeance, statut, a_remise, remise_id, motif_remise
+      ) VALUES (?, ?, ?, ?, ?, 0, ?, 'en_attente', ?, ?, ?)
+    `;
+
+    const result = await query(insertSql, [
+      fraisScolaireId,
+      eleveId,
+      anneeScolaire,
+      montantAPayer,
+      remiseCheck.montant_original,
+      dateEcheanceStr,
+      aRemise ? 1 : 0,
+      remise?.id || null,
+      remise?.motif || null
+    ]) as any;
+
+    return {
+      success: true,
+      fraisEleveId: result.insertId,
+      a_remise: aRemise,
+      message: aRemise ? 'Frais créé avec remise' : 'Frais créé sans remise'
+    };
+
+  } catch (error: any) {
+    console.error('❌ Erreur création frais élève avec remise:', error);
+    return { success: false, erreur: error.message };
+  }
+}
 
   static async obtenirStatistiquesPaiements(filtres: any = {}): Promise<{success: boolean, statistiques?: StatistiquesPaiements, erreur?: string}> {
   try {

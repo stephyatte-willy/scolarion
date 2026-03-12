@@ -101,12 +101,14 @@ interface FraisScolaire {
   categorie_periodicite?: string;
 }
 
+// Interface FraisEleve enrichie avec les propriétés de remise
 interface FraisEleve {
   id: number;
   frais_scolaire_id: number;
   eleve_id: number;
   annee_scolaire: string;
   montant: number;
+  montant_original?: number;        // ✅ NOUVEAU
   montant_paye: number;
   date_echeance: string;
   statut: 'en_attente' | 'partiel' | 'paye' | 'en_retard';
@@ -115,6 +117,9 @@ interface FraisEleve {
   categorie_type?: string;
   periodicite?: string;
   frais_restant?: number;
+  a_remise?: boolean;               // ✅ NOUVEAU
+  remise_id?: number | null;        // ✅ NOUVEAU
+  motif_remise?: string | null;     // ✅ NOUVEAU
 }
 
 interface StatistiquesClasse {
@@ -161,8 +166,680 @@ interface PaiementFormData {
   is_versement?: boolean;
 }
 
+// Interface pour le composant ModalRemise
+interface ModalRemiseProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  fraisScolaire: any;
+  eleve: any;
+  anneeScolaire: string;
+  formaterMontant: (montant: number) => string;  // ✅ AJOUTÉ
+  formaterDate: (date: Date | string) => string; // ✅ AJOUTÉ
+}
+
 type SortFieldPaiement = 'eleve' | 'categorie' | 'classe' | 'date' | 'versement';
 
+// ==================== COMPOSANT MODAL REMISE ====================
+// ==================== COMPOSANT MODAL REMISE CORRIGÉ ====================
+function ModalRemise({ 
+  isOpen, 
+  onClose, 
+  onSuccess, 
+  fraisScolaire, 
+  eleve, 
+  anneeScolaire,
+  formaterMontant,
+  formaterDate
+}: ModalRemiseProps) {
+  // États
+  const [formData, setFormData] = useState({
+    montant_final: fraisScolaire?.montant ? Number(fraisScolaire.montant) : 0,
+    type_remise: 'montant_fixe',
+    valeur_remise: 0,
+    motif: ''
+  });
+  
+  const [chargement, setChargement] = useState(false);
+  const [remiseActive, setRemiseActive] = useState<any>(null);
+  const [remisesInactives, setRemisesInactives] = useState<any[]>([]);
+  const [verificationEnCours, setVerificationEnCours] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [mode, setMode] = useState<'consultation' | 'creation'>('consultation');
+  const [remiseSelectionnee, setRemiseSelectionnee] = useState<any>(null);
+
+  const montantOriginal = fraisScolaire?.montant ? Number(fraisScolaire.montant) : 0;
+
+  // Vérifier toutes les remises à l'ouverture
+  useEffect(() => {
+    if (isOpen && fraisScolaire && eleve) {
+      verifierToutesRemises();
+    }
+  }, [isOpen, fraisScolaire, eleve]);
+
+  const verifierToutesRemises = async () => {
+    setVerificationEnCours(true);
+    setErreur(null);
+    
+    try {
+      // Récupérer les remises actives
+      const activeUrl = `/api/finance/remises?frais_scolaire_id=${fraisScolaire.id}&eleve_id=${eleve.id}&actives=true`;
+      const activeResponse = await fetch(activeUrl);
+      const activeData = await activeResponse.json();
+      
+      // Récupérer les remises inactives
+      const inactiveUrl = `/api/finance/remises?frais_scolaire_id=${fraisScolaire.id}&eleve_id=${eleve.id}&actives=false`;
+      const inactiveResponse = await fetch(inactiveUrl);
+      const inactiveData = await inactiveResponse.json();
+      
+      if (activeData.success) {
+        const actives = activeData.remises || [];
+        setRemiseActive(actives.length > 0 ? actives[0] : null);
+        
+        if (actives.length > 0) {
+          setRemiseSelectionnee(actives[0]);
+          setMode('consultation');
+          setFormData({
+            montant_final: Number(actives[0].montant_final) || montantOriginal,
+            type_remise: actives[0].type_remise || 'montant_fixe',
+            valeur_remise: Number(actives[0].valeur_remise) || 0,
+            motif: actives[0].motif || ''
+          });
+        }
+      }
+      
+      if (inactiveData.success) {
+        setRemisesInactives(inactiveData.remises || []);
+      }
+      
+    } catch (error: any) {
+      setErreur(error.message || 'Erreur de connexion');
+    } finally {
+      setVerificationEnCours(false);
+    }
+  };
+
+  const handleMontantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valeur = e.target.value === '' ? 0 : Number(e.target.value);
+    if (isNaN(valeur)) return;
+    
+    if (valeur > montantOriginal) {
+      setFormData({ ...formData, montant_final: montantOriginal });
+    } else if (valeur < 0) {
+      setFormData({ ...formData, montant_final: 0 });
+    } else {
+      setFormData({ ...formData, montant_final: valeur });
+    }
+  };
+
+  const handlePourcentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valeur = e.target.value === '' ? 0 : Number(e.target.value);
+    if (isNaN(valeur)) return;
+    
+    const pourcentageValide = Math.min(Math.max(valeur, 0), 100);
+    const nouveauMontant = montantOriginal * (1 - pourcentageValide / 100);
+    
+    setFormData({
+      ...formData,
+      type_remise: 'pourcentage',
+      valeur_remise: pourcentageValide,
+      montant_final: Math.round(nouveauMontant)
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChargement(true);
+    setErreur(null);
+
+    try {
+      const response = await fetch('/api/finance/remises', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          frais_scolaire_id: fraisScolaire.id,
+          eleve_id: eleve.id,
+          montant_final: formData.montant_final,
+          type_remise: formData.type_remise,
+          valeur_remise: formData.valeur_remise,
+          motif: formData.motif,
+          annee_scolaire: anneeScolaire,
+          created_by: 1
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ Remise appliquée avec succès');
+        onSuccess();
+        onClose();
+      } else {
+        setErreur(data.erreur || 'Erreur lors de l\'application');
+      }
+    } catch (error: any) {
+      setErreur(error.message || 'Erreur de connexion');
+    } finally {
+      setChargement(false);
+    }
+  };
+
+  const handleDesactiver = async (remise: any) => {
+    if (!remise || !remise.id) {
+      alert('Erreur: ID de remise manquant');
+      return;
+    }
+
+    if (!confirm('Êtes-vous sûr de vouloir désactiver cette remise ? Le montant sera restauré à sa valeur originale.')) {
+      return;
+    }
+
+    setChargement(true);
+    setErreur(null);
+    
+    try {
+      const response = await fetch(`/api/finance/remises?id=${remise.id}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ Remise désactivée avec succès');
+        await verifierToutesRemises(); // Recharger les données
+        onSuccess();
+      } else {
+        setErreur(data.erreur || 'Erreur lors de la désactivation');
+      }
+    } catch (error: any) {
+      setErreur(error.message || 'Erreur de connexion');
+    } finally {
+      setChargement(false);
+    }
+  };
+
+  const handleActiver = async (remise: any) => {
+    if (!remise || !remise.id) {
+      alert('Erreur: ID de remise manquant');
+      return;
+    }
+
+    if (!confirm('Voulez-vous réactiver cette remise ?')) {
+      return;
+    }
+
+    setChargement(true);
+    setErreur(null);
+    
+    try {
+      const response = await fetch('/api/finance/remises/reactiver', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: remise.id })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ Remise réactivée avec succès');
+        await verifierToutesRemises(); // Recharger les données
+        onSuccess();
+      } else {
+        setErreur(data.erreur || 'Erreur lors de la réactivation');
+      }
+    } catch (error: any) {
+      setErreur(error.message || 'Erreur de connexion');
+    } finally {
+      setChargement(false);
+    }
+  };
+
+  const handleSupprimerDefinitivement = async (remise: any) => {
+    if (!remise || !remise.id) {
+      alert('Erreur: ID de remise manquant');
+      return;
+    }
+
+    if (!confirm('⚠️ Êtes-vous ABSOLUMENT sûr de vouloir supprimer définitivement cette remise ?\n\nCette action est irréversible et supprimera toutes les traces de cette remise dans la base de données.')) {
+      return;
+    }
+
+    setChargement(true);
+    setErreur(null);
+    
+    try {
+      const response = await fetch(`/api/finance/remises/supprimer?id=${remise.id}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ Remise supprimée définitivement');
+        await verifierToutesRemises(); // Recharger les données
+        onSuccess();
+      } else {
+        setErreur(data.erreur || 'Erreur lors de la suppression');
+      }
+    } catch (error: any) {
+      setErreur(error.message || 'Erreur de connexion');
+    } finally {
+      setChargement(false);
+    }
+  };
+
+  const handleNouvelleRemise = () => {
+    setMode('creation');
+    setRemiseSelectionnee(null);
+    setFormData({
+      montant_final: montantOriginal,
+      type_remise: 'montant_fixe',
+      valeur_remise: 0,
+      motif: ''
+    });
+  };
+
+  if (!isOpen) return null;
+
+  const montantRemise = montantOriginal - formData.montant_final;
+  const pourcentageRemise = montantOriginal > 0 
+    ? Math.round((montantRemise / montantOriginal) * 100) 
+    : 0;
+
+  return (
+    <div className="overlay-modal-modern" onClick={onClose}>
+      <div className="modal-modern large" onClick={(e) => e.stopPropagation()}>
+        <div className="en-tete-modal-modern">
+          <h2>
+            {mode === 'consultation' && remiseActive ? '📋 Gestion de la remise active' : '💰 Appliquer une nouvelle remise'}
+          </h2>
+          <button className="bouton-fermer-modal-modern" onClick={onClose}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="contenu-modal-modern">
+          {erreur && (
+            <div style={{
+              background: '#fee2e2',
+              color: '#dc2626',
+              padding: '10px',
+              borderRadius: '6px',
+              marginBottom: '15px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span>❌ {erreur}</span>
+              <button onClick={() => setErreur(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+            </div>
+          )}
+
+          {verificationEnCours ? (
+            <div style={{ textAlign: 'center', padding: '30px' }}>
+              <div className="spinner" style={{ 
+                width: '40px', 
+                height: '40px', 
+                border: '4px solid #f3f3f3', 
+                borderTop: '4px solid #8b5cf6', 
+                borderRadius: '50%', 
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 15px'
+              }}></div>
+              <p>Vérification des remises...</p>
+            </div>
+          ) : (
+            <>
+              {/* SECTION REMISE ACTIVE */}
+              {remiseActive && (
+                <div style={{
+                  background: '#fef3c7',
+                  border: '2px solid #fde68a',
+                  borderRadius: '8px',
+                  padding: '15px',
+                  marginBottom: '20px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                    <span style={{ fontSize: '24px' }}>✅</span>
+                    <h3 style={{ margin: 0, color: '#92400e' }}>Remise active</h3>
+                  </div>
+                  
+                  <div style={{
+                    background: 'white',
+                    padding: '15px',
+                    borderRadius: '6px',
+                    marginBottom: '15px'
+                  }}>
+                    <table style={{ width: '100%' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ padding: '5px 0', fontWeight: 'bold' }}>Montant original:</td>
+                          <td style={{ padding: '5px 0', textAlign: 'right' }}>
+                            {formaterMontant(remiseActive.montant_original || montantOriginal)}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '5px 0', fontWeight: 'bold' }}>Montant après remise:</td>
+                          <td style={{ padding: '5px 0', textAlign: 'right', color: '#059669', fontWeight: 'bold' }}>
+                            {formaterMontant(remiseActive.montant_final)}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '5px 0', fontWeight: 'bold' }}>Motif:</td>
+                          <td style={{ padding: '5px 0', textAlign: 'right' }}>
+                            {remiseActive.motif || 'Non spécifié'}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '5px 0', fontWeight: 'bold' }}>Date:</td>
+                          <td style={{ padding: '5px 0', textAlign: 'right' }}>
+                            {formaterDate(remiseActive.date_remise)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button 
+                      onClick={() => handleDesactiver(remiseActive)}
+                      disabled={chargement}
+                      style={{
+                        flex: 1,
+                        background: '#dc2626',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '10px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      {chargement ? 'En cours...' : '🔴 Désactiver'}
+                    </button>
+                    
+                    <button 
+                      onClick={() => handleSupprimerDefinitivement(remiseActive)}
+                      disabled={chargement}
+                      style={{
+                        flex: 0.8,
+                        background: '#6b7280',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '10px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      {chargement ? 'En cours...' : '🗑️ Supprimer'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION REMISES INACTIVES */}
+              {remisesInactives.length > 0 && (
+                <div style={{ marginBottom: '20px' }}>
+                  <h3 style={{ marginBottom: '15px' }}>📜 Anciennes remises</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {remisesInactives.map((remise) => (
+                      <div key={remise.id} style={{
+                        background: '#f8fafc',
+                        padding: '15px',
+                        borderRadius: '6px',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <div style={{ marginBottom: '10px' }}>
+                          <div><strong>Montant:</strong> {formaterMontant(remise.montant_final)}</div>
+                          <div><small>Motif: {remise.motif}</small></div>
+                          <div><small>Date: {formaterDate(remise.date_remise)}</small></div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button 
+                            onClick={() => handleActiver(remise)}
+                            disabled={chargement || remiseActive !== null}
+                            style={{
+                              flex: 1,
+                              background: remiseActive ? '#9ca3af' : '#10b981',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              padding: '8px',
+                              fontWeight: '500',
+                              cursor: remiseActive ? 'not-allowed' : 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '8px'
+                            }}
+                            title={remiseActive ? "Désactivez d'abord la remise active" : "Activer cette remise"}
+                          >
+                            {chargement ? 'En cours...' : '🟢 Activer'}
+                          </button>
+                          
+                          <button 
+                            onClick={() => handleSupprimerDefinitivement(remise)}
+                            disabled={chargement}
+                            style={{
+                              flex: 0.5,
+                              background: '#ef4444',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              padding: '8px',
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '8px'
+                            }}
+                          >
+                            {chargement ? 'En cours...' : '🗑️ Supprimer'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* BOUTON NOUVELLE REMISE */}
+              {!remiseActive && (
+                <button 
+                  onClick={handleNouvelleRemise}
+                  style={{
+                    width: '100%',
+                    background: '#8b5cf6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '12px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginBottom: '20px'
+                  }}
+                >
+                  ➕ Créer une nouvelle remise
+                </button>
+              )}
+
+              {/* FORMULAIRE DE CRÉATION */}
+              {mode === 'creation' && !remiseActive && (
+                <form onSubmit={handleSubmit}>
+                  <div className="formulaire-remise">
+                    <div style={{
+                      background: '#f8fafc',
+                      padding: '15px',
+                      borderRadius: '6px',
+                      marginBottom: '20px',
+                      borderLeft: '4px solid #8b5cf6'
+                    }}>
+                      <p style={{ margin: '5px 0' }}><strong>Élève:</strong> {eleve.prenom} {eleve.nom}</p>
+                      <p style={{ margin: '5px 0' }}><strong>Frais:</strong> {fraisScolaire.categorie_nom}</p>
+                      <p style={{ margin: '5px 0' }}><strong>Montant original:</strong> {formaterMontant(montantOriginal)}</p>
+                    </div>
+
+                    <div style={{ marginBottom: '20px' }}>
+                      <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500' }}>
+                        Type de remise:
+                      </label>
+                      <div style={{ display: 'flex', gap: '20px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <input
+                            type="radio"
+                            name="type_remise"
+                            checked={formData.type_remise === 'montant_fixe'}
+                            onChange={() => setFormData({ ...formData, type_remise: 'montant_fixe' })}
+                          />
+                          Montant fixe
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <input
+                            type="radio"
+                            name="type_remise"
+                            checked={formData.type_remise === 'pourcentage'}
+                            onChange={() => setFormData({ ...formData, type_remise: 'pourcentage' })}
+                          />
+                          Pourcentage
+                        </label>
+                      </div>
+                    </div>
+
+                    {formData.type_remise === 'montant_fixe' ? (
+                      <div style={{ marginBottom: '20px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                          Nouveau montant *
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.montant_final.toString()}
+                          onChange={handleMontantChange}
+                          min="0"
+                          max={montantOriginal}
+                          step="100"
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px'
+                          }}
+                        />
+                        <p style={{ marginTop: '5px', fontSize: '0.9rem', color: '#6b7280' }}>
+                          Réduction: {formaterMontant(montantRemise)} ({pourcentageRemise}%)
+                        </p>
+                      </div>
+                    ) : (
+                      <div style={{ marginBottom: '20px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                          Pourcentage de réduction *
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.valeur_remise.toString()}
+                          onChange={handlePourcentageChange}
+                          min="0"
+                          max="100"
+                          step="5"
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px'
+                          }}
+                        />
+                        <p style={{ marginTop: '5px', fontSize: '0.9rem', color: '#6b7280' }}>
+                          Nouveau montant: {formaterMontant(formData.montant_final)}
+                        </p>
+                      </div>
+                    )}
+
+                    <div style={{ marginBottom: '20px' }}>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                        Motif de la remise *
+                      </label>
+                      <textarea
+                        value={formData.motif}
+                        onChange={(e) => setFormData({ ...formData, motif: e.target.value })}
+                        placeholder="Ex: Aide sociale, Bourse, Remise exceptionnelle..."
+                        rows={3}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          resize: 'vertical'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+                    <button 
+                      type="button" 
+                      onClick={onClose}
+                      style={{
+                        padding: '10px 20px',
+                        background: 'white',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Annuler
+                    </button>
+                    <button 
+                      type="submit" 
+                      disabled={chargement || formData.montant_final >= montantOriginal}
+                      style={{
+                        padding: '10px 20px',
+                        background: formData.montant_final >= montantOriginal ? '#9ca3af' : '#8b5cf6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: formData.montant_final >= montantOriginal ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {chargement ? 'Application...' : '✅ Appliquer la remise'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ==================== COMPOSANT PRINCIPAL ====================
 export default function GestionPaiements() {
   // États principaux
   const [ongletActif, setOngletActif] = useState<'liste' | 'nouveau' | 'versements'>('liste');
@@ -203,12 +880,30 @@ export default function GestionPaiements() {
   const [paiementsASupprimer, setPaiementsASupprimer] = useState<number[]>([]);
   const [detailsSuppression, setDetailsSuppression] = useState<any[]>([]);
 
+  // États pour la remise
+  const [modalRemiseOpen, setModalRemiseOpen] = useState(false);
+  const [fraisPourRemise, setFraisPourRemise] = useState<any>(null);
+  const [elevePourRemise, setElevePourRemise] = useState<any>(null);
+
   // Fonctions de défilement
   const defilerVersEtapeClasse = () => defilerVersEtape('etape-classe');
   const defilerVersEtapeEleve = () => defilerVersEtape('etape-eleve');
   const defilerVersEtapeFrais = () => defilerVersEtape('etape-frais');
   const defilerVersEtapeConfigScolarite = () => defilerVersEtape('etape-config-scolarite');
   const defilerVersEtapeDetails = () => defilerVersEtape('etape-details-paiement');
+
+
+    const handleRemiseSuccess = () => {
+    console.log('🔄 Remise modifiée, rafraîchissement des données');
+    if (eleveSelectionne) {
+      chargerFraisEleve(eleveSelectionne);
+    }
+    // Optionnel: recharger aussi la liste des frais scolaires
+    if (classeSelectionnee) {
+      chargerFraisScolairesParClasse(classeSelectionnee);
+    }
+  };
+  
   
   // Filtres
   const [filtres, setFiltres] = useState({
@@ -357,6 +1052,21 @@ export default function GestionPaiements() {
       return '';
     }
   };
+
+  // ==================== FONCTION POUR OUVRIR LA MODAL DE REMISE ====================
+  const ouvrirModalRemise = (frais: any) => {
+  console.log('🟢 ouverture modal remise pour frais:', frais.id); // Pour déboguer
+  
+  const eleve = eleves.find(e => e.id === eleveSelectionne);
+  if (!eleve) {
+    setAlerte({ type: 'error', message: 'Veuillez d\'abord sélectionner un élève' });
+    return;
+  }
+  
+  setFraisPourRemise(frais);
+  setElevePourRemise(eleve);
+  setModalRemiseOpen(true);
+};
 
   // ==================== CHARGEMENT DES DONNÉES ====================
 
@@ -2235,9 +2945,13 @@ ${coordonneesEcole}`;
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          const fraisAvecRestant = (data.frais || []).map((frais: FraisEleve) => ({
+          // ✅ Ici on ajoute les propriétés de remise
+          const fraisAvecRestant = (data.frais || []).map((frais: any) => ({
             ...frais,
-            frais_restant: frais.montant - frais.montant_paye
+            frais_restant: frais.montant - frais.montant_paye,
+            a_remise: frais.a_remise || false,
+            montant_original: frais.montant_original || frais.montant,
+            motif_remise: frais.motif_remise || null
           }));
           setFraisEleves(fraisAvecRestant);
         }
@@ -2668,32 +3382,33 @@ ${coordonneesEcole}`;
     chargerPaiements();
   };
 
+  // ==================== RENDU ====================
   return (
     <div className={`conteneur-gestion-paiements ${parametresApp?.theme_defaut || 'clair'}`}>
       <div className="en-tete-fixe-finance">
         <div className="conteneur-en-tete-fixe-finance">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-              <span style={{ fontSize: '22px' }}>💰✅</span>
-              <span style={{fontSize: '24px', fontWeight: '600'}}>
-               Gestion des Paiements
-              </span>
-            </div>
-        <div className="actions-globales">
-          <button 
-            type="button"
-            className={`bouton-vue-finance ${ongletActif === 'liste' ? 'actif' : ''}`}
-            onClick={() => setOngletActif('liste')}
-          >
-            📋 Liste des Paiements
-          </button>
-          <button 
-            type="button"
-            className={`bouton-vue-finance ${ongletActif === 'nouveau' ? 'actif' : ''}`}
-            onClick={() => setOngletActif('nouveau')}
-          >
-            💰 Nouveau Paiement
-          </button>
-        </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+            <span style={{ fontSize: '22px' }}>💰✅</span>
+            <span style={{fontSize: '24px', fontWeight: '600'}}>
+              Gestion des Paiements
+            </span>
+          </div>
+          <div className="actions-globales">
+            <button 
+              type="button"
+              className={`bouton-vue-finance ${ongletActif === 'liste' ? 'actif' : ''}`}
+              onClick={() => setOngletActif('liste')}
+            >
+              📋 Liste des Paiements
+            </button>
+            <button 
+              type="button"
+              className={`bouton-vue-finance ${ongletActif === 'nouveau' ? 'actif' : ''}`}
+              onClick={() => setOngletActif('nouveau')}
+            >
+              💰 Nouveau Paiement
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2720,7 +3435,7 @@ ${coordonneesEcole}`;
       <div className="contenu-paiements">
         {ongletActif === 'liste' && (
           <div className="section-liste-paiements">
-            {/* Section des filtres */}
+            {/* Section des filtres - inchangée */}
             <div className="carte-filtres">
               <div className="grille-filtres-paie">
                 <div className="groupe-champ">
@@ -3427,6 +4142,60 @@ ${coordonneesEcole}`;
                               </div>
                             </div>
                             
+                            {/* ✅ BOUTON DE REMISE */}
+
+                            {!estFraisDesactive && (
+                              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                                <button
+                                  type="button"
+                                  className="bouton-remise"
+                                  onClick={(e) => {
+                                    e.preventDefault(); 
+                                    e.stopPropagation();   
+                                    e.nativeEvent.stopImmediatePropagation();
+                                    ouvrirModalRemise(frais);
+                                  }}
+                                  style={{
+                                    background: '#8b5cf6',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '20px',
+                                    padding: '6px 16px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '500',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    boxShadow: '0 2px 4px rgba(139, 92, 246, 0.3)',
+                                    transition: 'all 0.2s',
+                                    position: 'relative',
+                                    zIndex: 10,            
+                                    pointerEvents: 'auto'     
+                                  }}
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation(); 
+                                  }}
+                                  title="Appliquer une remise individuelle pour cet élève"
+                                >
+                                  <span style={{ fontSize: '1rem' }}>🏷️</span>
+                                  Remise
+                                </button>
+                              </div>
+                            )}
+                            
+                            {/* ✅ BADGE DE REMISE */}
+                            {fraisEleveExistant && fraisEleveExistant.a_remise && (
+                              <div className="badge-remise">
+                                🏷️ Remise appliquée: {formaterMontant(fraisEleveExistant.montant_original || frais.montant)} → {formaterMontant(fraisEleveExistant.montant)}
+                                {fraisEleveExistant.motif_remise && (
+                                  <div className="motif-remise">
+                                    <small>Motif: {fraisEleveExistant.motif_remise}</small>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            
                             {fraisEleveExistant && (
                               <div className="statut-frais-existant">
                                 Statut: {getStatutBadge(fraisEleveExistant.statut)}
@@ -3434,62 +4203,28 @@ ${coordonneesEcole}`;
                             )}
                             
                             {isFraisUniquePaye && (
-                              <div className="badge-unique-paye" style={{
-                                marginTop: '10px',
-                                padding: '5px 10px',
-                                borderRadius: '4px',
-                                fontSize: '0.8rem',
-                                fontWeight: 'bold',
-                                backgroundColor: '#d4edda',
-                                color: '#155724',
-                                textAlign: 'center'
-                              }}>
+                              <div className="badge-unique-paye">
                                 ✓ Frais unique déjà payé
                               </div>
                             )}
                             
                             {(isFraisAnnuelPaye || isFraisAnnuelPayePourAnnee) && (
-                              <div className="badge-annuel-paye" style={{
-                                marginTop: '10px',
-                                padding: '5px 10px',
-                                borderRadius: '4px',
-                                fontSize: '0.8rem',
-                                fontWeight: 'bold',
-                                backgroundColor: '#cce5ff',
-                                color: '#004085',
-                                textAlign: 'center',
-                                border: '1px solid #b8daff'
-                              }}>
+                              <div className="badge-annuel-paye">
                                 📅 Frais annuel déjà payé ({anneeScolaire})
                               </div>
                             )}
                             
                             {isInscriptionPayee && (
-                              <div className="badge-succes" style={{
-                                marginTop: '10px',
-                                padding: '5px 10px',
-                                borderRadius: '4px',
-                                fontSize: '0.8rem',
-                                fontWeight: 'bold',
-                                backgroundColor: '#d4edda',
-                                color: '#155724',
-                                textAlign: 'center'
-                              }}>
+                              <div className="badge-succes">
                                 ✓ Inscription déjà payée
                               </div>
                             )}
                             
                             {isScolarite && fraisEleveExistant && versements.length > 0 && (
-                              <div className="versements-resume" style={{
-                                marginTop: '10px',
-                                padding: '8px',
-                                backgroundColor: '#f8f9fa',
-                                borderRadius: '4px',
-                                fontSize: '0.8rem'
-                              }}>
+                              <div className="versements-resume">
                                 <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Versements :</div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                                  {versements.map((versement, index) => (
+                                  {versements.map((versement) => (
                                     <span 
                                       key={versement.id}
                                       style={{
@@ -3518,7 +4253,7 @@ ${coordonneesEcole}`;
                   </div>
                 )}
                 
-                {/* Étape 4: Configuration du paiement de scolarité */}
+                {/* Étape 4: Configuration du paiement de scolarité - inchangée */}
                 {fraisSelectionne && fraisSelectionne.categorie_type === 'scolarite' && (
                   <div id="etape-config-scolarite" className="etape etape-config-scolarite">
                     <h4>Configuration du paiement de scolarité</h4>
@@ -3735,7 +4470,7 @@ ${coordonneesEcole}`;
                   </div>
                 )}
                 
-                {/* Étape 5: Détails du paiement (pour tous les frais) */}
+                {/* Étape 5: Détails du paiement (pour tous les frais) - inchangée */}
                 {fraisSelectionne && (
                   <div id="etape-details-paiement" className="etape etape-details-paiement">
                     <h4>
@@ -4337,7 +5072,25 @@ ${coordonneesEcole}`;
         </div>
       )}
 
-      
+      {/* ✅ MODALE DE REMISE - CORRIGÉE AVEC LES PROPS formaterMontant et formaterDate */}
+      {modalRemiseOpen && fraisPourRemise && elevePourRemise && (
+  <ModalRemise
+    isOpen={modalRemiseOpen}
+    onClose={() => {
+      setModalRemiseOpen(false);
+      setFraisPourRemise(null);
+      setElevePourRemise(null);
+    }}
+    onSuccess={handleRemiseSuccess}  // ✅ Utilisez la nouvelle fonction
+    fraisScolaire={fraisPourRemise}
+    eleve={elevePourRemise}
+    anneeScolaire={anneeScolaire}
+    formaterMontant={formaterMontant}
+    formaterDate={formaterDate}
+  />
+)}
+
+
       <style jsx>{`
         /* Styles généraux */
                
@@ -5138,6 +5891,251 @@ ${coordonneesEcole}`;
     margin-top: 8px;
   }
         }
+  .bouton-remise {
+          background: #8b5cf6;
+          color: white;
+          border: none;
+          border-radius: 20px;
+          padding: 6px 12px;
+          font-size: 0.8rem;
+          font-weight: 500;
+          cursor: pointer;
+          margin-top: 10px;
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .bouton-remise:hover {
+          background: #7c3aed;
+          transform: translateY(-2px);
+        }
+
+        .badge-remise {
+          background: #f3e8ff;
+          color: #6b21a8;
+          border: 1px solid #d8b4fe;
+          border-radius: 20px;
+          padding: 4px 8px;
+          font-size: 0.75rem;
+          font-weight: 500;
+          margin-top: 8px;
+          text-align: center;
+        }
+
+        .motif-remise {
+          margin-top: 4px;
+          font-size: 0.7rem;
+          color: #6b21a8;
+          font-style: italic;
+          background: #faf5ff;
+          padding: 2px 6px;
+          border-radius: 4px;
+          border-left: 2px solid #8b5cf6;
+        }
+
+        /* Modal remise */
+        .info-remise {
+          background: #f8fafc;
+          border-radius: 8px;
+          padding: 16px;
+          margin-bottom: 20px;
+          border-left: 4px solid #8b5cf6;
+        }
+
+        .eleve-info-remise,
+        .frais-info-remise,
+        .montant-original-remise {
+          margin-bottom: 8px;
+          font-size: 14px;
+        }
+
+        .options-remise {
+          display: flex;
+          gap: 20px;
+          margin-bottom: 20px;
+        }
+
+        .radio-option {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+        }
+
+        .aide-remise {
+          margin-top: 5px;
+          font-size: 0.8rem;
+          color: #64748b;
+        }
+
+        .remise-existante {
+          background: #fef3c7;
+          border: 1px solid #fde68a;
+          border-radius: 8px;
+          padding: 16px;
+          margin-bottom: 20px;
+        }
+
+        .alerte-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+
+        .icone-info {
+          font-size: 20px;
+        }
+
+        .details-remise {
+          margin: 15px 0;
+          padding: 10px;
+          background: white;
+          border-radius: 6px;
+        }
+
+        .remise-existante {
+  background: #fef3c7;
+  border: 2px solid #fde68a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.alerte-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  background: #fffbeb;
+  border-radius: 8px;
+  border-left: 4px solid #f59e0b;
+}
+
+.icone-info {
+  font-size: 24px;
+}
+
+.alerte-info p {
+  margin: 0;
+  color: #92400e;
+  font-weight: 500;
+}
+
+.details-remise {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-item strong {
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.montant-remise {
+  color: #059669;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.reduction {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.actions-remise {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.bouton-desactiver-remise {
+  flex: 2;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.bouton-desactiver-remise:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-2px);
+}
+
+.bouton-desactiver-remise:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.bouton-modifier-remise {
+  flex: 1;
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.bouton-modifier-remise:hover {
+  background: #4b5563;
+  transform: translateY(-2px);
+}
+
+.note-remise {
+  text-align: center;
+  color: #92400e;
+  font-style: italic;
+  padding: 10px;
+  background: #fffbeb;
+  border-radius: 6px;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
       `}</style>
     </div>
   );

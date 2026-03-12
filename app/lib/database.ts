@@ -196,3 +196,4 @@ setInterval(() => {
 }, 60000); // Vérifier toutes les minutes
 
 export default pool;
+export { pool }; 

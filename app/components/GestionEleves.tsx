@@ -1176,17 +1176,14 @@ const supprimerPhotoServeur = async (photoUrl: string) => {
   };
 
   const calculerAge = (dateNaissance: string) => {
-    const naissance = new Date(dateNaissance);
-    const aujourdhui = new Date();
-    let age = aujourdhui.getFullYear() - naissance.getFullYear();
-    const mois = aujourdhui.getMonth() - naissance.getMonth();
-    
-    if (mois < 0 || (mois === 0 && aujourdhui.getDate() < naissance.getDate())) {
-      age--;
-    }
-    
-    return age;
-  };
+  const naissance = new Date(dateNaissance);
+  const aujourdhui = new Date();
+  
+  // Calcul simple basé uniquement sur les années
+  let age = aujourdhui.getFullYear() - naissance.getFullYear();
+  
+  return age;
+};
 
   const getCouleurStatut = (statut: string) => {
     const couleurs = {
